@@ -37,10 +37,16 @@ mov ah, 7h
 mov al, 2h
 
 cmp ah, 1
-je cont
+jne c0
+jmp cont
+
+c0:
 
 cmp ah, 8
-je cont
+jne c1
+jmp cont
+
+c1:
 
 mov dx, ax
 
@@ -75,10 +81,11 @@ mov bx, ax
 
 pop ax
 
-
 cmp grid[bx], "w"
-jne black
+je c2
+jmp black
 
+c2:
 ;;White Pawn
 
 ;Check if there is a piece in front of it
@@ -86,6 +93,8 @@ jne black
 cmp grid[bx - 16h], "-"
 jne RL
 
+
+;Updating cx (The Destination)
 mov cx, dx
 dec ch
 
@@ -95,52 +104,85 @@ mov bh, 0
 mov bl, count
 
 mov moves[bx], dx
-mov moves[bx + 1], cx
-add count, 2
+mov moves[bx + 2], cx
+add count, 4
 
 pop bx
 
 ;Check if it is its first move
-cmp ah, 5
-jne cont
-
-;cmp grid[8 * (ah- 2) + al], "--"
+cmp ah, 6
 jne RL
 
-dec ch
-;mov moves[count], dx
-;mov moves[count + 1], cx
-add count, 2
+
+cmp grid[bx- 32d], "-"
+jne RL
+
+push bx
+mov bh, 0
+mov bl, count
+
+mov cx, dx
+
+;The ch = 5
+sub ch, 2
+
+mov moves[bx], dx
+mov moves[bx + 2], cx
+add count, 4
+
+pop bx
+
+
 
 ;Right and Left Moves
 RL:
 ;;Left Move
-cmp dl, 1
+cmp al, 0
 je R
-;cmp grid[8 * (ah-1) + al - 1], 'b'
+
+cmp grid[bx - 16d - 2d], 'b'
 jne R
+
+push bx
 
 mov cx, dx
 dec cl
 dec ch
 
-;mov moves[count], dx
-;mov moves[count + 1], cx
-add count, 2
+mov bh, 0
+mov bl, count
+
+mov moves[bx], dx
+mov moves[bx + 2], cx
+add count, 4
+
+pop bx
 
 R:
-;cmp grid[8 * (ah-1) + al + 1], 'b'
+;;Right Move
+cmp grid[bx - 16d + 2d], 'b'
 jne cont
+
+
+
+push bx
+
+mov bh, 0
+mov bl, count
 
 mov cx, dx
 inc cl
 dec ch
 
-;mov moves[count], dx
-;mov moves[count + 1], cx
-add count, 2
+mov moves[bx], dx
+mov moves[bx + 2], cx
+add count, 4
 
 jmp cont
+
+
+pop bx
+
 
 ;;Black Pawn
 black:
@@ -149,7 +191,6 @@ cmp ah, 0
 
 
 cont:
-
 
 ret
 
@@ -162,13 +203,6 @@ mov ax, @data
 mov ds, ax
 
 call PawnMoves
-
-
-end start
-
-.end
-
-
 
 
 END

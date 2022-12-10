@@ -6,30 +6,21 @@
 .model large
 .stack 64
 .data
-grid db "br","bn","bb","bk","bq","bb","bn","br"
-     db "bp","bp","bp","bp","bp","bp","bp","bp"                                    
-     db "--","--","--","--","--","--","--","--"
-     db "--","--","--","--","--","--","--","--"
-     db "--","--","--","--","--","--","--","--"
-     db "--","--","--","--","--","--","--","--"
-     db "wp","wp","wp","wp","wp","wp","wp","wp"  
-     db "wr","wn","wb","wk","wq","wb","wn","wr"
+        ;1    2    3    4    5    6    7    8
+grid db "br","bn","bb","bk","bq","bb","bn","br" ; 1
+     db "bp","bp","bp","bp","bp","bp","bp","bp" ; 2                        
+     db "--","--","--","--","--","--","--","--" ; 3
+     db "--","--","--","--","--","--","--","--" ; 4
+     db "--","--","--","--","--","--","--","br" ; 5
+     db "--","--","--","--","--","--","wp","--" ; 6
+     db "wp","wp","wp","wp","wp","wp","--","wp" ; 7
+     db "wr","wn","wb","wk","wq","wb","wn","wr" ; 8
                                   
 moves dw 100 dup('$')
 count db 0
   
-  
+
 .code
-
-main proc
-mov ax, @data
-mov ds, ax
-
-call PawnMoves
-
-main endp
-
-
 ;Given the pawn position in the board, this procedure returns the available moves of this pawn
 PawnMoves proc
 ; (AH AL) = (row, col)
@@ -38,10 +29,10 @@ PawnMoves proc
 ; BX is used for accessing the arrays
 
 ;pop ax
+;Assuming that the pawn location is (2,2) (The board is 1-indexed)
 
-
-mov ah, 2h
-mov al, 2h
+mov ah, 6h ;; Row
+mov al, 7h ;; Col
 
 cmp ah, 1
 jne c0
@@ -60,7 +51,6 @@ mov dx, ax
 
 dec ah
 dec al
-
 
 push ax
 mov bx, 0
@@ -168,6 +158,9 @@ pop bx
 
 R:
 ;;Right Move
+cmp ah, 7
+je cont
+
 cmp grid[bx - 16d + 2d], 'b'
 je c3
 jmp cont
@@ -202,38 +195,34 @@ black:
 ;Check if it is its first move
 ;;Assuming (2,2)     
 
-mov dx, ax
-
-dec ah
-dec al
 
 ;ah = 1
 ;al = 1
 
-;;Getting the index of the piece in the grid
-push ax
+; ;;Getting the index of the piece in the grid
+; push ax
 
-mov bx, 0
-mov bl, 16d
+; mov bx, 0
+; mov bl, 16d
 
-mov cl, al ; Maintaining the al
-mov al, ah
+; mov cl, al ; Maintaining the al
+; mov al, ah
 
-mul bl
+; mul bl
 
-mov ch, al
+; mov ch, al
 
-mov al, cl
+; mov al, cl
 
-mov bl,2d
+; mov bl,2d
 
-mul bl
+; mul bl
 
-add al, ch
+; add al, ch
 
-mov bx, ax
+; mov bx, ax
 
-pop ax
+; pop ax
 
 ;;bx = 18d
 
@@ -260,7 +249,7 @@ add count, 4
 pop bx
 
 ;Check if it is its first move
-cmp ah, 2
+cmp ah, 1
 jne RL_B
 
 
@@ -273,7 +262,6 @@ mov bl, count
 
 mov cx, dx
 
-;The ch = 5
 add ch, 2
 
 mov moves[bx], dx
@@ -309,6 +297,9 @@ pop bx
 
 R_B:
 ;;Right Move
+cmp al, 7
+je cont
+
 cmp grid[bx + 16d + 2d], 'w'
 jne cont
 
@@ -325,10 +316,9 @@ mov moves[bx], dx
 mov moves[bx + 2], cx
 add count, 4
 
-jmp cont
-
-
 pop bx
+
+jmp cont
 
 cont:
 
@@ -336,6 +326,22 @@ ret
 
 PawnMoves endp
 
+
+
+start:
+; main proc
+mov ax, @data
+mov ds, ax
+
+call PawnMoves
+
+mov cx, 0
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+hlt;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+end start
 
 
 END

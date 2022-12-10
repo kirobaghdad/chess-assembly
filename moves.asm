@@ -7,52 +7,24 @@
 .stack 64
 .data
         ;1    2    3    4    5    6    7    8
-grid db "br","bn","bb","bk","bq","bb","bn","br" ; 1
+grid db "br","bn","bb","bq","bk","bb","bn","br" ; 1
      db "bp","bp","bp","bp","bp","bp","bp","bp" ; 2                        
      db "--","--","--","--","--","--","--","--" ; 3
      db "--","--","--","--","--","--","--","--" ; 4
-     db "--","--","--","--","--","--","--","br" ; 5
-     db "--","--","--","--","--","--","wp","--" ; 6
-     db "wp","wp","wp","wp","wp","wp","--","wp" ; 7
-     db "wr","wn","wb","wk","wq","wb","wn","wr" ; 8
+     db "--","--","--","--","--","--","--","--" ; 5
+     db "--","--","--","--","--","--","--","--" ; 6
+     db "wp","wp","wp","wp","wp","wp","wp","wp" ; 7
+     db "wr","wn","wb","wq","wk","wb","wn","wr" ; 8
                                   
 moves dw 100 dup('$')
 count db 0
   
 
 .code
-;Given the pawn position in the board, this procedure returns the available moves of this pawn
-PawnMoves proc
-; (AH AL) = (row, col)
-; CX is used to assign the destination in the moves
-; DX is equal to the initial AX (It is never changed)
-; BX is used for accessing the arrays
-
-;pop ax
-;Assuming that the pawn location is (2,2) (The board is 1-indexed)
-
-mov ah, 6h ;; Row
-mov al, 7h ;; Col
-
-cmp ah, 1
-jne c0
-jmp cont
-
-c0:
-
-cmp ah, 8
-jne c1
-jmp cont
-
-c1:
-
-mov dx, ax
 
 
-dec ah
-dec al
-
-push ax
+;;Gets the index in BX (Given the pos in AX (0-indexed))
+getIndex proc
 mov bx, 0
 mov bl, 16d
 
@@ -73,6 +45,56 @@ add al, ch
 
 mov bx, ax
 
+ret
+
+getIndex endp
+
+
+addMove proc
+mov bh, 0
+mov bl, count
+
+mov moves[bx], dx
+mov moves[bx + 2], cx
+add count, 4
+
+ret
+
+addMove endp
+
+;Given the pawn position in the board, this procedure returns the available moves of this pawn
+PawnMoves proc
+; (AH AL) = (row, col)
+; CX is used to assign the destination in the moves
+; DX is equal to the initial AX (It is never changed)
+; BX is used for accessing the arrays
+
+;pop ax
+;Assuming that the pawn location is (2,2) (The board is 1-indexed)
+
+mov ah, 6h ;; Row
+mov al, 7h ;; Col
+
+
+;;Checking if the pawn is in the first or the last row
+cmp ah, 1
+jne c0
+jmp cont
+
+c0:
+cmp ah, 8
+jne c1
+jmp cont
+
+;;;;;
+c1:
+mov dx, ax
+dec ah
+dec al
+
+;Getting the index of the piece in the grid
+push ax
+call getIndex
 pop ax
 
 cmp grid[bx], "w"
@@ -93,10 +115,10 @@ jne RL
 
 
 ;Updating cx (The Destination)
+push bx
+
 mov cx, dx
 dec ch
-
-push bx
 
 mov bh, 0
 mov bl, count
@@ -199,30 +221,6 @@ black:
 ;ah = 1
 ;al = 1
 
-; ;;Getting the index of the piece in the grid
-; push ax
-
-; mov bx, 0
-; mov bl, 16d
-
-; mov cl, al ; Maintaining the al
-; mov al, ah
-
-; mul bl
-
-; mov ch, al
-
-; mov al, cl
-
-; mov bl,2d
-
-; mul bl
-
-; add al, ch
-
-; mov bx, ax
-
-; pop ax
 
 ;;bx = 18d
 
@@ -327,13 +325,186 @@ ret
 PawnMoves endp
 
 
+RockMoves proc
+;;Moving in the Right direction
+
+RockMoves endp
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;King Moves;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+KingMoves proc
+
+;;Assuming the king in pos (8,5)
+mov ah, 8
+mov al, 5
+
+mov dx, ax
+
+dec ah
+dec al
+
+;ax is 0-indexed
+push ax
+call getIndex
+pop ax
+
+cmp grid[bx], 'w'
+mov ch, 'w'
+je c10
+mov ch, 'b'
+
+c10:
+;Right Move
+cmp al, 7
+je c00 ;Right is NOT valid 
+cmp grid[bx + 2], ch
+je c01
+
+;;Adding the right move
+push bx
+push cx
+mov cx, dx
+inc  cl
+call addMove
+pop cx
+pop bx
+
+c01:
+
+;;Up Right Move
+cmp ah, 0
+je c02 ;;Up is NOT Valid 
+cmp grid[bx - 16d + 2d], ch
+je c02
+
+;Adding the up right move
+push bx
+push cx
+mov cx, dx
+inc cl
+dec ch
+call addMove
+pop cx
+pop bx
+
+c02:
+
+;;Down Right Move
+cmp ah, 7
+je c00 ;;Down is NOT Valid
+cmp grid[bx + 16d + 2d], ch
+je c00
+
+
+;Adding the down right move
+push bx
+push cx
+mov cx, dx
+inc cl
+inc ch
+call addMove
+pop cx
+pop bx
+
+;;Left Moves
+c00:
+cmp al, 0
+je c06
+cmp grid[bx - 2d], ch
+je c04
+
+;Adding the left move
+push bx
+push cx
+mov cx, dx
+dec cl
+call addMove
+pop cx
+pop bx
+
+;;Up Left Move
+c04:
+cmp ah, 0
+je c05
+cmp grid[bx -16d - 2d], ch
+je c05
+
+;Adding the up left move
+push bx
+push cx
+mov cx, dx
+dec cl
+dec ch
+call addMove
+pop cx
+pop bx
+
+;;Down Left Move
+c05:
+cmp ah, 7
+je c06
+cmp grid[bx + 16d - 2d], ch
+je c06
+
+;Adding the up down move
+push bx
+push cx
+mov cx, dx
+dec cl
+inc ch
+call addMove
+pop cx
+pop bx
+
+;Up and Down Moves
+c06:
+;;Up Move
+cmp ah, 0
+je c07 ;Up move is NOT Valid
+cmp grid[bx - 16d], ch
+je c07
+
+;Adding the up move
+push bx
+push cx
+mov cx, dx
+dec ch
+call addMove
+pop cx
+pop bx
+
+c07:
+;;Down move
+cmp ah, 7
+je cont0 ;;Down move is NOT Valid
+cmp grid[bx + 16d], ch
+je cont0
+
+;Adding the down move
+push bx
+push cx
+mov cx, dx
+inc ch
+call addMove
+pop cx
+pop bx
+
+cont0:
+
+ret
+KingMoves endp
+
 
 start:
 ; main proc
 mov ax, @data
 mov ds, ax
 
-call PawnMoves
+call KingMoves
 
 mov cx, 0
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

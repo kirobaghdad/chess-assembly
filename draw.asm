@@ -599,33 +599,36 @@ pop ax
 
 endm
 
-.code
-start:
-
-MOV AX , @DATA
-MOV DS , AX
+end
 
 
+; .code
+; start:
 
-mov ah, 0
-mov al, 13h
-int 10h
-
-;Drawing outer border (Brown)
+; MOV AX , @DATA
+; MOV DS , AX
 
 
 
-;Down arrow       E0 50
-;Left arrow       E0 4B
-;Right arrow      E0 4D
-;Up arrow         E0 48
+; mov ah, 0
+; mov al, 13h
+; int 10h
 
-draw_grid
-draw_pieces_in_grid
-
-
-end start
+; ;Drawing outer border (Brown)
 
 
 
-.end
+; ;Down arrow       E0 50
+; ;Left arrow       E0 4B
+; ;Right arrow      E0 4D
+; ;Up arrow         E0 48
+
+; draw_grid
+; draw_pieces_in_grid
+
+
+; end start
+
+
+
+; .end

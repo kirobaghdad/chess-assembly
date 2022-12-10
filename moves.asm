@@ -1,15 +1,26 @@
 
-global grid 
+; extrn grid:byte
 
 ;Moves format: sourceRow SourceCol, destRow DestCol    
+
+.model large
+.stack 64
 .data
+grid db "br","bn","bb","bk","bq","bb","bn","br"
+     db "bp","bp","bp","bp","bp","bp","bp","bp"                                    
+     db "--","--","--","--","--","--","--","--"
+     db "--","--","--","--","--","--","--","--"
+     db "--","--","--","--","--","--","--","--"
+     db "--","--","--","--","--","--","--","--"
+     db "wp","wp","wp","wp","wp","wp","wp","wp"  
+     db "wr","wn","wb","wk","wq","wb","wn","wr"
+                                  
 moves dw 100 dup('$')
 count db 0
   
   
-call PawnMoves
+.code
 
-  
 
 ;Given the pawn position in the board, this procedure returns the available moves of this pawn
 PawnMoves proc
@@ -31,50 +42,63 @@ je cont
 cmp ah, 8
 je cont
 
+mov dx, ax
+
 
 dec ah
 dec al
-dec ah
 
-;ah = 5
+;ah = 6
 ;al = 1
+
 
 push ax
 mov bx, 0
-mov bl, 8h
+mov bl, 16d
 
-mov dl, al ; Maintaining the al
+mov cl, al ; Maintaining the al
 mov al, ah
 
 mul bl
 
-add al, dl
+mov ch, al
 
+mov al, cl
+
+mov bl,2d
+
+mul bl
+
+add al, ch
+
+mov bx, ax
 
 pop ax
-               
-mov dx, grid
 
 
-mov dx, ax
-
-
-;cmp grid[8 * ah + al], "w"
+cmp grid[bx], "w"
 jne black
 
 ;;White Pawn
 
-
 ;Check if there is a piece in front of it
-;cmp grid[8 * (ah - 1) + al], "--"
+;8 * (ah - 1) + al = 82D
+cmp grid[bx - 16h], "-"
 jne RL
 
 mov cx, dx
 dec ch
 
-;mov moves[count], dx
-;mov moves[count + 1], cx
+push bx
+
+mov bh, 0
+mov bl, count
+
+mov moves[bx], dx
+mov moves[bx + 1], cx
 add count, 2
+
+pop bx
 
 ;Check if it is its first move
 cmp ah, 5
@@ -128,5 +152,23 @@ cont:
 
 
 ret
+
+PawnMoves endp
+
+
+
+start:
+mov ax, @data
+mov ds, ax
+
+call PawnMoves
+
+
+end start
+
+.end
+
+
+
 
 END

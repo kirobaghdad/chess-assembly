@@ -33,7 +33,7 @@ db                                 0ffh,0ffh,12h,12h,0ffh,0ffh,0ffh,0ffh,0ffh,0f
 db                                 0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,12h,12h,12h,12h,12h,12h,12h,12h,0ffh,0ffh,0ffh,0ffh,0ffh
 db                                 0ffh,0ffh,0ffh,0ffh,0ffh,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,12h
 db                  12h,12h,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,12h,12h,12h,0ffh,0ffh,0ffh,0ffh
-db                  0ffh,0ffh,0ffh,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,0ffh,0ffh,0ffh,0ffh,0ffh,12h,12h,12h,12h,12h,
+db                  0ffh,0ffh,0ffh,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,0ffh,0ffh,0ffh,0ffh,0ffh,12h,12h,12h,12h,12h
 db                  12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,0ffh,0ffh,0ffh,0ffh,12h,12h,12h,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh
 db                  12h,12h,12h,0ffh,0ffh,0ffh,0ffh,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,0ffh,0ffh
 
@@ -111,7 +111,7 @@ db 12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,0ffh,0ffh,12h,12h,12h,12h,12h,12h
 db 0ffh,0ffh,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,0ffh
 
 ;Size: 20 x 20 
-white_bishop                            db    0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0fh,0fh,0fh,0fh,0fh,0fh,0ffh,0ffh,0ffh,
+white_bishop                            db    0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0fh,0fh,0fh,0fh,0fh,0fh,0ffh,0ffh,0ffh
 db 0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0fh,0fh,0fh,0fh,0fh,0fh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh
 db 0ffh,0ffh,0ffh,0ffh,0ffh,0fh,0fh,0ffh,0ffh,0fh,0fh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0fh
 db 0fh,0fh,0fh,0fh,0fh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0ffh,0ffh
@@ -125,7 +125,7 @@ db                                        0ffh,0fh,0fh,0ffh,0ffh,0fh,0fh,0ffh,0f
 db                                        0fh,0fh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0ffh,0ffh,0ffh
 db                                        0ffh,0ffh,0ffh,0fh,0fh,0fh,0fh,0fh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0fh,0fh,0fh,0fh,0fh,0ffh,0ffh,0ffh,0ffh,0fh,0fh,0fh
 db                                        0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0fh,0fh,0fh,0ffh,0ffh
-                                        db    0ffh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0ffh,0fh,0fh,0fh,0fh,
+                                        db    0ffh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0ffh,0fh,0fh,0fh,0fh
 db                                        0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh
 db                                        0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh
 
@@ -224,13 +224,13 @@ db 0fh,0fh,0fh,0fh,0fh,0fh,0ffh
 
 
 grid db "br","bn","bb","bk","bq","bb","bn","br"
-db "bp","bp","bp","bp","bp","bp","bp","bp"                                    
-db "--","--","--","--","--","--","--","--"
-db "--","--","--","--","--","--","--","--"
-db "--","--","--","--","--","--","--","--"
-db "--","--","--","--","--","--","--","--"
-db "wp","wp","wp","wp","wp","wp","wp","wp"  
-db "wr","wn","wb","wk","wq","wb","wn","wr"
+     db "bp","bp","bp","bp","bp","bp","bp","bp"                                    
+     db "--","--","--","--","--","--","--","--"
+     db "--","--","--","--","--","--","--","--"
+     db "--","--","--","--","--","--","--","--"
+     db "--","--","--","--","--","--","--","--"
+     db "wp","wp","wp","wp","wp","wp","wp","wp"  
+     db "wr","wn","wb","wk","wq","wb","wn","wr"
                                   
 
 pieceWidth EQU 20
@@ -599,33 +599,36 @@ pop ax
 
 endm
 
-.code
-start:
-
-MOV AX , @DATA
-MOV DS , AX
+end
 
 
+; .code
+; start:
 
-mov ah, 0
-mov al, 13h
-int 10h
-
-;Drawing outer border (Brown)
+; MOV AX , @DATA
+; MOV DS , AX
 
 
 
-;Down arrow       E0 50
-;Left arrow       E0 4B
-;Right arrow      E0 4D
-;Up arrow         E0 48
+; mov ah, 0
+; mov al, 13h
+; int 10h
 
-draw_grid
-draw_pieces_in_grid
-
-
-end start
+; ;Drawing outer border (Brown)
 
 
 
-.end
+; ;Down arrow       E0 50
+; ;Left arrow       E0 4B
+; ;Right arrow      E0 4D
+; ;Up arrow         E0 48
+
+; draw_grid
+; draw_pieces_in_grid
+
+
+; end start
+
+
+
+; .end

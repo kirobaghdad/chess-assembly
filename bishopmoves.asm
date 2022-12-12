@@ -79,16 +79,11 @@ bishopMoves proc
 mov ah, 5h
 mov al, 4h
 
-mov dx,ax
-
-mov dx, ax ; store original postion
-
-
-;ah = 7
-;al = 2
-
 dec ah
 dec al
+
+mov dx,ax
+
 
 
 convertToTile ax
@@ -96,7 +91,7 @@ convertToTile ax
 
 
 cmp grid[bx], "w"
-jne black
+
 
 
 
@@ -126,24 +121,16 @@ jb diagonalLeftUpA
 diagonalRightUpLast:
 push bx
 push cx
-push dx
 mov cx, 0
-mov dx, 0
 
 mov cx, ax
-and ch, 00h
-
-mov dx, ax
-mov dl, dh
-and dh, 00h
 
 mov bh, 0
 mov bl, count
-mov moves[bx], cx
-mov moves[bx + 1], dx
-add count, 2
+mov moves[bx], dx
+mov moves[bx + 2], cx
+add count, 4
 
-pop dx 
 pop cx
 pop bx
 cmp grid[bx],"b"
@@ -179,24 +166,18 @@ jb diagonalRightDownA
 diagonalLeftUpLast:
 push bx
 push cx
-push dx
 mov cx, 0
-mov dx, 0
 
 mov cx, ax
-and ch, 00h
 
-mov dx, ax
-mov dl, dh
-and dh, 00h
+
 
 mov bh, 0
 mov bl, count
-mov moves[bx], cx
-mov moves[bx + 1], dx
-add count, 2
+mov moves[bx], dx
+mov moves[bx + 2], cx
+add count, 4
 
-pop dx 
 pop cx
 pop bx
 cmp grid[bx],"b"
@@ -231,24 +212,18 @@ jb diagonalLeftDownA
 diagonalRightDownLast:
 push bx
 push cx
-push dx
 mov cx, 0
-mov dx, 0
 
 mov cx, ax
-and ch, 00h
 
-mov dx, ax
-mov dl, dh
-and dh, 00h
+
 
 mov bh, 0
 mov bl, count
-mov moves[bx], cx
-mov moves[bx + 1], dx
-add count, 2
+mov moves[bx], dx
+mov moves[bx + 2], cx
+add count, 4
 
-pop dx 
 pop cx
 pop bx
 cmp grid[bx],"b"
@@ -285,24 +260,18 @@ jb continue
 diagonalLeftDownLast:
 push bx
 push cx
-push dx
 mov cx, 0
-mov dx, 0
 
 mov cx, ax
-and ch, 00h
 
-mov dx, ax
-mov dl, dh
-and dh, 00h
+
 
 mov bh, 0
 mov bl, count
-mov moves[bx], cx
-mov moves[bx + 1], dx
-add count, 2
+mov moves[bx], dx
+mov moves[bx + 2], cx
+add count, 4
 
-pop dx 
 pop cx
 pop bx
 cmp grid[bx],"b"
@@ -312,8 +281,6 @@ jmp diagonalLeftDown
 continue:
 popAll
 
-
-hlt
 
 ret
 
@@ -326,7 +293,7 @@ mov ax, @data
 mov ds, ax
 
 call bishopMoves
-
+hlt
 
 end start
 

@@ -251,10 +251,10 @@ jz diagonalLeftDownLast
 cmp grid[bx], "-"
 jnz continue
 ; out of bound
-cmp bx, 128D
+cmp bx, 128D ; check if equal works
 ja continue
 ; out of bound
-cmp bx, 0D
+cmp bx, 0D ; check if equal works
 jb continue
 ; add to moves 
 diagonalLeftDownLast:

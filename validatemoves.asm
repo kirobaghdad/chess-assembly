@@ -1,7 +1,3 @@
-
-; extrn grid:byte
-
-;Moves format: sourceRow SourceCol, destRow DestCol    
 convertToTile macro position
 push ax
 mov ax, position
@@ -59,12 +55,10 @@ grid db "br","bn","bb","bk","bq","bb","bn","br"
                                   
 moves dw 100 dup('$')
 count db 0
-  
-  
+allowed db 0
+iterator db 0
+
 .code
-
-
-;Given the bishop position in the board, this procedure returns the available moves of this pawn
 knightMoves proc
 ; (AH AL) = (row, col)
 ; CX is used to assign the destination in the moves
@@ -76,8 +70,6 @@ knightMoves proc
 
 
 ; base 1
-mov ah, 4h
-mov al, 4h
 
 ; base 0
 
@@ -543,25 +535,55 @@ add count, 4
 
 cont: 
 popAll
-hlt 
 ret
 
 knightMoves endp
+;description
+; ax <- source 
+; bx <- destination 
+validateMove PROC
+    mov iterator,0
+    push dx
+    mov dx, bx
+    check: 
+    
+    mov bx,0
+    mov bl,iterator 
 
+    cmp moves[bx],ax
+    cmp moves[bx+2],dx
 
-
+    jnz breakCondition 
+    mov allowed, 1
+    jmp done
+    breakCondition:
+    
+    add iterator, 4
+    cmp moves[bx], '$'
+    jnz check 
+    done: 
+    pop dx
+    ret
+validateMove ENDP
 start:
 mov ax, @data
 mov ds, ax
 
+; source
+mov ax, 0404h
 call knightMoves
+; destination 
+mov bx, 0203h
+
+call validateMove
+
+
 hlt
 
 end start
 
+
+
+
 .end
-
-
-
-
 END

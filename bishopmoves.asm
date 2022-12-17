@@ -1,8 +1,7 @@
 
 ; extrn grid:byte
-
 ;Moves format: sourceRow SourceCol, destRow DestCol    
-macro convertToTile position
+convertToTile macro position
 push ax
 mov ax, position
 
@@ -25,9 +24,9 @@ add al, ch
 mov bx, ax
 pop ax
 
-endm
+endm convertToTile
 
-macro pushAll 
+pushAll macro  
 push ax
 push bx
 push cx
@@ -36,7 +35,7 @@ push di
 push si
 endm pushAll
 
-macro popAll
+popAll macro 
 pop si
 pop di
 pop dx
@@ -48,14 +47,14 @@ endm popAlls
 .model large
 .stack 64
 .data
-grid db "br","bn","bb","bk","bq","bb","bn","br"
+grid db "br","bn","--","bk","bq","bb","bn","br"
      db "bp","bp","bp","bp","bp","bp","bp","bp"                                    
      db "--","--","--","--","--","--","--","--"
      db "--","--","--","--","--","--","--","--"
-     db "--","--","--","wb","--","--","--","--"
+     db "--","--","--","bb","--","--","--","--"
      db "--","--","--","--","--","--","--","--"
      db "wp","wp","wp","wp","wp","wp","wp","wp"  
-     db "wr","wn","--","wk","wq","wb","wn","wr"
+     db "wr","wn","wb","wk","wq","wb","wn","wr"
                                   
 moves dw 100 dup('$')
 count db 0
@@ -79,11 +78,10 @@ bishopMoves proc
 mov ah, 5h
 mov al, 4h
 
-dec ah
-dec al
 
 mov dx,ax
 
+pushAll
 
 
 convertToTile ax
@@ -91,11 +89,11 @@ convertToTile ax
 
 
 cmp grid[bx], "w"
+jz diagonalRightUp
+jmp near ptr black
 
 
 
-
-pushAll
 
 ; decremnt row, increment col
 ; convert to tile 
@@ -127,8 +125,16 @@ mov cx, ax
 
 mov bh, 0
 mov bl, count
+push cx
+push dx
+inc dl 
+inc dh
+inc cl
+inc ch
 mov moves[bx], dx
 mov moves[bx + 2], cx
+pop dx
+pop cx
 add count, 4
 
 pop cx
@@ -174,8 +180,16 @@ mov cx, ax
 
 mov bh, 0
 mov bl, count
+push cx
+push dx
+inc dl 
+inc dh
+inc cl
+inc ch
 mov moves[bx], dx
 mov moves[bx + 2], cx
+pop dx
+pop cx
 add count, 4
 
 pop cx
@@ -220,8 +234,16 @@ mov cx, ax
 
 mov bh, 0
 mov bl, count
+push cx
+push dx
+inc dl 
+inc dh
+inc cl
+inc ch
 mov moves[bx], dx
 mov moves[bx + 2], cx
+pop dx
+pop cx
 add count, 4
 
 pop cx
@@ -249,13 +271,19 @@ cmp grid[bx], "b"
 jz diagonalLeftDownLast
 ; if empty
 cmp grid[bx], "-"
-jnz continue
+jz bx1
+jmp near ptr continue
+bx1:
 ; out of bound
 cmp bx, 128D ; check if equal works
-ja continue
+jb bbx2
+jmp near ptr continue
+bbx2:
 ; out of bound
 cmp bx, 0D ; check if equal works
-jb continue
+ja bbx3
+jmp near ptr continue
+bbx3:
 ; add to moves 
 diagonalLeftDownLast:
 push bx
@@ -268,15 +296,238 @@ mov cx, ax
 
 mov bh, 0
 mov bl, count
+push cx
+push dx
+inc dl 
+inc dh
+inc cl
+inc ch
 mov moves[bx], dx
 mov moves[bx + 2], cx
+pop dx
+pop cx
 add count, 4
 
 pop cx
 pop bx
 cmp grid[bx],"b"
-jz continue 
+jnz bx4
+jmp near ptr continue
+bx4:
 jmp diagonalLeftDown
+
+; --------------------------------------------black---------------------------------------------
+
+black: 
+
+diagonalRightUpB: 
+dec ah
+inc al
+convertToTile ax
+; if black
+cmp grid[bx], "w"
+jz diagonalRightUpLastB
+; if empty
+cmp grid[bx], "-"
+jnz diagonalLeftUpAB
+; out of bound
+cmp bx, 128D
+ja diagonalLeftUpAB
+; out of bound
+cmp bx, 0D
+jb diagonalLeftUpAB
+; add to moves 
+diagonalRightUpLastB:
+push bx
+push cx
+mov cx, 0
+
+mov cx, ax
+
+mov bh, 0
+mov bl, count
+push cx
+push dx
+inc dl 
+inc dh
+inc cl
+inc ch
+mov moves[bx], dx
+mov moves[bx + 2], cx
+pop dx
+pop cx
+add count, 4
+
+pop cx
+pop bx
+cmp grid[bx],"w"
+jz diagonalLeftUpAB 
+jmp diagonalRightUpB
+
+diagonalLeftUpAB:
+popAll
+
+pushAll
+
+; decrement row, col
+; convert to tile 
+; if it's empty and not out of bound 
+; add to moves 
+diagonalLeftUpB: 
+dec ah
+dec al
+convertToTile ax
+; if black
+cmp grid[bx], "w"
+jz diagonalLeftUpLastB
+; if empty
+cmp grid[bx], "-"
+jnz diagonalRightDownAB
+; out of bound
+cmp bx, 128D
+ja diagonalRightDownAB
+; out of bound
+cmp bx, 0D
+jb diagonalRightDownAB
+; add to moves 
+diagonalLeftUpLastB:
+push bx
+push cx
+mov cx, 0
+
+mov cx, ax
+
+
+
+mov bh, 0
+mov bl, count
+push cx
+push dx
+inc dl 
+inc dh
+inc cl
+inc ch
+mov moves[bx], dx
+mov moves[bx + 2], cx
+pop dx
+pop cx
+add count, 4
+
+pop cx
+pop bx
+cmp grid[bx],"w"
+jz diagonalRightDownAB 
+jmp diagonalLeftUpB
+
+diagonalRightDownAB:
+popAll
+
+pushAll
+; increment row, col
+; convert to tile 
+; if it's empty and not out of bound 
+; add to moves 
+diagonalRightDownB: 
+inc ah
+inc al
+convertToTile ax
+; if black
+cmp grid[bx], "w"
+jz diagonalRightDownLastB
+; if empty
+cmp grid[bx], "-"
+jnz diagonalLeftDownAB
+; out of bound
+cmp bx, 128D
+ja diagonalLeftDownAB
+; out of bound
+cmp bx, 0D
+jb diagonalLeftDownAB
+; add to moves 
+diagonalRightDownLastB:
+push bx
+push cx
+mov cx, 0
+
+mov cx, ax
+
+
+
+mov bh, 0
+mov bl, count
+push cx
+push dx
+inc dl 
+inc dh
+inc cl
+inc ch
+mov moves[bx], dx
+mov moves[bx + 2], cx
+pop dx
+pop cx
+add count, 4
+
+pop cx
+pop bx
+cmp grid[bx],"w"
+jz diagonalLeftDownAB 
+jmp diagonalRightDownB
+
+diagonalLeftDownAB:
+popAll
+
+
+
+pushAll
+; increment row, col
+; convert to tile 
+; if it's empty and not out of bound 
+; add to moves 
+diagonalLeftDownB: 
+inc ah
+dec al
+convertToTile ax
+; if black
+cmp grid[bx], "w"
+jz diagonalLeftDownLastB
+; if empty
+cmp grid[bx], "-"
+jnz continue
+; out of bound
+cmp bx, 128D ; check if equal works
+ja continue
+; out of bound
+cmp bx, 0D ; check if equal works
+jb continue
+; add to moves 
+diagonalLeftDownLastB:
+push bx
+push cx
+mov cx, 0
+
+mov cx, ax
+
+
+
+mov bh, 0
+mov bl, count
+push cx
+push dx
+inc dl 
+inc dh
+inc cl
+inc ch
+mov moves[bx], dx
+mov moves[bx + 2], cx
+pop dx
+pop cx
+add count, 4
+
+pop cx
+pop bx
+cmp grid[bx],"w"
+jz continue 
+jmp diagonalLeftDownB
 
 continue:
 popAll

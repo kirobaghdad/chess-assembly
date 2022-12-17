@@ -81,7 +81,7 @@ pushAll
 
 convertToTile ax
 
-
+mov dl, grid[bx]  ;;;;;;;;;;;;;;;;;For Testing;;;;;;;;;;;;;;;;;;;;;;;Error: dl = 2D(-) After executing this line
 
 cmp grid[bx], "w"
 je m1
@@ -544,6 +544,7 @@ knightMoves endp
 validateMove PROC
     mov iterator,0
     push dx
+    push bx
     mov dx, bx
     check: 
     
@@ -562,9 +563,25 @@ validateMove PROC
     cmp moves[bx], '$'
     jnz check 
     done: 
+    pop bx
     pop dx
     ret
 validateMove ENDP
+
+
+; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;makeMove Procedure;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; makeMove proc
+
+; convertToTile ax
+
+
+; ret
+; makeMove endp
+
+
 start:
 mov ax, @data
 mov ds, ax
@@ -577,13 +594,16 @@ mov bx, 0203h
 
 call validateMove
 
+cmp allowed, 1
+jne c0
+
+;call makeMove
+
+c0:
 
 hlt
 
 end start
-
-
-
 
 .end
 END

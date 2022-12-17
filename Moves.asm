@@ -70,7 +70,7 @@ PawnMoves proc
 ; BX is used for accessing the arrays
 
 ;pop ax
-;Assuming that the pawn location is (2,2) (The board is 1-indexed)
+;Assuming that the pawn location is (6,7) (The board is 1-indexed)
 
 mov ah, 6h ;; Row
 mov al, 7h ;; Col

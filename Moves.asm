@@ -70,7 +70,7 @@ PawnMoves proc
 ; BX is used for accessing the arrays
 
 ;pop ax
-;Assuming that the pawn location is (2,2) (The board is 1-indexed)
+;Assuming that the pawn location is (6,7) (The board is 1-indexed)
 
 mov ah, 6h ;; Row
 mov al, 7h ;; Col
@@ -662,14 +662,52 @@ ret
 
 RockMoves endp
 
+
+makeMove proc
+; ax -> source (1-indexed)
+; bx -> destination (1-indexed)
+; di -> source index in grid
+; si -> destination index in grid
+
+dec al
+dec ah
+dec bl
+dec bh
+
+mov dx, bx ;Maintaining bx
+
+call getIndex
+
+mov di, bx
+mov ax, dx
+
+call getIndex
+
+mov si, bx
+
+mov al, grid[di]
+mov grid[di], '-'
+mov ah, grid[di+1]
+mov grid[di+1], '-'
+
+mov grid[si], al
+mov grid[si+1], ah
+
+
+ret
+makeMove endp
+
 start:
 ; main proc
 mov ax, @data
 mov ds, ax
 
-call RockMoves
+; call RockMoves
 
-mov cx, 0
+mov ax, 0204h
+mov bx, 0301h
+
+call makeMove
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

@@ -1,27 +1,65 @@
+pushAll macro  
+push ax
+push bx
+push cx
+push dx
+push di
+push si
+endm pushAll
+
+popAll macro 
+pop si
+pop di
+pop dx
+pop cx
+pop bx
+pop ax 
+endm popAlls
+
+flushKeyboardBuffer MACRO
+    pushAll
+    mov al, 0 
+    mov ah, 0ch
+    int 21h
+    popAll
+ENDM
+
+getInputAsync MACRO
+    local InputLoop
+    InputLoop:
+    mov ah, 1
+    int 16h 
+    jz InputLoop
+    
+    flushKeyboardBuffer
+ENDM
+
+
 printString MACRO strMsg
-    pusha
+    pushAll
     mov ah, 9d
     mov dx, offset strMsg
     int 21h
-    popa
+    popAll
 ENDM
 newLine MACRO 
-    pusha
+    pushAll
     mov ah, 02d
     mov dl, 0Ah
     int 21h
-    popa
+    popAll
 ENDM
+
 movecursor macro x, y
-    pusha
+    pushAll
     mov ah, 02h
     mov bh, 0
     mov dh, x
     mov dl, y
     int 10h
-    popa    
+    popAll    
 endm movecursor
-.286
+
 .model small
 .stack 64
 .data
@@ -30,6 +68,9 @@ StartGamePrompt db '> To start the game press F2','$'
 EndProgramPrompt db '> To end the program press ESC','$'
 inGameStr db 'We are in the Game mate','$'
 inChatStr db 'We are in the Chat mate','$'
+f1 equ 3bh
+f2 equ 3ch
+escape equ 01h
 .code
 start:
     mov ax, @data 
@@ -38,54 +79,70 @@ start:
     mov ah, 00d
     mov al, 03d
     int 10h
+    
     call movCursorToMiddle
     printString StartChattingPrompt
     newLine
+    
     call movCursorToMiddle
     printString StartGamePrompt
     newLine
+    
     call movCursorToMiddle
     printString EndProgramPrompt 
     newLine
     ; navigation to another page
     getInputLoop: 
-    mov ah, 0
-    int 16h 
+
+    getInputAsync
+
+    flushKeyboardBuffer
     ; is f1
-    cmp ah, 3bh
+    cmp ah, f1
     je movToChattingMode
     ; is f2 
-    cmp ah, 3ch
+    cmp ah, f2
     je toGameMode
-    cmp ah, 01h
-    je toClose
+    ; is esc
+    cmp ah, escape
+    jne getInputLoop
+    jmp near ptr toClose
+    
     jmp getInputLoop
+
     ; chatting page ah = f1 (scancode)
     movToChattingMode:  
         mov ah, 05h
         mov al, 1
         int 10h
-        jmp toChat
+        printString inChatStr
+        getInputAsync
+        flushKeyboardBuffer
+        cmp ah, F2
+        je toGameMode
+
+        ret
     ; game page ah = f2 (scancode)
     toGameMode: 
         mov ah, 05h
         mov al, 2
         int 10h
-        jmp toGame
+        printString inGameStr
+        gameLoop:
+        getInputAsync
+        flushKeyboardBuffer
+        cmp ah, f1
+        jne gameLoop
+        jmp near ptr movToChattingMode
+        ret
+
     toClose: 
         ; is ESC
         ; close for now 
         ret
-    toGame: 
-        printString inGameStr
 
-
-        ret
-    toChat: 
-        printString inChatStr
-        ret
     movCursorToMiddle: 
-    pusha 
+    pushAll 
     ; dh : (row vertical) , dl : (column horizontal)
     mov ah, 03d
     mov bh, 00d 
@@ -98,7 +155,7 @@ start:
     mov dl, 30d
     mov ah, 02d
     int 10h
-    popa
+    popAll
     ret
 end start    
 .end

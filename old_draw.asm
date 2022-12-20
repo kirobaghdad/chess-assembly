@@ -1,4 +1,3 @@
-.186
 .model large
 .stack 64
 .data
@@ -34,7 +33,7 @@ db                                 0ffh,0ffh,12h,12h,0ffh,0ffh,0ffh,0ffh,0ffh,0f
 db                                 0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,12h,12h,12h,12h,12h,12h,12h,12h,0ffh,0ffh,0ffh,0ffh,0ffh
 db                                 0ffh,0ffh,0ffh,0ffh,0ffh,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,12h
 db                  12h,12h,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,12h,12h,12h,0ffh,0ffh,0ffh,0ffh
-db                  0ffh,0ffh,0ffh,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,0ffh,0ffh,0ffh,0ffh,0ffh,12h,12h,12h,12h,12h,
+db                  0ffh,0ffh,0ffh,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,0ffh,0ffh,0ffh,0ffh,0ffh,12h,12h,12h,12h,12h
 db                  12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,0ffh,0ffh,0ffh,0ffh,12h,12h,12h,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh
 db                  12h,12h,12h,0ffh,0ffh,0ffh,0ffh,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,0ffh,0ffh
 
@@ -112,7 +111,7 @@ db 12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,0ffh,0ffh,12h,12h,12h,12h,12h,12h
 db 0ffh,0ffh,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,0ffh
 
 ;Size: 20 x 20 
-white_bishop                            db    0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0fh,0fh,0fh,0fh,0fh,0fh,0ffh,0ffh,0ffh,
+white_bishop                            db    0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0fh,0fh,0fh,0fh,0fh,0fh,0ffh,0ffh,0ffh
 db 0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0fh,0fh,0fh,0fh,0fh,0fh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh
 db 0ffh,0ffh,0ffh,0ffh,0ffh,0fh,0fh,0ffh,0ffh,0fh,0fh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0fh
 db 0fh,0fh,0fh,0fh,0fh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0ffh,0ffh
@@ -224,14 +223,14 @@ db 0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0ffh,0ffh,0fh,0fh,0fh,0fh,0fh,0fh
 db 0fh,0fh,0fh,0fh,0fh,0fh,0ffh
 
 
-grid db "br","bn","bb","bq","bk","bb","bn","br"
-db "bp","bp","bp","bp","bp","bp","bp","bp"                                    
-db "--","--","--","--","--","--","--","--"
-db "--","--","--","--","--","--","--","--"
-db "--","--","--","--","--","--","--","--"
-db "--","--","--","--","--","--","--","--"
-db "wp","wp","wp","wp","wp","wp","wp","wp"  
-db "wr","wn","wb","wq","wk","wb","wn","wr"
+grid db "br","bn","bb","bk","bq","bb","bn","br"
+     db "bp","bp","bp","bp","bp","bp","bp","bp"                                    
+     db "--","--","--","--","--","--","--","--"
+     db "--","--","--","--","--","--","--","--"
+     db "--","--","--","--","--","--","--","--"
+     db "--","--","--","--","--","--","--","--"
+     db "wp","wp","wp","wp","wp","wp","wp","wp"  
+     db "wr","wn","wb","wk","wq","wb","wn","wr"
                                   
 
 pieceWidth EQU 20
@@ -250,35 +249,23 @@ get_cell_x dw ?
 get_cell_y dw ?
 
 
-curr_marked_x_pixel dw 72
-curr_marked_y_pixel dw 12
-curr_marked_x_val dw 1
-curr_marked_y_val dw 1
+curr_x dw 1
+curr_y dw 1
 
 draw_piece_x dw  ?
 draw_piece_y dw  ?
 
-
-cell_clicked_x dw 1
-cell_clicked_y dw 1 
-
-
 DrawRectangle macro x_0, y_0, x_1, y_1
-local border, row, l, m
-pusha
+local border, row
 
-mov di,x_0
-mov si,y_0
+ push ax
+ push bx
+ push cx
+ push dx
+ push di
+ push si
 
-cmp di,curr_marked_x_pixel
-jnz l
-cmp si,curr_marked_y_pixel
-jnz m
 
-mov al,0Ch
-
-l:
-m:
 mov ah, 0ch
 mov dx, y_0
 
@@ -295,7 +282,13 @@ inc dx
 cmp dx, y_1
 jne border
 
-popa
+pop si
+pop di
+pop dx
+pop cx
+pop bx
+pop ax 
+
 endm
 
 
@@ -318,7 +311,14 @@ Draw macro draw_x , draw_y , z;, x_r,y_c
 local drawloop, jumb_if_black, l, m
 ; Drawing loop
 
-pusha
+push ax
+push bx
+push cx
+push dx
+push di
+push si
+ 
+
 mov cx,draw_x
 mov dx,draw_y
 mov bx,z
@@ -335,7 +335,7 @@ MOV AH,0ch
 drawLoop:
     
     MOV AL,[bx]
-    
+
     cmp al,0ffh
     jz jumb_if_black        
     INT 10h
@@ -351,15 +351,28 @@ JNE drawLoop
     CMP DX , draw_piece_y
 JNE drawLoop
 
-popa
+pop si
+pop di
+pop dx
+pop cx
+pop bx
+pop ax 
+
 endm 
 
 get_cell macro row_x,col_y
 local add_square_val , add_square_val_2   
 
-pusha
-mov cx,51
-mov dx,-9
+ push ax
+ push bx
+ push cx
+ push dx
+ push di
+ push si
+
+
+mov cx,50
+mov dx,-10
 
 mov si,row_x
 mov di,col_y
@@ -378,17 +391,31 @@ add dx,22
 dec di
 jnz add_square_val_2
 
+inc cx
+inc dx
+
 mov get_cell_x, cx
 mov get_cell_y, dx
 
+pop si
+pop di
+pop dx
+pop cx
+pop bx
+pop ax 
 
-popa
 endm
 
 draw_grid macro
 local row,col,con,con1
 
-pusha
+ push ax
+ push bx
+ push cx
+ push dx
+ push di
+ push si
+
 
 mov al, 6h ;Brown
 
@@ -435,13 +462,27 @@ je con1
 jmp col
 con1:    
 
-popa
+pop si
+pop di
+pop dx
+pop cx
+pop bx
+pop ax 
+
+
 endm
 
 draw_pieces_in_grid macro
 local col,row,con,con1
 
-pusha
+push ax
+push bx
+push cx
+push dx
+push di
+push si
+
+
 mov bx, offset grid
 mov x,1
 mov y,1
@@ -549,86 +590,45 @@ jz con1
 jmp col
 con1:
 
-popa
+pop si
+pop di
+pop dx
+pop cx
+pop bx
+pop ax  
+
 endm
 
-.code
-start:
+end
 
-MOV AX , @DATA
-MOV DS , AX
 
-mov ah, 0
-mov al, 13h
-int 10h
+; .code
+; start:
 
-  
- 
-;Drawing outer border (Brown)
-
-;Down arrow       E0 50
-;Left arrow       E0 4B
-;Right arrow      E0 4D
-;Up arrow         E0 48
-
-game: 
-mov ah,0
-int 16h
-
-cmp al,'d'     ;move right
-jnz m1
-mov dx,curr_marked_x_pixel
-add dx, 22
-mov curr_marked_x_pixel,dx
-inc curr_marked_x_val
-m1:
-cmp al,'w'
-jnz m2
-mov dx,curr_marked_y_pixel   ;move up
-sub dx, 22
-mov curr_marked_y_pixel,dx
-dec curr_marked_y_val
-m2:
-cmp al,'s'
-jnz m3          ;move down
-mov dx,curr_marked_y_pixel
-add dx, 22
-mov curr_marked_y_pixel,dx
-inc curr_marked_y_val
-m3:
-cmp al,'a'
-jnz m4           ;move left
-mov dx,curr_marked_x_pixel
-sub dx, 22
-mov curr_marked_x_pixel,dx
-dec curr_marked_x_val
-m4:
-cmp al,'q'         ; source
-jnz m5
-mov dx, curr_marked_x_val
-mov cx, curr_marked_y_val
-
-mov cell_clicked_x,dx
-mov cell_clicked_y,cx
-m5:
+; MOV AX , @DATA
+; MOV DS , AX
 
 
 
-draw_grid
-draw_pieces_in_grid
+; mov ah, 0
+; mov al, 13h
+; int 10h
 
-
-cmp al,'9'
-jz l
-jmp game
-l:
-
-mov ax,4c00h
-
-int 21h
-
-end start
+; ;Drawing outer border (Brown)
 
 
 
-.end
+; ;Down arrow       E0 50
+; ;Left arrow       E0 4B
+; ;Right arrow      E0 4D
+; ;Up arrow         E0 48
+
+; draw_grid
+; draw_pieces_in_grid
+
+
+; end start
+
+
+
+; .end

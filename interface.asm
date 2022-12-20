@@ -68,18 +68,143 @@ StartGamePrompt db '> To start the game press F2','$'
 EndProgramPrompt db '> To end the program press ESC','$'
 inGameStr db 'We are in the Game mate','$'
 inChatStr db 'We are in the Chat mate','$'
+namePrompt db 'Please enter your name'
+namePromptLength db $-namePrompt
+enterPrompt db "Please enter key to continue!"
+enterPromptLength db $-enterPrompt
 f1 equ 3bh
 f2 equ 3ch
-escape equ 01h
+f3 equ 3dh
+f4 equ 3eh
+escape equ 1bh ;;Ascii
+username db 15 dup('$')
+welcomeMsg db "Hello, "
 .code
 start:
     mov ax, @data 
     mov ds, ax
+    mov es, ax
+
     ; set text mode 80x25 16 color text mode  
     mov ah, 00d
     mov al, 03d
     int 10h
-    
+
+    getNameScreen:
+    mov al, 1
+    mov bh, 0
+    mov bl, 1
+    mov ch,0
+    mov cl, namePromptLength
+    mov dx, 0
+    lea bp, namePrompt
+    mov ah, 13h
+    int 10h
+
+    ;;Update cursor position
+    mov ah, 2
+    mov dh, 1
+    mov dl, 0
+    mov bh, 0
+    mov ah, 2
+    int 10h
+
+    lea si, username
+
+    getName:
+    mov ah, 1
+    int 16h
+    jz getName
+
+    ;;Pressed Enter
+    cmp al, 13d
+    je printEnterPrompt
+
+    mov [si], al
+    inc si
+
+    mov ah, 2
+    mov dl, al
+    int 21h
+
+    ;;Flushing the Buffer
+    mov ah, 0ch
+    int 21h
+
+    jmp getName
+
+
+    printEnterPrompt:
+    ;;Flushing the Buffer
+    mov ah, 0ch
+    int 21h
+
+    ; hide blinking text cursor: 
+    mov ch, 32
+    mov ah, 1
+    int 10h
+
+    ;; Printing the enterPrompt message
+    mov al, 1
+    mov bh, 0
+    mov bl, 2 ;;Green
+    mov ch, 0
+    mov cl, enterPromptLength
+    mov dl, 27d
+    mov dh, 10d
+    lea bp, enterPrompt
+    mov ah, 13h
+    int 10h
+
+    pressEnter:
+    mov ah, 1
+    int 16h
+    jz pressEnter
+
+    cmp al, 13d
+    je main
+
+    ;;Flushing the Buffer
+    mov ah, 0ch
+    int 21h
+
+    jmp pressEnter
+
+    main:
+    ; Set text mode 80x25 16 color text mode  
+    mov ah, 00d
+    mov al, 03d
+    int 10h
+
+
+    ;; Select Page (0)
+    mov ah, 05h
+    mov al, 0
+    int 10h
+
+    ; Hide blinking text cursor: 
+    mov ch, 32
+    mov ah, 1
+    int 10h
+
+    ;; Print the welcome message
+    mov al, 1
+    mov bh, 0
+    mov bl, 2 ;;Green
+    mov ch, 0
+    mov cl, 7d
+    mov dl, 1
+    mov dh, 1
+    lea bp, welcomeMsg
+    mov ah, 13h
+    int 10h
+
+    ;; Print Username
+    mov ah, 9
+    lea dx, username
+    int 21h
+
+
     call movCursorToMiddle
     printString StartChattingPrompt
     newLine
@@ -104,26 +229,45 @@ start:
     cmp ah, f2
     je toGameMode
     ; is esc
-    cmp ah, escape
+    cmp al, escape
     jne getInputLoop
     jmp near ptr toClose
-    
-    jmp getInputLoop
 
     ; chatting page ah = f1 (scancode)
-    movToChattingMode:  
+    movToChattingMode:
+        ;;Make Cursor Visible
+        ; show standard blinking text cursor: 
+     	mov ch, 6
+     	mov cl, 7
+     	mov ah, 1
+     	int 10h
+
+        ;;Set active page (1)
         mov ah, 05h
         mov al, 1
         int 10h
         printString inChatStr
+
+        c0:
+        ;;printString inChatStr
         getInputAsync
         flushKeyboardBuffer
-        cmp ah, F2
-        je toGameMode
+        cmp ah, F3
+        jne c0
+        jmp main
+        
 
-        ret
+
     ; game page ah = f2 (scancode)
     toGameMode: 
+        ;;Make Cursor Visible
+        ; show standard blinking text cursor: 
+     	mov ch, 6
+     	mov cl, 7
+     	mov ah, 1
+     	int 10h
+
+        ;;Set active page (2)
         mov ah, 05h
         mov al, 2
         int 10h
@@ -131,15 +275,22 @@ start:
         gameLoop:
         getInputAsync
         flushKeyboardBuffer
-        cmp ah, f1
+        cmp ah, f4
         jne gameLoop
-        jmp near ptr movToChattingMode
-        ret
+        jmp near ptr main
+        
 
     toClose: 
         ; is ESC
         ; close for now 
-        ret
+        ; show standard blinking text cursor: 
+     	mov ch, 6
+     	mov cl, 7
+     	mov ah, 1
+     	int 10h
+
+        mov ah, 04ch
+        int 21h
 
     movCursorToMiddle: 
     pushAll 
@@ -152,7 +303,7 @@ start:
     ; moves to the middle row
     mov dh, 11d 
     CHANGECOLUMN: 
-    mov dl, 30d
+    mov dl, 27d
     mov ah, 02d
     int 10h
     popAll

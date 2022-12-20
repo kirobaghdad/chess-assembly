@@ -551,6 +551,8 @@ validateMove PROC
     mov bx,0
     mov bl,iterator 
 
+
+    ;;;Wrong (2nd comparison overwrites the zf)
     cmp moves[bx],ax
     cmp moves[bx+2],dx
 

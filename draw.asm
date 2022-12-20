@@ -622,6 +622,11 @@ jz c2
 jmp m1
 
 c2:
+cmp curr_marked_x_val, 8
+jne c10
+jmp game
+
+c10:
 ;; Update the Highlight position
 mov dx,curr_marked_x_pixel
 add dx, 22
@@ -669,6 +674,11 @@ jz c4
 jmp m2
 
 c4:
+cmp curr_marked_y_val, 1
+jne c11
+jmp game
+
+c11:
 ;; Update the Highlight position
 mov dx,curr_marked_y_pixel
 sub dx, 22
@@ -702,7 +712,7 @@ DrawRectangleMark curr_marked_x_pixel, bx, bp, si
 
 
 ;; Update the Destination Rect
-inc curr_marked_y_val
+dec curr_marked_y_val
 
 mov al, 0ch
 
@@ -717,6 +727,11 @@ jz c7
 jmp m3        ;move down
 
 c7:
+cmp curr_marked_y_val, 8
+jne c12
+jmp game
+
+c12:
 ;; Update the Highlight position
 mov dx,curr_marked_y_pixel
 add dx, 22
@@ -747,7 +762,7 @@ DrawRectangleMark curr_marked_x_pixel, bx, bp, curr_marked_y_pixel
 
 
 ;; Update the Destination Rect
-dec curr_marked_y_val
+inc curr_marked_y_val
 
 add bx, 44
 
@@ -763,6 +778,11 @@ jz c8         ;move left
 jmp m4
 
 c8:
+cmp curr_marked_x_val, 1
+jne c13
+jmp game
+
+c13:
 ;; Update the Highlight position
 mov dx,curr_marked_x_pixel
 sub dx, 22
@@ -799,7 +819,7 @@ DrawRectangleMark bp, curr_marked_y_pixel, si, bx
 ;; Update the Destination Rect
 dec curr_marked_x_val
 
-mov al, 0bh
+mov al, 0ch
 
 DrawRectangleMark curr_marked_x_pixel, curr_marked_y_pixel, bp, bx
 

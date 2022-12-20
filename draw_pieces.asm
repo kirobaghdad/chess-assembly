@@ -34,7 +34,7 @@ db                                 0ffh,0ffh,12h,12h,0ffh,0ffh,0ffh,0ffh,0ffh,0f
 db                                 0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,12h,12h,12h,12h,12h,12h,12h,12h,0ffh,0ffh,0ffh,0ffh,0ffh
 db                                 0ffh,0ffh,0ffh,0ffh,0ffh,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,12h
 db                  12h,12h,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,12h,12h,12h,0ffh,0ffh,0ffh,0ffh
-db                  0ffh,0ffh,0ffh,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,0ffh,0ffh,0ffh,0ffh,0ffh,12h,12h,12h,12h,12h,
+db                  0ffh,0ffh,0ffh,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,0ffh,0ffh,0ffh,0ffh,0ffh,12h,12h,12h,12h,12h
 db                  12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,0ffh,0ffh,0ffh,0ffh,12h,12h,12h,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh
 db                  12h,12h,12h,0ffh,0ffh,0ffh,0ffh,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,0ffh,0ffh
 
@@ -112,7 +112,7 @@ db 12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,0ffh,0ffh,12h,12h,12h,12h,12h,12h
 db 0ffh,0ffh,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,12h,0ffh
 
 ;Size: 20 x 20 
-white_bishop                            db    0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0fh,0fh,0fh,0fh,0fh,0fh,0ffh,0ffh,0ffh,
+white_bishop                            db    0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0fh,0fh,0fh,0fh,0fh,0fh,0ffh,0ffh,0ffh
 db 0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0fh,0fh,0fh,0fh,0fh,0fh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh
 db 0ffh,0ffh,0ffh,0ffh,0ffh,0fh,0fh,0ffh,0ffh,0fh,0fh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0fh
 db 0fh,0fh,0fh,0fh,0fh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0ffh,0ffh
@@ -126,7 +126,7 @@ db                                        0ffh,0fh,0fh,0ffh,0ffh,0fh,0fh,0ffh,0f
 db                                        0fh,0fh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0ffh,0ffh,0ffh
 db                                        0ffh,0ffh,0ffh,0fh,0fh,0fh,0fh,0fh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0fh,0fh,0fh,0fh,0fh,0ffh,0ffh,0ffh,0ffh,0fh,0fh,0fh
 db                                        0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0fh,0fh,0fh,0ffh,0ffh
-                                        db    0ffh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0ffh,0fh,0fh,0fh,0fh,
+                                        db    0ffh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0ffh,0fh,0fh,0fh,0fh
 db                                        0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh
 db                                        0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh
 
@@ -225,13 +225,13 @@ db 0fh,0fh,0fh,0fh,0fh,0fh,0ffh
 
 
 grid db "br","bn","bb","bq","bk","bb","bn","br"
-     db "bp","bp","bp","bp","bp","bp","bp","bp"                                    
-     db "--","--","--","--","--","--","--","--"
-     db "--","--","--","--","--","--","--","--"
-     db "--","--","--","--","--","--","--","--"
-     db "--","--","--","--","--","--","--","--"
-     db "wp","wp","wp","wp","wp","wp","wp","wp"  
-     db "wr","wn","wb","wq","wk","wb","wn","wr"
+db "bp","bp","bp","bp","bp","bp","bp","bp"                                    
+db "--","--","--","--","--","--","--","--"
+db "--","--","--","--","--","--","--","--"
+db "--","--","--","--","--","--","--","--"
+db "--","--","--","--","--","--","--","--"
+db "wp","wp","wp","wp","wp","wp","wp","wp"  
+db "wr","wn","wb","wq","wk","wb","wn","wr"
                                   
 
 pieceWidth EQU 20
@@ -249,14 +249,18 @@ y dw ?
 get_cell_x dw ?
 get_cell_y dw ?
 
+;;To be Updated
+curr_marked_x_pixel dw 72
+curr_marked_y_pixel dw 12
+;;;;;;;
 
-curr_marked_x_pixel_p1 dw 72
-curr_marked_y_pixel_p1 dw 12
-curr_marked_x_val_p1 dw 1
-curr_marked_y_val_p1 dw 1
+curr_marked_x_val dw 1
+curr_marked_y_val dw 1
 
 curr_marked_x_pixel_p2 dw 72
 curr_marked_y_pixel_p2 dw 12
+;;;;;;;
+
 curr_marked_x_val_p2 dw 1
 curr_marked_y_val_p2 dw 1
 
@@ -265,42 +269,29 @@ draw_piece_x dw  ?
 draw_piece_y dw  ?
 
 
-cell_clicked_x_p1 dw 1
-cell_clicked_y_p1 dw 1 
+cell_clicked_x dw 1
+cell_clicked_y dw 1 
 
 cell_clicked_x_p2 dw 1
 cell_clicked_y_p2 dw 1 
 
 
-
 DrawRectangle macro x_0, y_0, x_1, y_1
-local border, row, l1, m1, l2, m2
+local border, row, l, m
 pusha
 
 mov di,x_0
 mov si,y_0
 
-cmp di,curr_marked_x_pixel_p1
-jnz l1
-cmp si,curr_marked_y_pixel_p1
-jnz m1
+cmp di,curr_marked_x_pixel
+jnz l
+cmp si,curr_marked_y_pixel
+jnz m
 
 mov al,0Ch
 
-l1:
-m1:
-
-cmp di,curr_marked_x_pixel_p2
-jnz l2
-cmp si,curr_marked_y_pixel_p2
-jnz m2
-
-mov al,0bh
-
-l2:
-m2:
-
-
+l:
+m:
 mov ah, 0ch
 mov dx, y_0
 
@@ -309,6 +300,46 @@ mov cx, x_0
 
 row:
 int 10h
+inc cx
+cmp cx, x_1
+jne row
+
+inc dx
+cmp dx, y_1
+jne border
+
+popa
+endm
+
+
+DrawRectangleMark macro x_0, y_0, x_1, y_1
+local border, row, l, m, c1, notColored
+pusha
+
+mov ah, 0ch
+mov dx, y_0
+
+border:
+mov cx, x_0
+
+row:
+push ax
+mov ah, 0dh
+int 10h
+
+cmp al, 12h
+je notColored
+cmp al, 0fh
+je notColored
+
+pop ax
+int 10h
+jmp c1
+
+notColored:
+pop ax
+
+c1:
 inc cx
 cmp cx, x_1
 jne row
@@ -584,97 +615,478 @@ mov ah, 0
 mov al, 13h
 int 10h
 
+draw_grid
+draw_pieces_in_grid 
 
+  
 ;Down arrow       E0 50
 ;Left arrow       E0 4B
 ;Right arrow      E0 4D
 ;Up arrow         E0 48
 
-game:
-
-draw_grid
-draw_pieces_in_grid 
-
+game: 
 
 mov ah,0
 int 16h
 
 cmp al,'d'     ;move right
-jnz m1
-mov dx,curr_marked_x_pixel_p1
+jz c2
+jmp m1
+
+c2:
+cmp curr_marked_x_val, 8
+jne c10
+jmp game
+
+c10:
+;; Update the Highlight position
+mov dx,curr_marked_x_pixel
 add dx, 22
-mov curr_marked_x_pixel_p1,dx
-inc curr_marked_x_val_p1
+mov curr_marked_x_pixel,dx
+
+
+;; Update the Source Rect
+mov ax, curr_marked_x_val
+add ax, curr_marked_y_val
+
+mov bl, 2
+div bl
+cmp ah, 1  ;; Odd (Dark)
+je dark
+mov al, 7h
+jmp c3
+
+dark:
+mov al, 8
+
+c3:
+mov bp, curr_marked_x_pixel
+sub bp, 22 
+
+mov bx, curr_marked_y_pixel
+add bx, 22
+
+DrawRectangleMark bp, curr_marked_y_pixel, curr_marked_x_pixel, bx
+
+
+;; Update the Destination Rect
+inc curr_marked_x_val
+
+add bp, 44
+
+mov al, 0ch
+
+DrawRectangleMark curr_marked_x_pixel, curr_marked_y_pixel, bp, bx
+
+jmp game
+
 m1:
-cmp al,'w'
-jnz m2
-mov dx,curr_marked_y_pixel_p1   ;move up
+cmp al,'w'  ;;;Move Up
+jz c4
+jmp m2
+
+c4:
+cmp curr_marked_y_val, 1
+jne c11
+jmp game
+
+c11:
+;; Update the Highlight position
+mov dx,curr_marked_y_pixel
 sub dx, 22
-mov curr_marked_y_pixel_p1 ,dx
-dec curr_marked_y_val_p1
+mov curr_marked_y_pixel,dx
+
+;; Update the Source Rect
+mov ax, curr_marked_x_val
+add ax, curr_marked_y_val
+
+mov bl, 2
+div bl
+cmp ah, 1  ;; Odd (Dark)
+je dark1
+mov al, 7h
+jmp c5
+
+dark1:
+mov al, 8
+
+c5:
+mov bp, curr_marked_x_pixel
+add bp, 22 
+
+mov bx, curr_marked_y_pixel
+add bx, 22
+
+mov si, bx
+add si, 22
+
+DrawRectangleMark curr_marked_x_pixel, bx, bp, si
+
+
+;; Update the Destination Rect
+dec curr_marked_y_val
+
+mov al, 0ch
+
+DrawRectangleMark curr_marked_x_pixel, curr_marked_y_pixel, bp, bx
+
+jmp game
+
+
 m2:
 cmp al,'s'
-jnz m3          ;move down
-mov dx,curr_marked_y_pixel_p1
+jz c7
+jmp m3        ;move down
+
+c7:
+cmp curr_marked_y_val, 8
+jne c12
+jmp game
+
+c12:
+;; Update the Highlight position
+mov dx,curr_marked_y_pixel
 add dx, 22
-mov curr_marked_y_pixel_p1 ,dx
-inc curr_marked_y_val_p1
+mov curr_marked_y_pixel,dx
+
+;; Update the Source Rect
+mov ax, curr_marked_x_val
+add ax, curr_marked_y_val
+
+mov bl, 2
+div bl
+cmp ah, 1  ;; Odd (Dark)
+je dark2
+mov al, 7h
+jmp c6
+
+dark2:
+mov al, 8
+
+c6:
+mov bp, curr_marked_x_pixel
+add bp, 22 
+
+mov bx, curr_marked_y_pixel
+sub bx, 22
+
+DrawRectangleMark curr_marked_x_pixel, bx, bp, curr_marked_y_pixel
+
+
+;; Update the Destination Rect
+inc curr_marked_y_val
+
+add bx, 44
+
+mov al, 0ch
+
+DrawRectangleMark curr_marked_x_pixel, curr_marked_y_pixel, bp, bx
+
+jmp game
+
 m3:
 cmp al,'a'
-jnz m4           ;move left
-mov dx,curr_marked_x_pixel_p1
-sub dx, 22
-mov curr_marked_x_pixel_p1 ,dx
-dec curr_marked_x_val_p1
-m4:
-cmp al,'q'         ; source
-jnz m5
-mov dx, curr_marked_x_val_p1
-mov cx, curr_marked_y_val_p1
+jz c8         ;move left
+jmp m4
 
-mov cell_clicked_x_p1 , dx
-mov cell_clicked_y_p1 , cx
-m5:
+c8:
+cmp curr_marked_x_val, 1
+jne c13
+jmp game
+
+c13:
+;; Update the Highlight position
+mov dx,curr_marked_x_pixel
+sub dx, 22
+mov curr_marked_x_pixel,dx
+
+
+;; Update the Source Rect
+mov ax, curr_marked_x_val
+add ax, curr_marked_y_val
+
+mov bl, 2
+div bl
+cmp ah, 1  ;; Odd (Dark)
+je dark3
+mov al, 7h
+jmp c9
+
+dark3:
+mov al, 8
+
+c9:
+mov bp, curr_marked_x_pixel
+add bp, 22 
+
+mov bx, curr_marked_y_pixel
+add bx, 22
+
+mov si, bp
+add si, 22
+
+DrawRectangleMark bp, curr_marked_y_pixel, si, bx
+
+;; Update the Destination Rect
+dec curr_marked_x_val
+
+mov al, 0ch
+
+DrawRectangleMark curr_marked_x_pixel, curr_marked_y_pixel, bp, bx
+
+jmp game
+
+m4:
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
 
 
 cmp al,'6'     ;move right
-jnz m6
+jz c20
+jmp m11
+
+c20:
+cmp curr_marked_x_val_p2, 8
+jne c100
+jmp game
+
+c100:
+;; Update the Highlight position
 mov dx,curr_marked_x_pixel_p2
 add dx, 22
 mov curr_marked_x_pixel_p2,dx
+
+
+;; Update the Source Rect
+mov ax, curr_marked_x_val_p2
+add ax, curr_marked_y_val_p2
+
+mov bl, 2
+div bl
+cmp ah, 1  ;; Odd (Dark)
+je dark10
+mov al, 7h
+jmp c30
+
+dark10:
+mov al, 8
+
+c30:
+mov bp, curr_marked_x_pixel_p2
+sub bp, 22 
+
+mov bx, curr_marked_y_pixel_p2
+add bx, 22
+
+DrawRectangleMark bp, curr_marked_y_pixel_p2, curr_marked_x_pixel_p2, bx
+
+
+;; Update the Destination Rect
 inc curr_marked_x_val_p2
-m6:
-cmp al,'8'
-jnz m7
-mov dx,curr_marked_y_pixel_p2   ;move up
+
+add bp, 44
+
+mov al, 0bh
+
+DrawRectangleMark curr_marked_x_pixel_p2, curr_marked_y_pixel_p2, bp, bx
+
+jmp game
+
+m11:
+
+
+
+cmp al,'8'  ;;;Move Up
+jz c40
+jmp m22
+
+c40:
+cmp curr_marked_y_val_p2, 1
+jne c110
+jmp game
+
+c110:
+;; Update the Highlight position
+mov dx,curr_marked_y_pixel_p2
 sub dx, 22
-mov curr_marked_y_pixel_p2 ,dx
+mov curr_marked_y_pixel_p2,dx
+
+;; Update the Source Rect
+mov ax, curr_marked_x_val_p2
+add ax, curr_marked_y_val_p2
+
+mov bl, 2
+div bl
+cmp ah, 1  ;; Odd (Dark)
+je dark110
+mov al, 7h
+jmp c50
+
+dark110:
+mov al, 8
+
+c50:
+mov bp, curr_marked_x_pixel_p2
+add bp, 22 
+
+mov bx, curr_marked_y_pixel_p2
+add bx, 22
+
+mov si, bx
+add si, 22
+
+DrawRectangleMark curr_marked_x_pixel_p2, bx, bp, si
+               
+
+;; Update the Destination Rect
 dec curr_marked_y_val_p2
-m7:
+
+mov al, 0bh
+
+DrawRectangleMark curr_marked_x_pixel_p2, curr_marked_y_pixel_p2, bp, bx
+
+jmp game
+
+
+m22:
+
+
+
+
+
+
 cmp al,'5'
-jnz m8          ;move down
+jz c70
+jmp m33        ;move down
+
+c70:
+cmp curr_marked_y_val_p2, 8
+jne c120
+jmp game
+
+c120:
+;; Update the Highlight position
 mov dx,curr_marked_y_pixel_p2
 add dx, 22
 mov curr_marked_y_pixel_p2 ,dx
+
+;; Update the Source Rect
+mov ax, curr_marked_x_val_p2
+add ax, curr_marked_y_val_p2
+
+mov bl, 2
+div bl
+cmp ah, 1  ;; Odd (Dark)
+je dark120
+mov al, 7h
+jmp c60
+
+dark120:
+mov al, 8
+
+c60:
+mov bp, curr_marked_x_pixel_p2
+add bp, 22 
+
+mov bx, curr_marked_y_pixel_p2
+sub bx, 22
+
+DrawRectangleMark curr_marked_x_pixel_p2 , bx, bp, curr_marked_y_pixel_p2
+
+
+;; Update the Destination Rect
 inc curr_marked_y_val_p2
-m8:
+
+add bx, 44
+
+mov al, 0bh
+
+DrawRectangleMark curr_marked_x_pixel_p2, curr_marked_y_pixel_p2, bp, bx
+
+jmp game
+
+m33:
+
+
+
+
 cmp al,'4'
-jnz m9           ;move left
+jz c88         ;move left
+jmp m44
+
+c88:
+cmp curr_marked_x_val_p2, 1
+jne c130
+jmp game
+
+c130:
+;; Update the Highlight position
 mov dx,curr_marked_x_pixel_p2
 sub dx, 22
 mov curr_marked_x_pixel_p2 ,dx
+
+
+;; Update the Source Rect
+mov ax, curr_marked_x_val_p2
+add ax, curr_marked_y_val_p2
+
+mov bl, 2
+div bl
+cmp ah, 1  ;; Odd (Dark)
+je dark130
+mov al, 7h
+jmp c90
+
+dark130:
+mov al, 8
+
+c90:
+mov bp, curr_marked_x_pixel_p2
+add bp, 22 
+
+mov bx, curr_marked_y_pixel_p2
+add bx, 22
+
+mov si, bp
+add si, 22
+
+DrawRectangleMark bp, curr_marked_y_pixel_p2, si, bx
+
+;; Update the Destination Rect
 dec curr_marked_x_val_p2
-m9:
-cmp al,'z'         ; source
-jnz m10
+
+mov al, 0bh
+
+DrawRectangleMark curr_marked_x_pixel_p2, curr_marked_y_pixel_p2, bp, bx
+
+jmp game
+
+m44:
+
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+cmp al,'q'         ; source
+jnz m5
+mov dx, curr_marked_x_val
+mov cx, curr_marked_y_val
+
+mov cell_clicked_x,dx
+mov cell_clicked_y,cx
+m5:
+
+cmp al,'p'         ; source
+jnz m6
 mov dx, curr_marked_x_val_p2
 mov cx, curr_marked_y_val_p2
 
-mov cell_clicked_x_p2 , dx
-mov cell_clicked_y_p2 , cx
-m10:
-
-
+mov cell_clicked_x_p2,dx
+mov cell_clicked_y_p2,cx
+m6:
 
 
 cmp al,'9'

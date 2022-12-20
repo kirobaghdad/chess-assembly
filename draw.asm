@@ -302,11 +302,8 @@ endm
 
 
 DrawRectangleMark macro x_0, y_0, x_1, y_1
-local border, row, l, m
+local border, row, l, m, c1, notColored
 pusha
-
-mov di,x_0
-mov si,y_0
 
 mov ah, 0ch
 mov dx, y_0
@@ -621,10 +618,12 @@ mov ah,0
 int 16h
 
 cmp al,'d'     ;move right
-jnz m1
+jz c2
+jmp m1
+
+c2:
 ;; Update the Highlight position
 mov dx,curr_marked_x_pixel
-
 add dx, 22
 mov curr_marked_x_pixel,dx
 
@@ -635,54 +634,177 @@ add ax, curr_marked_y_val
 
 mov bl, 2
 div bl
-
 cmp ah, 1  ;; Odd (Dark)
 je dark
+mov al, 7h
+jmp c3
 
+dark:
+mov al, 8
 
+c3:
 mov bp, curr_marked_x_pixel
 sub bp, 22 
 
 mov bx, curr_marked_y_pixel
 add bx, 22
 
-
-mov al, 7
 DrawRectangleMark bp, curr_marked_y_pixel, curr_marked_x_pixel, bx
 
 
 ;; Update the Destination Rect
 inc curr_marked_x_val
 
-jmp game
+add bp, 44
 
-dark:
-;; Update the Destination Rect
-inc curr_marked_x_val
+mov al, 0ch
+
+DrawRectangleMark curr_marked_x_pixel, curr_marked_y_pixel, bp, bx
 
 jmp game
 
 m1:
-cmp al,'w'
-jnz m2
-mov dx,curr_marked_y_pixel   ;move up
+cmp al,'w'  ;;;Move Up
+jz c4
+jmp m2
+
+c4:
+;; Update the Highlight position
+mov dx,curr_marked_y_pixel
 sub dx, 22
 mov curr_marked_y_pixel,dx
-dec curr_marked_y_val
+
+;; Update the Source Rect
+mov ax, curr_marked_x_val
+add ax, curr_marked_y_val
+
+mov bl, 2
+div bl
+cmp ah, 1  ;; Odd (Dark)
+je dark1
+mov al, 7h
+jmp c5
+
+dark1:
+mov al, 8
+
+c5:
+mov bp, curr_marked_x_pixel
+add bp, 22 
+
+mov bx, curr_marked_y_pixel
+add bx, 22
+
+mov si, bx
+add si, 22
+
+DrawRectangleMark curr_marked_x_pixel, bx, bp, si
+
+
+;; Update the Destination Rect
+inc curr_marked_y_val
+
+mov al, 0ch
+
+DrawRectangleMark curr_marked_x_pixel, curr_marked_y_pixel, bp, bx
+
+jmp game
+
+
 m2:
 cmp al,'s'
-jnz m3          ;move down
+jz c7
+jmp m3        ;move down
+
+c7:
+;; Update the Highlight position
 mov dx,curr_marked_y_pixel
 add dx, 22
 mov curr_marked_y_pixel,dx
-inc curr_marked_y_val
+
+;; Update the Source Rect
+mov ax, curr_marked_x_val
+add ax, curr_marked_y_val
+
+mov bl, 2
+div bl
+cmp ah, 1  ;; Odd (Dark)
+je dark2
+mov al, 7h
+jmp c6
+
+dark2:
+mov al, 8
+
+c6:
+mov bp, curr_marked_x_pixel
+add bp, 22 
+
+mov bx, curr_marked_y_pixel
+sub bx, 22
+
+DrawRectangleMark curr_marked_x_pixel, bx, bp, curr_marked_y_pixel
+
+
+;; Update the Destination Rect
+dec curr_marked_y_val
+
+add bx, 44
+
+mov al, 0ch
+
+DrawRectangleMark curr_marked_x_pixel, curr_marked_y_pixel, bp, bx
+
+jmp game
+
 m3:
 cmp al,'a'
-jnz m4           ;move left
+jz c8         ;move left
+jmp m4
+
+c8:
+;; Update the Highlight position
 mov dx,curr_marked_x_pixel
 sub dx, 22
 mov curr_marked_x_pixel,dx
+
+
+;; Update the Source Rect
+mov ax, curr_marked_x_val
+add ax, curr_marked_y_val
+
+mov bl, 2
+div bl
+cmp ah, 1  ;; Odd (Dark)
+je dark3
+mov al, 7h
+jmp c9
+
+dark3:
+mov al, 8
+
+c9:
+mov bp, curr_marked_x_pixel
+add bp, 22 
+
+mov bx, curr_marked_y_pixel
+add bx, 22
+
+mov si, bp
+add si, 22
+
+DrawRectangleMark bp, curr_marked_y_pixel, si, bx
+
+
+;; Update the Destination Rect
 dec curr_marked_x_val
+
+mov al, 0bh
+
+DrawRectangleMark curr_marked_x_pixel, curr_marked_y_pixel, bp, bx
+
+jmp game
+
 m4:
 cmp al,'q'         ; source
 jnz m5

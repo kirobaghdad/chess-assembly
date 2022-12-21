@@ -1,14 +1,18 @@
 public myname
+public myP
 
 .model small
 .data
 myname db "Malek",'$'
 
-; .code
+.code
 
-; myP proc far
+myP proc far
 
+mov cx, 0
 
-; myP endp
+ret 
+myP endp
+
 
 END

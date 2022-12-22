@@ -1,2 +1,8 @@
 is .286 directive permitted?
-c26
+
+
+Labels:
+Board Position
+
+Validations:
+Clicked Rect is not empty

@@ -94,9 +94,8 @@ addMove proc
 mov bh, 0
 mov bl, count
 
-mov moves[bx], dx
-mov moves[bx + 2], cx
-add count, 4
+mov moves[bx], cx
+add count, 2
 
 ret
 
@@ -376,9 +375,9 @@ PawnMoves endp
 
 KingMoves proc far
 
-;;Assuming the king in pos (8,5)
-mov ah, 8
-mov al, 5
+; ;;Assuming the king in pos (8,5)
+; mov ah, 8
+; mov al, 5
 
 mov dx, ax
 
@@ -547,8 +546,8 @@ KingMoves endp
 
 RockMoves proc far
 ;Assuming rock position is (5,4)
-mov ah, 5
-mov al, 4
+; mov ah, 5
+; mov al, 4
 
 mov dx, ax
 

@@ -1002,7 +1002,7 @@ jz c35
 jmp c19
 
 c35:
-
+mov allowed, 0
 ;;;Allowed (Make Move)
 
 ; ;Blue
@@ -1187,13 +1187,6 @@ get_cell curr_marked_x_val, curr_marked_y_val
 draw get_cell_x , get_cell_y , di;, x, y
 
 
-;; Reset cell_clicked_x and cell_clicked_y
-mov cell_clicked_x, 0
-mov cell_clicked_y, 0
-
-;;Clearing the moves
-call ClearMoves
-
 ; ;; Update the Destination Rect
 ; dec curr_marked_x_val_p2
 
@@ -1202,12 +1195,21 @@ call ClearMoves
 ; DrawRectangle curr_marked_x_pixel_p2, curr_marked_y_pixel_p2, bp, bx
 
 
-jmp game
+jmp c42
 
 c19:
 ;Red 
 mov al, 4
 DrawRectangle 0,0,20,20
+
+c42:
+
+;; Reset cell_clicked_x and cell_clicked_y
+mov cell_clicked_x, 0
+mov cell_clicked_y, 0
+
+;;Clearing the moves
+call ClearMoves
 
 
 jmp game

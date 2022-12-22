@@ -12,6 +12,7 @@ public white_pawn
 public white_queen
 public white_rock
 
+public green_dot
 
 .model large
 .data
@@ -235,5 +236,53 @@ db 0ffh,0ffh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0ff
 db 0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0ffh,0ffh,0fh,0fh,0fh,0fh,0fh,0fh,0fh
 db 0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0ffh,0ffh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh,0fh
 db 0fh,0fh,0fh,0fh,0fh,0fh,0ffh
+
+
+;; Size 22 X 22
+
+green_dot  db 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh 
+           db 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh 
+           db 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh 
+           db 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ah,  0ah,  0ah,  0ah,  0ah,  0ah,  0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh
+           db 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ah,  0ah,  02h,  02h,  02h,  02h,  02h,  02h,  0ah,  0ah,  0ffh, 0ffh, 0ffh, 0ffh, 0ffh
+           db 0ffh, 0ffh, 0ffh, 0ffh, 0ah,  02h,  02h,  02h,  02h,  02h,  02h,  02h,  02h,  02h,  0ah,  0ffh, 0ffh, 0ffh, 0ffh, 0ffh
+           db 0ffh, 0ffh, 0ffh, 0ffh, 0ah,  02h,  02h,  02h,  02h,  02h,  02h,  02h,  02h,  02h,  02h,  0ah,  0ffh, 0ffh, 0ffh, 0ffh
+           db 0ffh, 0ffh, 0ffh, 0ah,  02h,  02h,  02h,  02h,  02h,  02h,  02h,  02h,  02h,  02h,  02h,  02h,  0ah,  0ffh, 0ffh, 0ffh
+           db 0ffh, 0ffh, 0ffh, 0ah,  02h,  02h,  02h,  02h,  02h,  02h,  02h,  02h,  02h,  02h,  02h,  02h,  0ah,  0ffh, 0ffh, 0ffh
+           db 0ffh, 0ffh, 0ffh, 0ah,  02h,  02h,  02h,  02h,  02h,  02h,  02h,  02h,  02h,  02h,  02h,  02h,  0ah,  0ffh, 0ffh, 0ffh
+           db 0ffh, 0ffh, 0ffh, 0ah,  02h,  02h,  02h,  02h,  02h,  02h,  02h,  02h,  02h,  02h,  02h,  02h,  0ah,  0ffh, 0ffh, 0ffh
+           db 0ffh, 0ffh, 0ffh, 0ah,  02h,  02h,  02h,  02h,  02h,  02h,  02h,  02h,  02h,  02h,  02h,  02h,  0ah,  0ffh, 0ffh, 0ffh
+           db 0ffh, 0ffh, 0ffh, 0ah,  02h,  02h,  02h,  02h,  02h,  02h,  02h,  02h,  02h,  02h,  02h,  02h,  0ah,  0ffh, 0ffh, 0ffh
+           db 0ffh, 0ffh, 0ffh, 0ffh, 0ah,  02h,  02h,  02h,  02h,  02h,  02h,  02h,  02h,  02h,  02h,  0ah,  0ffh, 0ffh, 0ffh, 0ffh
+           db 0ffh, 0ffh, 0ffh, 0ffh, 0ah,  0ah,  02h,  02h,  02h,  02h,  02h,  02h,  02h,  02h,  0ah,  0ah,  0ffh, 0ffh, 0ffh, 0ffh
+           db 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ah,  0ah,  02h,  02h,  02h,  02h,  02h,  02h,  0ah,  0ah,  0ffh, 0ffh, 0ffh, 0ffh, 0ffh
+           db 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ah,  0ah,  0ah,  0ah,  0ah,  0ah,  0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh
+           db 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh
+           db 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh
+           db 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh
+
+
+; green_dot db 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh 
+;           db 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh 
+;           db 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh 
+;           db 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 00ah, 00ah, 00ah, 00ah, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh 
+;           db 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 00ah, 00ah, 00ah, 002h, 002h, 002h, 002h, 00ah, 00ah, 00ah, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh 
+;           db 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 00ah, 00ah, 002h, 002h, 002h, 002h, 002h, 002h, 002h, 002h, 00ah, 00ah, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh 
+;           db 0ffh, 0ffh, 0ffh, 0ffh, 00ah, 00ah, 002h, 002h, 002h, 002h, 002h, 002h, 002h, 002h, 002h, 002h, 00ah, 00ah, 0ffh, 0ffh, 0ffh, 0ffh 
+;           db 0ffh, 0ffh, 0ffh, 0ffh, 00ah, 002h, 002h, 002h, 002h, 002h, 002h, 002h, 002h, 002h, 002h, 002h, 002h, 00ah, 0ffh, 0ffh, 0ffh, 0ffh 
+;           db 0ffh, 0ffh, 0ffh, 0ffh, 00ah, 002h, 002h, 002h, 002h, 002h, 002h, 002h, 002h, 002h, 002h, 002h, 002h, 00ah, 0ffh, 0ffh, 0ffh, 0ffh 
+;           db 0ffh, 0ffh, 0ffh, 00ah, 002h, 002h, 002h, 002h, 002h, 002h, 002h, 002h, 002h, 002h, 002h, 002h, 002h, 002h, 00ah, 0ffh, 0ffh, 0ffh 
+;           db 0ffh, 0ffh, 0ffh, 00ah, 002h, 002h, 002h, 002h, 002h, 002h, 002h, 002h, 002h, 002h, 002h, 002h, 002h, 002h, 00ah, 0ffh, 0ffh, 0ffh 
+;           db 0ffh, 0ffh, 0ffh, 00ah, 002h, 002h, 002h, 002h, 002h, 002h, 002h, 002h, 002h, 002h, 002h, 002h, 002h, 002h, 00ah, 0ffh, 0ffh, 0ffh 
+;           db 0ffh, 0ffh, 0ffh, 00ah, 002h, 002h, 002h, 002h, 002h, 002h, 002h, 002h, 002h, 002h, 002h, 002h, 002h, 002h, 00ah, 0ffh, 0ffh, 0ffh 
+;           db 0ffh, 0ffh, 0ffh, 0ffh, 00ah, 002h, 002h, 002h, 002h, 002h, 002h, 002h, 002h, 002h, 002h, 002h, 002h, 00ah, 0ffh, 0ffh, 0ffh, 0ffh 
+;           db 0ffh, 0ffh, 0ffh, 0ffh, 00ah, 002h, 002h, 002h, 002h, 002h, 002h, 002h, 002h, 002h, 002h, 002h, 002h, 00ah, 0ffh, 0ffh, 0ffh, 0ffh 
+;           db 0ffh, 0ffh, 0ffh, 0ffh, 00ah, 00ah, 002h, 002h, 002h, 002h, 002h, 002h, 002h, 002h, 002h, 002h, 00ah, 00ah, 0ffh, 0ffh, 0ffh, 0ffh 
+;           db 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 00ah, 00ah, 002h, 002h, 002h, 002h, 002h, 002h, 002h, 002h, 00ah, 00ah, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh 
+;           db 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 00ah, 00ah, 00ah, 002h, 002h, 002h, 002h, 00ah, 00ah, 00ah, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh 
+;           db 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 00ah, 00ah, 00ah, 00ah, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh 
+;           db 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh 
+;           db 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh 
+;           db 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh, 0ffh 
 
 END

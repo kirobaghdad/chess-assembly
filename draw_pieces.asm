@@ -12,11 +12,15 @@ extrn white_knight:byte
 extrn white_pawn:byte
 extrn white_queen:byte
 extrn white_rock:byte
+extrn green_dot:byte
+
 
 ;; Moves File
 extrn PawnMoves:far
 extrn KingMoves:far
 extrn RockMoves:far
+extrn knightMoves:far
+extrn bishopMoves:far
 
 extrn getIndex:far
 extrn moves:word
@@ -59,20 +63,20 @@ y dw ?
 get_cell_x dw ?
 get_cell_y dw ?
 
-;;To be Updated
-curr_marked_x_pixel dw 72
-curr_marked_y_pixel dw 12
+;;To be Updated (Board Position)
+curr_marked_x_pixel dw 138
+curr_marked_y_pixel dw 34
 ;;;;;;;
 
-curr_marked_x_val dw 1
-curr_marked_y_val dw 1
+curr_marked_x_val dw 4
+curr_marked_y_val dw 2
 
-curr_marked_x_pixel_p2 dw 72
-curr_marked_y_pixel_p2 dw 12
+curr_marked_x_pixel_p2 dw 138
+curr_marked_y_pixel_p2 dw 144
 ;;;;;;;
 
-curr_marked_x_val_p2 dw 1
-curr_marked_y_val_p2 dw 1
+curr_marked_x_val_p2 dw 4
+curr_marked_y_val_p2 dw 7
 
 
 draw_piece_x dw  ?
@@ -224,6 +228,9 @@ get_cell macro row_x,col_y
 local add_square_val , add_square_val_2   
 
 pusha
+
+;(Board Position)
+;; what are these numbers;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 mov cx,51
 mov dx,-9
 
@@ -419,6 +426,58 @@ popa
 endm
 
 .code
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Draw Highlight ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+drawHighlight proc far
+
+mov si, offset moves
+
+c43:
+mov bx, [si]
+cmp bl, '$'
+jne c45
+jmp c44
+
+
+c45:
+mov ax, [si]
+
+
+;; Draw the highlight
+
+mov di, offset green_dot
+
+
+; mov get_cell_x, bx
+; and get_cell_x, 00FFh
+
+; mov get_cell_y, bx
+; and get_cell_y, 0FF00h
+
+mov bx, ax
+and bx, 00FFh ;; X value
+
+and ax, 0FF00h 
+
+shr ax, 8  ;; Y Value
+
+get_cell bx, ax
+draw get_cell_x , get_cell_y , di;, x, y
+
+add si, 2
+jmp c43
+
+c44:
+
+ret
+drawHighlight endp
+
 start:
 
 MOV AX , @DATA
@@ -428,10 +487,34 @@ mov ah, 0
 mov al, 13h
 int 10h
 
+
+
 draw_grid
+
+;; Drawing the first player marker
+mov al, 0ch
+mov si, curr_marked_x_pixel
+add si, 22
+
+mov di, curr_marked_y_pixel
+add di, 22
+
+DrawRectangle curr_marked_x_pixel, curr_marked_y_pixel, si, di
+  
+
+;; Drawing the second player marker
+mov al, 0bh
+mov si, curr_marked_x_pixel_p2
+add si, 22
+
+mov di, curr_marked_y_pixel_p2
+add di, 22
+
+DrawRectangle curr_marked_x_pixel_p2, curr_marked_y_pixel_p2, si, di
+  
 draw_pieces_in_grid 
 
-  
+
 ;Down arrow       E0 50
 ;Left arrow       E0 4B
 ;Right arrow      E0 4D
@@ -938,12 +1021,12 @@ call RockMoves
 c36:
 cmp grid[bx+1], 'n'  ;;To be tested
 jne c37
-;call knightMoves
+call knightMoves
 
 c37:
 cmp grid[bx+1], 'b'  ;;To be tested
 jne c38
-;call bishopMoves
+call bishopMoves
 
 c38:
 cmp grid[bx+1], 'k'
@@ -957,6 +1040,11 @@ jne c41
 
 c41:
 call PawnMoves
+
+; Drawing the moves highlight
+
+call drawHighlight
+
 
 ; mov bx, moves[0]
 ; mov bp, bx
@@ -1236,7 +1324,6 @@ mov ax,4c00h
 int 21h
 
 end start
-
 
 
 .end

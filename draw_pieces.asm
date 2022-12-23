@@ -38,6 +38,8 @@ public grid
 .stack 64
 .data
 
+position_in_grid  dw ?
+
 grid db "br","bn","bb","bq","bk","bb","bn","br"
      db "bp","bp","bp","bp","bp","bp","bp","bp"                                    
      db "--","--","--","--","--","--","--","--"
@@ -46,8 +48,101 @@ grid db "br","bn","bb","bq","bk","bb","bn","br"
      db "--","--","--","--","--","--","--","--"
      db "wp","wp","wp","wp","wp","wp","wp","wp"  
      db "wr","wn","wb","wq","wk","wb","wn","wr"
-                                  
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;                                 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Check    Time   Macros and data   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;                             
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;                                 
 
+                                
+grid_time_seconds   db 0,0,0,0,0,0,0,0
+                    db 0,0,0,0,0,0,0,0
+                    db 0,0,0,0,0,0,0,0
+                    db 0,0,0,0,0,0,0,0
+                    db 0,0,0,0,0,0,0,0
+                    db 0,0,0,0,0,0,0,0
+                    db 0,0,0,0,0,0,0,0
+
+grid_time_minutes   db 0,0,0,0,0,0,0,0
+                    db 0,0,0,0,0,0,0,0
+                    db 0,0,0,0,0,0,0,0
+                    db 0,0,0,0,0,0,0,0
+                    db 0,0,0,0,0,0,0,0
+                    db 0,0,0,0,0,0,0,0
+                    db 0,0,0,0,0,0,0,0
+                    db 0,0,0,0,0,0,0,0
+
+grid_time_hourse    db 0,0,0,0,0,0,0,0
+                    db 0,0,0,0,0,0,0,0
+                    db 0,0,0,0,0,0,0,0
+                    db 0,0,0,0,0,0,0,0
+                    db 0,0,0,0,0,0,0,0
+                    db 0,0,0,0,0,0,0,0
+                    db 0,0,0,0,0,0,0,0
+                    db 0,0,0,0,0,0,0,0
+
+
+get_position_in_grid macro x, y
+pusha
+
+mov ax, y
+dec ax
+mov cx,8
+
+mul cx
+
+add ax, x
+dec ax
+
+mov position_in_grid , ax
+
+popa
+endm
+
+check_set_time macro
+pusha
+
+get_position_in_grid cell_clicked_source_x, cell_clicked_source_y 
+
+mov cx, position_in_grid
+
+mov bx , offset grid_time_seconds
+mov di, offset grid_time_minutes
+
+add bx,cx
+add di,cx
+
+mov ah,2ch
+int 21h
+
+mov al,dh
+mov ah, cl
+
+mov dx,ax
+
+mov ch, [di]
+mov cl, [bx] 
+
+sub ax, cx
+ 
+cmp ax, 3
+jl greater_than_3
+
+get_position_in_grid curr_cell_marked_val_x, curr_cell_marked_val_y 
+mov cx, position_in_grid
+mov bx , offset grid_time_seconds
+mov di, offset grid_time_minutes
+
+add bx,cx
+add di,cx
+
+mov [bx],dl
+mov [di],dh
+
+greater_than_3:
+
+popa
+endm
 pieceWidth EQU 20
 pieceHeight EQU 20
 
@@ -969,13 +1064,16 @@ m44:
 cmp al,'q'         ; source
 jz c15
 jmp m5
-
 c15:
 cmp cell_clicked_x, 0
 jz c18
 jmp c16
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;check
+
+
+
+
 
 c18:
 mov dx, curr_marked_x_val
@@ -1061,6 +1159,48 @@ c16:
 ;;Blue
 ; mov al, 1
 ; DrawRectangle 0,0,20,20
+
+
+; malek was here
+; to check time less than 3 or not
+get_position_in_grid cell_clicked_x, cell_clicked_y 
+mov al,4
+mov cx, position_in_grid
+
+mov bx, offset grid_time_seconds
+mov di, offset grid_time_minutes
+mov si, offset grid_time_hourse
+
+add bx,cx
+add di,cx
+add si, cx
+
+mov ah,2ch
+int 21h
+
+cmp ch, [si] 
+jge less_than_h ; check for hours
+jmp game
+less_than_h:
+push cx
+
+mov al,dh
+mov ah, cl
+
+mov dx,ax
+
+mov ch, [di]
+mov cl, [bx] 
+
+sub ax, cx
+ 
+cmp ax, 3
+jg less_than_3 ; check for minutes and seconds
+jmp game
+less_than_3:
+
+push dx
+
 
 mov ax, cell_clicked_y
 shl ax, 8
@@ -1291,6 +1431,21 @@ mov al, 4
 DrawRectangle 0,0,20,20
 
 c42:
+
+get_position_in_grid curr_marked_x_val, curr_marked_y_val
+mov cx, position_in_grid
+mov bx , offset grid_time_seconds
+mov di, offset grid_time_minutes
+
+add bx,cx
+add di,cx
+add si,cx
+pop dx
+pop cx
+mov [bx],dl
+mov [di],dh
+mov [si],ch
+
 
 ;; Reset cell_clicked_x and cell_clicked_y
 mov cell_clicked_x, 0

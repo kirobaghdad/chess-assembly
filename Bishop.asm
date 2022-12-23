@@ -1,4 +1,7 @@
-
+extrn grid:byte 
+extrn moves:word
+extrn count:byte
+public bishopMoves
 ; extrn grid:byte
 ;Moves format: sourceRow SourceCol, destRow DestCol    
 convertToTile macro position
@@ -44,32 +47,14 @@ pop bx
 pop ax 
 endm popAlls
 
-loopDiagonally macro
-
-
-endm loopDiagonally
-
 .model large
 .stack 64
 .data
-grid db "br","bn","bb","bk","bq","bb","bn","br"
-     db "bp","bp","bp","bp","bp","bp","bp","bp"                                    
-     db "--","--","--","--","--","--","--","--"
-     db "--","--","--","--","--","--","--","wb"
-     db "--","--","--","--","--","--","--","--"
-     db "--","--","--","--","--","--","--","--"
-     db "wp","wp","wp","wp","wp","wp","wp","wp"  
-     db "wr","wn","wb","wk","wq","wb","wn","wr"
-                                  
-moves dw 100 dup('$')
-count db 0
-  
-  
 .code
 
 
 ;Given the bishop position in the board, this procedure returns the available moves of this pawn
-bishopMoves proc
+bishopMoves proc far
 ; (AH AL) = (row, col)
 ; CX is used to assign the destination in the moves
 ; DX is equal to the initial AX (It is never changed)
@@ -80,8 +65,6 @@ bishopMoves proc
 
 
 
-mov ah, 4h
-mov al, 8h
 dec ah
 dec al
 

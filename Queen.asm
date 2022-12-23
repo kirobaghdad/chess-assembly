@@ -44,6 +44,9 @@ pop bx
 pop ax 
 endm popAlls
 
+;;Gets the index in BX (Given the pos in AX (0-indexed))
+
+
 .model large
 .stack 64
 .data
@@ -57,11 +60,25 @@ grid db "br","bn","bb","bk","bq","bb","bn","br"
      db "wr","wn","wb","wk","wq","wb","wn","wr"
                                   
 moves dw 100 dup('$')
-count db 0
-  
-  
+count db 0          
 .code
 
+
+
+
+
+
+
+addMove proc
+mov bh, 0
+mov bl, count
+
+mov moves[bx], cx
+add count, 2
+
+ret
+
+addMove endp
 
 ;Given the bishop position in the board, this procedure returns the available moves of this pawn
 bishopMoves proc
@@ -74,13 +91,13 @@ bishopMoves proc
 ;;Assuming (8,3) 
 
 
+pushAll
 
 dec ah
 dec al
 
 mov dx,ax
 
-pushAll
 
 
 convertToTile ax
@@ -299,11 +316,193 @@ bishopMoves endp
 
 
 
+
+RockMoves proc 
+;Assuming rock position is (5,4)
+; mov ah, 5
+; mov al, 4
+
+mov dx, ax
+
+dec ah
+dec al
+; ah = 7 ;;Row
+; al = 0 ;;Col
+
+;Getting the index of the piece in the grid
+convertToTile ax
+
+
+cmp grid[bx], 'w'
+mov ah, 'w'
+mov al, 'b'
+je c11
+mov ah, 'b'
+mov al, 'w'
+
+c11:
+;;Moving Right
+push bx ;;Because bx will be updated
+
+mov cx, dx
+
+c12:
+cmp cl, 8
+je c13 ;;Cannot Move Right Again
+cmp grid[bx + 2], al
+jne c14
+
+;;Add move
+inc cl
+call addMove
+jmp c13
+
+c14:
+cmp grid[bx + 2], ah
+je c13
+
+;;Add move
+push bx
+inc cl
+call addMove
+pop bx
+
+add bx, 2
+jmp c12
+
+
+c13:
+pop bx
+;;Moving Left
+push bx ;;Because bx will be updated
+
+mov cx, dx
+
+c15:
+cmp cl, 1
+je c18 ;;Cannot Move Left Again
+
+cmp grid[bx - 2], al
+jne c17
+
+;;Add move
+dec cl
+call addMove
+jmp c18
+
+c17:
+cmp grid[bx - 2], ah
+je c18
+
+;;Add move
+push bx
+dec cl
+call addMove
+pop bx
+
+sub bx, 2
+jmp c15
+
+c18:
+pop bx
+;;Moving Up
+push bx ;;Because bx will be updated
+
+mov cx, dx
+
+c23:
+cmp ch, 1
+je c22 ;;Cannot Move Up Again
+
+cmp grid[bx - 16d], al
+jne c21
+
+;;Add move
+dec ch
+call addMove
+jmp c22
+
+c21:
+cmp grid[bx - 16d], ah
+je c22
+
+;;Add move
+push bx
+dec ch
+call addMove
+pop bx
+
+sub bx, 16
+jmp c23
+
+
+
+c22:
+pop bx
+;;Moving Down
+push bx ;;Because bx will be updated
+
+mov cx, dx
+
+c27:
+cmp ch, 8
+je c26 ;;Cannot Move Down Again
+
+cmp grid[bx + 16d], al
+jne c25
+
+;;Add move
+inc ch
+call addMove
+jmp c26
+
+c25:
+cmp grid[bx + 16d], ah
+je c26
+
+;;Add move
+push bx
+inc ch
+call addMove
+pop bx
+
+add bx, 16
+jmp c27
+
+c26:
+pop bx
+
+ret
+
+RockMoves endp
+
+
+;Given the bishop position in the board, this procedure returns the available moves of this pawn
+queenMoves proc
+; (AH AL) = (row, col)
+; CX is used to assign the destination in the moves
+; DX is equal to the initial AX (It is never changed)
+; BX is used for accessing the arrays
+
+
+    mov ah, 8h
+    mov al, 5h
+    push ax
+    call bishopMoves
+    pop ax
+    call RockMoves
+
+ret
+
+queenMoves endp
+
+
+
 start:
 mov ax, @data
 mov ds, ax
 
-call bishopMoves
+call queenMoves
 hlt
 
 end start

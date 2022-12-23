@@ -1075,9 +1075,47 @@ jmp c16
 
 
 
-
-
 c18:
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; check move white piece or empty cell begin;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
+mov ax, curr_marked_y_val
+shl ax, 8
+add ax, curr_marked_x_val
+
+sub ax, 0101h
+
+call getIndex ;; 0-indexed
+
+
+; mov bx, offset grid[bx]
+mov ax, offset grid
+add bx, ax
+;add bx, 32d
+
+mov si, bx
+add si, 20
+
+; White
+mov al, 0Fh
+DrawRectangle bx,0,si,20
+
+
+mov cx, [bx]
+
+cmp cl, 'w'
+jnz is_not_wight_piece
+jmp game
+is_not_wight_piece:
+
+cmp cx, '--'
+jnz is_not_empty_cell
+jmp game
+is_not_empty_cell:
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; check move white piece or empty cell end ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+
 mov dx, curr_marked_x_val
 mov cx, curr_marked_y_val
 
@@ -1246,6 +1284,13 @@ mov allowed, 0
 
 ; mov bx, 
 
+;;;;;;;;;;;
+
+
+
+
+
+
 mov ax, cell_clicked_y
 shl ax, 8
 add ax, cell_clicked_x
@@ -1253,7 +1298,12 @@ add ax, cell_clicked_x
 mov bx, curr_marked_y_val
 shl bx, 8
 add bx, curr_marked_x_val
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; check killed king  begin;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
 pusha
 
 mov ax, curr_marked_y_val
@@ -1286,7 +1336,9 @@ jnz is_not_wight_king
 inc is_wight_k
 is_not_wight_king:
 popa
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; check killed king end ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 call makeMove  ;; Updating the grid
 
 
@@ -1519,9 +1571,46 @@ jmp c160
 
 
 
-
-
 c180:
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; check move black piece or empty cell begin;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
+mov ax, curr_marked_y_val_p2
+shl ax, 8
+add ax, curr_marked_x_val_p2
+
+sub ax, 0101h
+
+call getIndex ;; 0-indexed
+
+
+; mov bx, offset grid[bx]
+mov ax, offset grid
+add bx, ax
+;add bx, 32d
+
+mov si, bx
+add si, 20
+
+; White
+mov al, 0Fh
+DrawRectangle bx,0,si,20
+
+
+mov cx, [bx]
+
+cmp cl, 'b'
+jnz is_not_black_piece
+jmp game
+is_not_black_piece:
+
+cmp cx, '--'
+jnz is_not_empty_cell_1
+jmp game
+is_not_empty_cell_1:
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; check move black piece or empty cell end ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
 mov dx, curr_marked_x_val_p2
 mov cx, curr_marked_y_val_p2
 
@@ -1663,6 +1752,7 @@ mov bx, curr_marked_y_val_p2
 shl bx, 8
 
 add bx, curr_marked_x_val_p2
+
 
 
 mov bp, bx

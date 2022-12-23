@@ -45,6 +45,25 @@ pop bx
 pop ax 
 endm popAll
 
+addToMovesKnight macro
+push bx
+push cx
+
+mov cx, ax
+inc cl 
+inc ch
+
+mov bx,0
+mov bl,count 
+
+
+mov moves[bx],cx
+add count, 2
+
+pop cx 
+pop bx
+endm addToMovesKnight
+
 .model large
 .stack 64
 .data
@@ -64,7 +83,7 @@ count db 0
 .code
 
 
-;Given the bishop position in the board, this procedure returns the available moves of this pawn
+;Given the knight position in the board, this procedure returns the available moves of this knight
 knightMoves proc
 ; (AH AL) = (row, col)
 ; CX is used to assign the destination in the moves
@@ -86,464 +105,251 @@ mov dx,ax
 
 pushAll
 
+dec ah
+dec al
+
 
 convertToTile ax
 
 
-
 cmp grid[bx], "w"
-je m1
-jmp near ptr black
+je whiteKnight
+jmp blackKnight
+
+
+whiteKnight:
+mov dl,"w"
+mov dh,"b"
+jmp m1
+blackKnight:
+mov dl,"b"
+mov dh,"w"
+
+
 ; done
 ; row = row - 2, col = col - 1
 ; ax -> desired position
 ; bx -> index on the grid
 ; dx -> original index base 0
 m1:
-mov ax, dx
+pushAll
 dec ah 
 dec ah 
 dec al
+
+cmp ah, 7h
+ja m2
+cmp ah, 0h
+jb m2
+; out of bound
+cmp al, 7h     
+ja m2
+cmp al, 0h
+jb m2
+
+
 convertToTile ax
 
-cmp grid[bx],'w'
+cmp grid[bx],dl
 jz m2
+addToMovesKnight
 
-cmp bx, 128D
-ja m2
-
-cmp bx, 0D
-jb m2 
-
-mov bx,0
-mov bl,count 
-mov moves[bx],dx
-mov moves[bx+2],ax
-add count, 4
 ; done
 ; row = row - 1, col = col - 2
 ; ax -> desired position
 ; bx -> index on the grid
 ; dx -> original index base 0
 m2:
-mov ax, dx
-
+popAll
+pushAll
 dec ah 
 dec al
 dec al
 
+cmp ah, 7h
+ja m3
+cmp ah, 0h
+jb m3
+; out of bound
+cmp al, 7h     
+ja m3
+cmp al, 0h
+jb m3
+
+
 convertToTile ax
 
-cmp grid[bx],'w'
+cmp grid[bx],dl
 jz m3
 
-cmp bx, 128D
-ja m3
+addToMovesKnight; done
 
-cmp bx, 0D
-jb m3 
 
-mov bx,0
-mov bl,count 
-mov moves[bx],dx
-mov moves[bx+2],ax
-add count, 4
-; done
+
+
 ; row = row + 1, col = col - 2
 ; ax -> desired position
 ; bx -> index on the grid
 ; dx -> original index base 0
 m3:
-mov ax, dx
-
+popAll
+pushAll
 inc ah 
 dec al
 dec al
 
+cmp ah, 7h
+ja m4
+cmp ah, 0h
+jb m4
+; out of bound
+cmp al, 7h     
+ja m4
+cmp al, 0h
+jb m4
+
+
 convertToTile ax
 
-cmp grid[bx],'w'
-jz m4
+cmp grid[bx],dl
+jz m5
 
-cmp bx, 128D
-ja m4
-
-cmp bx, 0D
-jb m4 
-
-mov bx,0
-mov bl,count 
-mov moves[bx],dx
-mov moves[bx+2],ax
-add count, 4
+addToMovesKnight
 
 ; row = row + 2, col = col - 1
 ; ax -> desired position
 ; bx -> index on the grid
 ; dx -> original index base 0
 m4:
-mov ax, dx
-
+popAll
+pushAll
 inc ah 
 inc ah 
 dec al
+
+cmp ah, 7h
+ja m5
+cmp ah, 0h
+jb m5
+; out of bound
+cmp al, 7h     
+ja m5
+cmp al, 0h
+jb m5
+
+
 convertToTile ax
 
-cmp grid[bx],'w'
+cmp grid[bx],dl
 jz m5
 
-cmp bx, 128D
-ja m5
-
-cmp bx, 0D
-jb m5 
-
-mov bx,0
-mov bl,count 
-mov moves[bx],dx
-mov moves[bx+2],ax
-add count, 4
+addToMovesKnight
 
 ; row = row + 2, col = col + 1
 ; ax -> desired position
 ; bx -> index on the grid
 ; dx -> original index base 0
 m5:
-mov ax, dx
-
+popAll
+pushAll
 inc ah 
 inc ah 
 inc al
 
+cmp ah, 7h
+ja m6
+cmp ah, 0h
+jb m6
+; out of bound
+cmp al, 7h     
+ja m6
+cmp al, 0h
+jb m6
+
+
 convertToTile ax
 
-cmp grid[bx],'w'
+cmp grid[bx],dl
 jz m6
-
-cmp bx, 128D
-ja m6
-
-cmp bx, 0D
-jb m6 
-
-mov bx,0
-mov bl,count 
-mov moves[bx],dx
-mov moves[bx+2],ax
-add count, 4
-
+addToMovesKnight
 ; row = row + 1, col = col + 2
 ; ax -> desired position
 ; bx -> index on the grid
 ; dx -> original index base 0
 m6:
-mov ax, dx
-
+popAll
+pushAll
 inc ah 
 inc al
 inc al
-
-convertToTile ax
-
-cmp grid[bx],'w'
-jz m7
-
-cmp bx, 128D
+cmp ah, 7h
 ja m7
-
-cmp bx, 0D
-jb m7 
-
-mov bx,0
-mov bl,count 
-mov moves[bx],dx
-mov moves[bx+2],ax
-add count, 4
+cmp ah, 0h
+jb m7
+; out of bound
+cmp al, 7h     
+ja m7
+cmp al, 0h
+jb m7
+convertToTile ax
+cmp grid[bx],dl
+jz m7
+addToMovesKnight
 
 ; row = row - 1, col = col + 2
 ; ax -> desired position
 ; bx -> index on the grid
 ; dx -> original index base 0
 m7:
-mov ax, dx
-
+popAll
+pushAll
 dec ah 
 inc al
 inc al
+cmp ah, 7h
+ja m8
+cmp ah, 0h
+jb m8
+; out of bound
+cmp al, 7h     
+ja m8
+cmp al, 0h
+jb m8
+
 convertToTile ax
 
-cmp grid[bx],'w'
+cmp grid[bx],dl
 jz m8
-
-cmp bx, 128D
-ja m8
-
-cmp bx, 0D
-jb m8 
-
-mov bx,0
-mov bl,count 
-mov moves[bx],dx
-mov moves[bx+2],ax
-add count, 4
+addToMovesKnight
 
 ; row = row - 2, col = col + 1
 ; ax -> desired position
 ; bx -> index on the grid
 ; dx -> original index base 0
 m8:
-mov ax, dx
-
+popAll
+pushAll
 dec ah 
 dec ah 
 inc al
-convertToTile ax
-
-cmp grid[bx],'w'
-jnz x1n
-jmp near ptr cont
-x1n:
-cmp bx, 128D
-jb x2n
-jmp near ptr cont
-x2n:
-cmp bx, 0D
-ja x3n
-jmp near ptr cont
-x3n: 
-
-mov bx,0
-mov bl,count 
-mov moves[bx],dx
-mov moves[bx+2],ax
-add count, 4
-
-
-
-
-
-
-black:
-
-m1b:
-mov ax, dx
-dec ah 
-dec ah 
-dec al
-convertToTile ax
-
-cmp grid[bx],'b'
-jz m2b
-
-cmp bx, 128D
-ja m2b
-
-cmp bx, 0D
-jb m2b 
-
-mov bx,0
-mov bl,count 
-mov moves[bx],dx
-mov moves[bx+2],ax
-add count, 4
-; done
-; row = row - 1, col = col - 2
-; ax -> desired position
-; bx -> index on the grid
-; dx -> original index base 0
-m2b:
-mov ax, dx
-
-dec ah 
-dec al
-dec al
-
-convertToTile ax
-
-cmp grid[bx],'b'
-jz m3b
-
-cmp bx, 128D
-ja m3b
-
-cmp bx, 0D
-jb m3b 
-
-mov bx,0
-mov bl,count 
-mov moves[bx],dx
-mov moves[bx+2],ax
-add count, 4
-; done
-; row = row + 1, col = col - 2
-; ax -> desired position
-; bx -> index on the grid
-; dx -> original index base 0
-m3b:
-mov ax, dx
-
-inc ah 
-dec al
-dec al
-
-convertToTile ax
-
-cmp grid[bx],'b'
-jz m4b
-
-cmp bx, 128D
-ja m4b
-
-cmp bx, 0D
-jb m4b 
-
-mov bx,0
-mov bl,count 
-mov moves[bx],dx
-mov moves[bx+2],ax
-add count, 4
-
-; row = row + 2, col = col - 1
-; ax -> desired position
-; bx -> index on the grid
-; dx -> original index base 0
-m4b:
-mov ax, dx
-
-inc ah 
-inc ah 
-dec al
-convertToTile ax
-
-cmp grid[bx],'b'
-jz m5b
-
-cmp bx, 128D
-ja m5b
-
-cmp bx, 0D
-jb m5b 
-
-mov bx,0
-mov bl,count 
-mov moves[bx],dx
-mov moves[bx+2],ax
-add count, 4
-
-; row = row + 2, col = col + 1
-; ax -> desired position
-; bx -> index on the grid
-; dx -> original index base 0
-m5b:
-mov ax, dx
-
-inc ah 
-inc ah 
-inc al
-
-convertToTile ax
-
-cmp grid[bx],'b'
-jz m6b
-
-cmp bx, 128D
-ja m6b
-
-cmp bx, 0D
-jb m6b 
-
-mov bx,0
-mov bl,count 
-mov moves[bx],dx
-mov moves[bx+2],ax
-add count, 4
-
-; row = row + 1, col = col + 2
-; ax -> desired position
-; bx -> index on the grid
-; dx -> original index base 0
-m6b:
-mov ax, dx
-
-inc ah 
-inc al
-inc al
-
-convertToTile ax
-
-cmp grid[bx],'b'
-jz m7b
-
-cmp bx, 128D
-ja m7b
-
-cmp bx, 0D
-jb m7b 
-
-mov bx,0
-mov bl,count 
-mov moves[bx],dx
-mov moves[bx+2],ax
-add count, 4
-
-; row = row - 1, col = col + 2
-; ax -> desired position
-; bx -> index on the grid
-; dx -> original index base 0
-m7b:
-mov ax, dx
-
-dec ah 
-inc al
-inc al
-convertToTile ax
-
-cmp grid[bx],'b'
-jz m8b
-
-cmp bx, 128D
-ja m8b
-
-cmp bx, 0D
-jb m8b 
-
-mov bx,0
-mov bl,count 
-mov moves[bx],dx
-mov moves[bx+2],ax
-add count, 4
-
-; row = row - 2, col = col + 1
-; ax -> desired position
-; bx -> index on the grid
-; dx -> original index base 0
-m8b:
-mov ax, dx
-
-dec ah 
-dec ah 
-inc al
-convertToTile ax
-
-cmp grid[bx],'b'
-jz cont
-
-cmp bx, 128D
+cmp ah, 7h
 ja cont
-
-cmp bx, 0D
-jb cont 
-
-mov bx,0
-mov bl,count 
-mov moves[bx],dx
-mov moves[bx+2],ax
-add count, 4
-
+cmp ah, 0h
+jb cont
+; out of bound
+cmp al, 7h     
+ja cont
+cmp al, 0h
+jb cont
+convertToTile ax
+cmp grid[bx],dl
+jz cont
+addToMovesKnight
 
 cont: 
 popAll
-hlt 
+popAll
+
 ret
 
 knightMoves endp

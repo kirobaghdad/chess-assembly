@@ -1179,7 +1179,7 @@ mov ah,2ch
 int 21h
 
 cmp ch, [si] 
-jg less_than_h ; check for hours
+jge less_than_h ; check for hours
 jmp game
 less_than_h:
 push cx

@@ -1180,7 +1180,10 @@ int 21h
 
 cmp ch, [si] 
 jge less_than_h ; check for hours
-jmp game
+mov al, 5
+DrawRectangle 0,0,20,20
+
+jmp c19
 less_than_h:
 push cx
 
@@ -1196,7 +1199,9 @@ sub ax, cx
  
 cmp ax, 3
 jg less_than_3 ; check for minutes and seconds
-jmp game
+mov al, 5
+DrawRectangle 0,0,20,20
+jmp c19
 less_than_3:
 
 push dx
@@ -1414,6 +1419,21 @@ c33:
 get_cell curr_marked_x_val, curr_marked_y_val
 draw get_cell_x , get_cell_y , di;, x, y
 
+get_position_in_grid curr_marked_x_val, curr_marked_y_val
+mov cx, position_in_grid
+mov bx , offset grid_time_seconds
+mov di, offset grid_time_minutes
+
+add bx,cx
+add di,cx
+add si,cx
+pop dx
+pop cx
+mov [bx],dl
+mov [di],dh
+mov [si],ch
+
+
 
 ; ;; Update the Destination Rect
 ; dec curr_marked_x_val_p2
@@ -1431,20 +1451,6 @@ mov al, 4
 DrawRectangle 0,0,20,20
 
 c42:
-
-get_position_in_grid curr_marked_x_val, curr_marked_y_val
-mov cx, position_in_grid
-mov bx , offset grid_time_seconds
-mov di, offset grid_time_minutes
-
-add bx,cx
-add di,cx
-add si,cx
-pop dx
-pop cx
-mov [bx],dl
-mov [di],dh
-mov [si],ch
 
 
 ;; Reset cell_clicked_x and cell_clicked_y

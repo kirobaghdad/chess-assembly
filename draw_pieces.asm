@@ -1199,7 +1199,7 @@ jg less_than_3 ; check for minutes and seconds
 jmp game
 less_than_3:
 
-
+push dx
 
 
 mov ax, cell_clicked_y
@@ -1440,6 +1440,7 @@ mov di, offset grid_time_minutes
 add bx,cx
 add di,cx
 add si,cx
+pop dx
 pop cx
 mov [bx],dl
 mov [di],dh

@@ -45,7 +45,7 @@ pop dx
 pop cx
 pop bx
 pop ax 
-endm popAlls
+endm popAll
 
 .model large
 .stack 64

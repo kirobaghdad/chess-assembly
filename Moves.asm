@@ -1,14 +1,20 @@
+.186
+;; getMoves Procedures
 public PawnMoves
 public RockMoves
 public KingMoves
+public knightMoves
+public bishopMoves
+public queenMoves
+
+public ClearMoves
 public getIndex
 public moves
 public makeMove
-public ClearMoves
-public knightMoves
-public bishopMoves
 
 extrn grid:byte
+extrn get_cell_x:word
+extrn get_cell_y:word
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -17,7 +23,48 @@ extrn grid:byte
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+
+;; (Debugging)
+DrawRectangle macro x_0, y_0, x_1, y_1
+local border, row, l, m
+pusha
+
+;;;;;;;;;;;Draw highlight at first position
+
+; mov di,x_0
+; mov si,y_0
+
+; cmp di,curr_marked_x_pixel
+; jnz l
+; cmp si,curr_marked_y_pixel
+; jnz m
+
+; mov al,0Ch
+
+l:
+m:
+mov ah, 0ch
+mov dx, y_0
+
+border:
+mov cx, x_0
+
+row:
+int 10h
+inc cx
+cmp cx, x_1
+jne row
+
+inc dx
+cmp dx, y_1
+jne border
+
+popa
+endm
+
+
 convertToTile macro position ;; ax is 0-indexed
+
 push ax
 mov ax, position
 
@@ -59,6 +106,7 @@ pop cx
 pop bx
 pop ax 
 endm popAll
+
 addToMovesKnight macro
 push bx
 push cx
@@ -78,6 +126,39 @@ pop cx
 pop bx
 endm addToMovesKnight
 
+get_cell macro row_x,col_y
+local add_square_val , add_square_val_2   
+
+pusha
+
+;(Board Position)
+;; what are these numbers;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+mov cx,50
+mov dx,-10
+
+mov si,row_x
+mov di,col_y
+
+add_square_val:
+
+add cx,22
+
+dec si
+jnz add_square_val
+
+add_square_val_2:
+
+add dx,22
+
+dec di
+jnz add_square_val_2
+
+mov get_cell_x, cx
+mov get_cell_y, dx
+
+
+popa
+endm
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -109,24 +190,154 @@ count db 0
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ClearMoves proc far
+mov bp, offset moves
 
-mov bx, offset moves
+mov dx, 0  ;;Counter
+
+;; (Debugging)
+ccc:
+mov cx, [bp]
+cmp ch, "$"
+je ccc0
+add dx, 2
+
+add bp, 2
+
+jmp ccc
+
+ccc0:
+mov ah, 2
+add dl, 48d
+int 21h
+
 
 l:
-mov cx, [bx]
+mov cx, [bp]
 cmp cl,'$'
-je c42
+jne c50
+jmp c42
 
-mov [bx], '$$'
+c50:
+push cx
 
-add bx, 2
+pop cx
+
+mov ax, 0
+mov al, cl
+add al, ch
+
+mov bl, 2
+div bl
+
+cmp ah, 1 ;; Dark (Odd)
+je dark5
+;; Light
+mov al, 7
+jmp c46
+dark5:
+mov al, 8
+c46:
+push ax  ;; To maintain al
+
+;;X (AX)
+mov ax, cx
+and ax, 00FFh
+
+;;Y (BX)
+mov bx, cx
+and bx, 0FF00h
+shr bx, 8
+
+get_cell ax, bx
+
+;; (Debugging)
+; mov si, get_cell_x
+; add si, 22
+
+; mov al, 5
+; DrawRectangle get_cell_x, 0, si, 22 
+;; (Debugging);;;;;;;
+
+pop ax
+
+mov cx, get_cell_x
+mov dx, get_cell_y
+
+mov si, cx
+add si, 22  ;;X end
+
+mov di, dx
+add di, 22  ;; Y end
+
+col0:
+
+r00:
+push ax
+
+mov ah, 0dh
+int 10h
+
+cmp al, 02
+je draw
+cmp al, 0ah
+je draw
+jmp c47
+
+draw:
+pop ax
+
+; mov al, 5
+; mov ah, 0ch
+; int 10h
+
+jmp c48
+
+c47:
+pop ax
+
+c48: ;;;(not poping again)
+
+inc cx
+cmp cx, si
+
+jne r00
+
+mov cx, get_cell_x
+
+inc dx
+cmp dx, di
+
+jne col0 
+
+c49:
+
+mov [bp], '$$'
+
+add bp, 2
 jmp l
-
 
 c42:
 
 mov count, 0
 ret
+
+; mov bx, offset moves
+
+; l:
+; mov cx, [bx]
+; cmp cl,'$'
+; je c42
+
+; mov [bx], '$$'
+
+; add bx, 2
+; jmp l
+
+
+; c42:
+
+; mov count, 0
+; ret
 ClearMoves endp
 
 
@@ -163,9 +374,65 @@ ret
 getIndex endp
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Make Move ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+makeMove proc far
+; Input
+; ax -> source (1-indexed)
+; bx -> destination (1-indexed)
 
 
-addMove proc
+;;;;;;;;;;;;;;;;
+; di -> source index in grid
+; si -> destination index in grid
+
+dec al
+dec ah
+dec bl
+dec bh
+
+mov dx, bx ;Maintaining bx
+
+call getIndex
+
+mov di, bx
+mov ax, dx
+
+call getIndex
+
+mov si, bx
+
+mov al, grid[di]
+mov grid[di], '-'
+mov ah, grid[di+1]
+mov grid[di+1], '-'
+
+mov grid[si], al
+mov grid[si+1], ah
+
+push ax
+
+; mov al, grid[33]
+; mov bh, 0
+; mov bl, 0F0h
+; mov cx, 1
+; mov ah, 09h
+; int 10h
+
+
+pop ax
+
+
+ret
+makeMove endp
+
+
+
+addMove proc far
 mov bh, 0
 mov bl, count
 
@@ -779,81 +1046,30 @@ ret
 RockMoves endp
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Make Move ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-makeMove proc far
-; Input
-; ax -> source (1-indexed)
-; bx -> destination (1-indexed)
-
-
-;;;;;;;;;;;;;;;;
-; di -> source index in grid
-; si -> destination index in grid
-
-dec al
-dec ah
-dec bl
-dec bh
-
-mov dx, bx ;Maintaining bx
-
-call getIndex
-
-mov di, bx
-mov ax, dx
-
-call getIndex
-
-mov si, bx
-
-mov al, grid[di]
-mov grid[di], '-'
-mov ah, grid[di+1]
-mov grid[di+1], '-'
-
-mov grid[si], al
-mov grid[si+1], ah
-
-push ax
-
-; mov al, grid[33]
-; mov bh, 0
-; mov bl, 0F0h
-; mov cx, 1
-; mov ah, 09h
-; int 10h
-
-
-pop ax
-
-
-ret
-makeMove endp
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Knight Moves ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-knightMoves proc
+knightMoves proc far
 ; (AH AL) = (row, col)
 ; CX is used to assign the destination in the moves
 ; DX is equal to the initial AX (It is never changed)
 ; BX is used for accessing the arrays
 
 ;pop ax
+;;Assuming (8,3) 
 
 
+; base 1
+; mov ah, 4h
+; mov al, 4h
 
 ; base 0
 
 ; maintain original position
+mov dx,ax
 
 pushAll
 
@@ -964,7 +1180,7 @@ jb m4
 convertToTile ax
 
 cmp grid[bx],dl
-jz m4
+jz m5
 
 addToMovesKnight
 
@@ -1113,7 +1329,7 @@ knightMoves endp
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;Given the bishop position in the board, this procedure returns the available moves of this pawn
+;Given the bishop position in the board, this procedure returns the available moves of this bishop
 bishopMoves proc far
 ; (AH AL) = (row, col)
 ; CX is used to assign the destination in the moves
@@ -1161,12 +1377,7 @@ pushAll
 diagonalRightUp: 
 dec ah
 inc al
-convertToTile ax
-cmp grid[bx], dh
-je LastdiagonalRightUp
-; if empty
-cmp grid[bx], "-"
-jnz diagonalLeftUpA
+
 ; out of bound
 cmp ah, 7h
 ja diagonalLeftUpA
@@ -1177,6 +1388,14 @@ cmp al, 7h
 ja diagonalLeftUpA
 cmp al, 0h
 jb diagonalLeftUpA
+
+
+convertToTile ax
+cmp grid[bx], dh
+je LastdiagonalRightUp
+; if empty
+cmp grid[bx], "-"
+jnz diagonalLeftUpA
 ; add to moves 
 LastdiagonalRightUp:
 push bx ; moves
@@ -1353,20 +1572,30 @@ ret
 
 bishopMoves endp
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Queen Moves ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;Given the bishop position in the board, this procedure returns the available moves of this queen
+queenMoves proc
+; (AH AL) = (row, col)
+; CX is used to assign the destination in the moves
+; DX is equal to the initial AX (It is never changed)
+; BX is used for accessing the arrays
 
 
-start:
-mov ax, @data
-mov ds, ax
+    ; mov ah, 8h
+    ; mov al, 5h
+    push ax
+    call bishopMoves
+    pop ax
+    call RockMoves
 
-call bishopMoves
-hlt
+ret
 
-end start
-
-.end
-END
-
+queenMoves endp
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

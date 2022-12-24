@@ -21,6 +21,7 @@ extrn KingMoves:far
 extrn RockMoves:far
 extrn knightMoves:far
 extrn bishopMoves:far
+extrn queenMoves:far
 
 extrn getIndex:far
 extrn moves:word
@@ -33,6 +34,9 @@ extrn allowed:byte
 
 
 public grid
+public get_cell_x
+public get_cell_y
+public drawHighlight
 
 .model large
 .stack 64
@@ -185,13 +189,14 @@ cont:
 endm
  
 Draw macro draw_x , draw_y , z;, x_r,y_c
-local drawloop, jumb_if_black, l, m
+local drawloop, jumb_if_black, l, m, c52, c53, c54, c55, c56
 ; Drawing loop
 
 pusha
 mov cx,draw_x
 mov dx,draw_y
 mov bx,z
+
 mov di,cx
 add di, pieceWidth
 mov si, dx
@@ -207,7 +212,33 @@ drawLoop:
     MOV AL,[bx]
     
     cmp al,0ffh
-    jz jumb_if_black        
+    jz jumb_if_black 
+    cmp al, 0ah
+    je c54
+
+    c53:
+    cmp al, 2
+    jne c52
+
+    ;; Check if white or black (Do not draw)
+    c54:
+    push ax
+    mov ah, 0dh
+    int 10h
+    cmp al, 0fh ;; white piece
+    je c55
+    cmp al, 12h ;; black piece
+    je c55
+
+    jmp c56
+
+    c55:
+    pop ax
+    jmp jumb_if_black
+
+    c56:
+    pop ax
+    c52:
     INT 10h
     jumb_if_black: 
     
@@ -223,6 +254,8 @@ JNE drawLoop
 
 popa
 endm 
+
+
 
 get_cell macro row_x,col_y
 local add_square_val , add_square_val_2   
@@ -426,6 +459,7 @@ popa
 endm
 
 .code
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1002,6 +1036,10 @@ dec ax
 ; mov al, 0h
 ; DrawRectangle bx,0,bp,20
 
+; pusha
+; call ClearMoves
+; popa
+
 push ax
 call getIndex
 pop ax
@@ -1036,13 +1074,16 @@ call KingMoves
 c39:
 cmp grid[bx+1], 'q' ;;To be tested
 jne c41
-;call queenMoves
+call queenMoves
 
 c41:
+cmp grid[bx+1], 'p'
+jne c51
 call PawnMoves
 
 ; Drawing the moves highlight
 
+c51:
 call drawHighlight
 
 

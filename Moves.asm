@@ -15,7 +15,7 @@ public makeMove
 extrn grid:byte
 extrn get_cell_x:word
 extrn get_cell_y:word
-
+extrn drawHighlight:far
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -190,41 +190,60 @@ count db 0
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ClearMoves proc far
-mov bp, offset moves
+; ; (Debugging)
+; mov bx, 0
 
-mov dx, 0  ;;Counter
+; mov ax, 0  ;;Counter
 
-;; (Debugging)
-ccc:
-mov cx, [bp]
-cmp ch, "$"
-je ccc0
-add dx, 2
+; ccc:
+; mov cx, moves[bx]
+; cmp cl, "$"
+; je ccc0
 
-add bp, 2
+; add ax, 1
 
-jmp ccc
+; ; mov ah, 2
+; ; mov dl, al
+; ; add dl, 48d
+; ; int 21h
 
-ccc0:
-mov ah, 2
-add dl, 48d
-int 21h
+; mov dl, ch
+; add dl, 48d
+; mov ah, 2
+; int 21h
 
+; mov ah, 86h
+; mov dx, 4240h
+; mov cx, 0fh
+; int 15h
+
+; add bx, 2
+
+; jmp ccc
+
+
+; ccc0:
+
+mov si, 0 ;; Counter
 
 l:
-mov cx, [bp]
+mov cx, moves[si]
+; mov ah, 2
+; mov dl, cl
+; add dl, 48d
+; int 21h
+
 cmp cl,'$'
 jne c50
 jmp c42
 
 c50:
-push cx
-
-pop cx
-
+push si
 mov ax, 0
 mov al, cl
 add al, ch
+
+
 
 mov bl, 2
 div bl
@@ -235,7 +254,18 @@ je dark5
 mov al, 7
 jmp c46
 dark5:
+
 mov al, 8
+
+; push ax
+; ; Debugging
+; mov dl, ch
+; add dl, 48d
+; mov ah, 2
+; int 21h
+; pop ax
+
+
 c46:
 push ax  ;; To maintain al
 
@@ -243,30 +273,34 @@ push ax  ;; To maintain al
 mov ax, cx
 and ax, 00FFh
 
+
 ;;Y (BX)
 mov bx, cx
 and bx, 0FF00h
 shr bx, 8
 
+; mov dl, bl
+; add dl, 48d
+; mov ah, 2
+; int 21h
+
+
 get_cell ax, bx
 
-;; (Debugging)
+; ; (Debugging)
 ; mov si, get_cell_x
 ; add si, 22
-
+; mov di, get_cell_y
+; add di, 22
 ; mov al, 5
-; DrawRectangle get_cell_x, 0, si, 22 
-;; (Debugging);;;;;;;
-
+; DrawRectangle get_cell_x, get_cell_y, si, di 
+; ; (Debugging);;;;;;;
 pop ax
 
-mov cx, get_cell_x
-mov dx, get_cell_y
-
-mov si, cx
+mov si, get_cell_x
 add si, 22  ;;X end
 
-mov di, dx
+mov di, get_cell_y
 add di, 22  ;; Y end
 
 col0:
@@ -286,9 +320,8 @@ jmp c47
 draw:
 pop ax
 
-; mov al, 5
-; mov ah, 0ch
-; int 10h
+mov ah, 0ch
+int 10h
 
 jmp c48
 
@@ -311,9 +344,11 @@ jne col0
 
 c49:
 
-mov [bp], '$$'
+pop si
 
-add bp, 2
+mov moves[si], '$$'
+
+add si, 2
 jmp l
 
 c42:

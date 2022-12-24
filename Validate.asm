@@ -26,7 +26,6 @@ endm popAll
 
 .model large
 .data
-count db 0
 allowed db 0
 iterator db 0
 

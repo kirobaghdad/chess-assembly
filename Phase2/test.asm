@@ -38,10 +38,6 @@ public grid
 .stack 64
 .data
 
-is_wight_k db 0
-is_black_k db 0
-position_in_grid  dw ?
-
 grid db "br","bn","bb","bq","bk","bb","bn","br"
      db "bp","bp","bp","bp","bp","bp","bp","bp"                                    
      db "--","--","--","--","--","--","--","--"
@@ -50,101 +46,8 @@ grid db "br","bn","bb","bq","bk","bb","bn","br"
      db "--","--","--","--","--","--","--","--"
      db "wp","wp","wp","wp","wp","wp","wp","wp"  
      db "wr","wn","wb","wq","wk","wb","wn","wr"
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;                                 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Check    Time   Macros and data   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;                             
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;                                 
+                                  
 
-                                
-grid_time_seconds   db 0,0,0,0,0,0,0,0
-                    db 0,0,0,0,0,0,0,0
-                    db 0,0,0,0,0,0,0,0
-                    db 0,0,0,0,0,0,0,0
-                    db 0,0,0,0,0,0,0,0
-                    db 0,0,0,0,0,0,0,0
-                    db 0,0,0,0,0,0,0,0
-
-grid_time_minutes   db 0,0,0,0,0,0,0,0
-                    db 0,0,0,0,0,0,0,0
-                    db 0,0,0,0,0,0,0,0
-                    db 0,0,0,0,0,0,0,0
-                    db 0,0,0,0,0,0,0,0
-                    db 0,0,0,0,0,0,0,0
-                    db 0,0,0,0,0,0,0,0
-                    db 0,0,0,0,0,0,0,0
-
-grid_time_hourse    db 0,0,0,0,0,0,0,0
-                    db 0,0,0,0,0,0,0,0
-                    db 0,0,0,0,0,0,0,0
-                    db 0,0,0,0,0,0,0,0
-                    db 0,0,0,0,0,0,0,0
-                    db 0,0,0,0,0,0,0,0
-                    db 0,0,0,0,0,0,0,0
-                    db 0,0,0,0,0,0,0,0
-
-
-get_position_in_grid macro x, y
-pusha
-
-mov ax, y
-dec ax
-mov cx,8
-
-mul cx
-
-add ax, x
-dec ax
-
-mov position_in_grid , ax
-
-popa
-endm
-
-check_set_time macro
-pusha
-
-get_position_in_grid cell_clicked_source_x, cell_clicked_source_y 
-
-mov cx, position_in_grid
-
-mov bx , offset grid_time_seconds
-mov di, offset grid_time_minutes
-
-add bx,cx
-add di,cx
-
-mov ah,2ch
-int 21h
-
-mov al,dh
-mov ah, cl
-
-mov dx,ax
-
-mov ch, [di]
-mov cl, [bx] 
-
-sub ax, cx
- 
-cmp ax, 3
-jl greater_than_3
-
-get_position_in_grid curr_cell_marked_val_x, curr_cell_marked_val_y 
-mov cx, position_in_grid
-mov bx , offset grid_time_seconds
-mov di, offset grid_time_minutes
-
-add bx,cx
-add di,cx
-
-mov [bx],dl
-mov [di],dh
-
-greater_than_3:
-
-popa
-endm
 pieceWidth EQU 20
 pieceHeight EQU 20
 
@@ -1066,6 +969,7 @@ m44:
 cmp al,'q'         ; source
 jz c15
 jmp m5
+
 c15:
 cmp cell_clicked_x, 0
 jz c18
@@ -1073,49 +977,7 @@ jmp c16
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;check
 
-
-
 c18:
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; check move white piece or empty cell begin;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
-mov ax, curr_marked_y_val
-shl ax, 8
-add ax, curr_marked_x_val
-
-sub ax, 0101h
-
-call getIndex ;; 0-indexed
-
-
-; mov bx, offset grid[bx]
-mov ax, offset grid
-add bx, ax
-;add bx, 32d
-
-mov si, bx
-add si, 20
-
-; White
-mov al, 0Fh
-DrawRectangle bx,0,si,20
-
-
-mov cx, [bx]
-
-cmp cl, 'w'
-jnz is_not_wight_piece
-jmp game
-is_not_wight_piece:
-
-cmp cx, '--'
-jnz is_not_empty_cell
-jmp game
-is_not_empty_cell:
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; check move white piece or empty cell end ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
-
-
 mov dx, curr_marked_x_val
 mov cx, curr_marked_y_val
 
@@ -1200,53 +1062,6 @@ c16:
 ; mov al, 1
 ; DrawRectangle 0,0,20,20
 
-
-; malek was here
-; to check time less than 3 or not
-get_position_in_grid cell_clicked_x, cell_clicked_y 
-mov al,4
-mov cx, position_in_grid
-
-mov bx, offset grid_time_seconds
-mov di, offset grid_time_minutes
-mov si, offset grid_time_hourse
-
-add bx,cx
-add di,cx
-add si, cx
-
-mov ah,2ch
-int 21h
-
-cmp ch, [si] 
-jge less_than_h ; check for hours
-mov al, 5
-DrawRectangle 0,0,20,20
-
-jmp c19
-less_than_h:
-push cx
-
-mov al,dh
-mov ah, cl
-
-mov dx,ax
-
-mov ch, [di]
-mov cl, [bx] 
-
-sub ax, cx
- 
-cmp ax, 3
-jg less_than_3 ; check for minutes and seconds
-mov al, 5
-DrawRectangle 0,0,20,20
-jmp c19
-less_than_3:
-
-push dx
-
-
 mov ax, cell_clicked_y
 shl ax, 8
 
@@ -1284,13 +1099,6 @@ mov allowed, 0
 
 ; mov bx, 
 
-;;;;;;;;;;;
-
-
-
-
-
-
 mov ax, cell_clicked_y
 shl ax, 8
 add ax, cell_clicked_x
@@ -1299,45 +1107,6 @@ mov bx, curr_marked_y_val
 shl bx, 8
 add bx, curr_marked_x_val
 
-
-
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; check killed king  begin;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
-pusha
-
-mov ax, curr_marked_y_val
-shl ax, 8
-add ax, curr_marked_x_val
-
-sub ax, 0101h
-
-call getIndex ;; 0-indexed
-
-
-; mov bx, offset grid[bx]
-mov ax, offset grid
-add bx, ax
-;add bx, 32d
-
-mov si, bx
-add si, 20
-
-; White
-mov al, 0Fh
-DrawRectangle bx,0,si,20
-
-
-mov cx, [bx]
-xchg ch,cl
-
-cmp cx, 'wk'
-jnz is_not_wight_king
-inc is_wight_k
-is_not_wight_king:
-popa
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; check killed king end ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 call makeMove  ;; Updating the grid
 
@@ -1505,21 +1274,6 @@ c33:
 get_cell curr_marked_x_val, curr_marked_y_val
 draw get_cell_x , get_cell_y , di;, x, y
 
-get_position_in_grid curr_marked_x_val, curr_marked_y_val
-mov cx, position_in_grid
-mov bx , offset grid_time_seconds
-mov di, offset grid_time_minutes
-
-add bx,cx
-add di,cx
-add si,cx
-pop dx
-pop cx
-mov [bx],dl
-mov [di],dh
-mov [si],ch
-
-
 
 ; ;; Update the Destination Rect
 ; dec curr_marked_x_val_p2
@@ -1528,11 +1282,6 @@ mov [si],ch
 
 ; DrawRectangle curr_marked_x_pixel_p2, curr_marked_y_pixel_p2, bp, bx
 
-cmp is_wight_k, 1
-jnz c42
-mov al, 0fh
-DrawRectangle 0, 0, 320, 200
-jmp l
 
 jmp c42
 
@@ -1542,7 +1291,6 @@ mov al, 4
 DrawRectangle 0,0,20,20
 
 c42:
-
 
 ;; Reset cell_clicked_x and cell_clicked_y
 mov cell_clicked_x, 0
@@ -1556,493 +1304,16 @@ jmp game
 
 
 m5:
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; second player start   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
 cmp al,'p'         ; source
-jz c150
-jmp m6
-c150:
-cmp cell_clicked_x_p2, 0
-jz c180
-jmp c160
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;check
-
-
-
-c180:
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; check move black piece or empty cell begin;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
-mov ax, curr_marked_y_val_p2
-shl ax, 8
-add ax, curr_marked_x_val_p2
-
-sub ax, 0101h
-
-call getIndex ;; 0-indexed
-
-
-; mov bx, offset grid[bx]
-mov ax, offset grid
-add bx, ax
-;add bx, 32d
-
-mov si, bx
-add si, 20
-
-; White
-mov al, 0Fh
-DrawRectangle bx,0,si,20
-
-
-mov cx, [bx]
-
-cmp cl, 'b'
-jnz is_not_black_piece
-jmp game
-is_not_black_piece:
-
-cmp cx, '--'
-jnz is_not_empty_cell_1
-jmp game
-is_not_empty_cell_1:
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; check move black piece or empty cell end ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
+jnz m6
 mov dx, curr_marked_x_val_p2
 mov cx, curr_marked_y_val_p2
 
-
 mov cell_clicked_x_p2,dx
 mov cell_clicked_y_p2,cx
-
-; mov al, 0ch
-; DrawRectangle 0,0,20,20
-
-mov ax, curr_marked_y_val_p2
-dec ax
-shl ax, 8
-
-add ax, curr_marked_x_val_p2
-dec ax
-
-; mov bx,ax
-; mov bp, bx
-; add bp, 20d
-
-; mov al, 0h
-; DrawRectangle bx,0,bp,20
-
-push ax
-call getIndex
-pop ax
-
-; mov bp, bx
-; add bp, 20d
-; mov al, 0h
-
-; DrawRectangle bx,0,bp,20
-
-add ax, 0101h  ;; Make it 1-indexed
-
-cmp grid[bx+1], 'r'
-jne c360
-call RockMoves
-
-c360:
-cmp grid[bx+1], 'n'  ;;To be tested
-jne c370
-call knightMoves
-
-c370:
-cmp grid[bx+1], 'b'  ;;To be tested
-jne c380
-call bishopMoves
-
-c380:
-cmp grid[bx+1], 'k'
-jne c390
-call KingMoves
-
-c390:
-cmp grid[bx+1], 'q' ;;To be tested
-jne c410
-;call queenMoves
-
-c410:
-call PawnMoves
-
-; Drawing the moves highlight
-
-call drawHighlight
-
-
-; mov bx, moves[0]
-; mov bp, bx
-; add bp, 20
-
-; ;;Green
-; mov al, 2
-; DrawRectangle bx,0,bp,20
-
-jmp game
-
-;;Second Click
-c160:
-;;Blue
-; mov al, 1
-; DrawRectangle 0,0,20,20
-
-
-; malek was here
-; to check time less than 3 or not
-get_position_in_grid cell_clicked_x_p2, cell_clicked_y_p2 
-mov al,4
-mov cx, position_in_grid
-
-mov bx, offset grid_time_seconds
-mov di, offset grid_time_minutes
-mov si, offset grid_time_hourse
-
-add bx,cx
-add di,cx
-add si, cx
-
-mov ah,2ch
-int 21h
-
-cmp ch, [si] 
-jge less_than_h2 ; check for hours
-mov al, 5
-DrawRectangle 0,0,20,20
-
-jmp c190
-less_than_h2:
-push cx
-
-mov al,dh
-mov ah, cl
-
-mov dx,ax
-
-mov ch, [di]
-mov cl, [bx] 
-
-sub ax, cx
- 
-cmp ax, 3
-jg less_than_3_2 ; check for minutes and seconds
-mov al, 5
-DrawRectangle 0,0,20,20
-jmp c190
-less_than_3_2:
-
-push dx
-
-
-mov ax, cell_clicked_y_p2
-shl ax, 8
-
-add ax, cell_clicked_x_p2
-
-
-mov bx, curr_marked_y_val_p2
-shl bx, 8
-
-add bx, curr_marked_x_val_p2
-
-
-
-mov bp, bx
-add bp, 20
-
-;;Black
-mov al, 0
-DrawRectangle bx,0,bp,20
-
-
-call validateMove
-
-;;;;;;;;;;;; Check Allowed
-cmp allowed, 1
-jz c350
-jmp c190
-
-c350:
-mov allowed, 0
-;;;Allowed (Make Move)
-
-; ;Blue
-; mov al, 1
-; DrawRectangle 0,0,20,20
-
-; mov bx, 
-
-mov ax, cell_clicked_y_p2
-shl ax, 8
-add ax, cell_clicked_x_p2
-
-mov bx, curr_marked_y_val_p2
-shl bx, 8
-add bx, curr_marked_x_val_p2
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-pusha
-
-mov ax, curr_marked_y_val_p2
-shl ax, 8
-add ax, curr_marked_x_val_p2
-
-sub ax, 0101h
-
-call getIndex ;; 0-indexed
-
-
-; mov bx, offset grid[bx]
-mov ax, offset grid
-add bx, ax
-;add bx, 32d
-
-mov si, bx
-add si, 20
-
-; White
-mov al, 0Fh
-DrawRectangle bx,0,si,20
-
-
-mov cx, [bx]
-xchg ch,cl
-
-cmp cx, 'bk'
-jnz is_not_black_king
-inc is_black_k
-is_not_black_king:
-popa
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-call makeMove  ;; Updating the grid
-
-
-;; Updating the UI
-;;Source Rect
-mov ax, cell_clicked_x_p2
-add ax, cell_clicked_y_p2
-
-mov bl, 2
-div bl
-
-cmp ah, 1  ;; Dark (Odd)
-
-je dark400
-mov al, 7h
-jmp c2100
-
-dark400:
-mov al, 8
-
-c2100:
-
-;;To be updated (Board Position)
-push ax
-; bx -> (X) start
-mov ax, cell_clicked_x_p2
-dec ax
-
-mov cl, 22
-mul cl
-
-add ax, 72 ;; (Board Position)
-mov bx, ax
-
-; bp -> (X) end
-mov bp, bx
-add bp, 22
-
-; si -> (Y) start
-mov ax, cell_clicked_y_p2
-dec ax
-
-mov cl, 22
-mul cl
-
-add ax, 12  ;; (Board Position)
-mov si, ax
-
-; di -> (Y) end
-mov di, si
-add di, 22
-
-
-pop ax
-; mov bp, curr_marked_x_pixel_p2
-; add bp, 22 
-
-; mov bx, curr_marked_y_pixel_p2
-; add bx, 22
-
-; mov si, bp
-; add si, 22
-
-DrawRectangle bx, si, bp, di
-
-
-;;Destination Rect
-
-;;bx offest of the grid
-
-mov ax, curr_marked_y_val_p2
-shl ax, 8
-add ax, curr_marked_x_val_p2
-
-sub ax, 0101h
-
-call getIndex ;; 0-indexed
-
-
-; mov bx, offset grid[bx]
-mov ax, offset grid
-add bx, ax
-;add bx, 32d
-
-mov si, bx
-add si, 20
-
-; White
-mov al, 0Fh
-DrawRectangle bx,0,si,20
-
-
-mov cx, [bx]
-xchg ch,cl
-
-; mov al, ch
-; mov bh, 0
-; mov bl, 0F0h
-; mov cx, 1
-; mov ah, 09h
-; int 10h
-
-cmp cx, "br"
-jne c220
-mov di,offset black_rock
-jmp c330
-c220:
-cmp cx, "bn"
-jne c230
-mov di,offset black_knight
-jmp c330
-c230: 
-cmp cx, "bb"
-jne c240
-mov di,offset black_bishop
-jmp c330
-c240:
-cmp cx, "bk"
-jne c250
-mov di,offset black_king
-jmp c330
-c250:
-cmp cx, "bq"
-jne c260
-mov di,offset black_queen
-jmp c330
-c260: 
-cmp cx, "bp"
-jne c270
-mov di,offset black_pawn
-jmp c330
-
-
-c270:
-cmp cx, "wr"
-jne c280
-mov di,offset white_rock
-jmp c330
-c280:
-cmp cx, "wn"
-jne c290
-mov di,offset white_knight
-jmp c330
-c290: 
-cmp cx, "wb"
-jne c340
-mov di,offset white_bishop
-jmp c330
-c340:
-cmp cx, "wk"
-jne c310
-mov di,offset white_king
-jmp c330
-c310:
-cmp cx, "wq"
-jne c320
-mov di,offset white_queen
-jmp c330
-c320: 
-mov di,offset white_pawn
-
-c330:
-
-get_cell curr_marked_x_val_p2, curr_marked_y_val_p2
-draw get_cell_x , get_cell_y , di;, x, y
-
-get_position_in_grid curr_marked_x_val_p2, curr_marked_y_val_p2
-mov cx, position_in_grid
-mov bx , offset grid_time_seconds
-mov di, offset grid_time_minutes
-
-add bx,cx
-add di,cx
-add si,cx
-pop dx
-pop cx
-mov [bx],dl
-mov [di],dh
-mov [si],ch
-
-
-
-; ;; Update the Destination Rect
-; dec curr_marked_x_val_p2
-
-; mov al, 0bh
-
-; DrawRectangle curr_marked_x_pixel_p2, curr_marked_y_pixel_p2, bp, bx
-
-cmp is_black_k, 1
-jnz c420
-mov al, 0fh
-DrawRectangle 0, 0, 320, 200
-jmp l
-
-jmp c420
-
-c190:
-;Red 
-mov al, 4
-DrawRectangle 0,0,20,20
-
-c420:
-
-
-;; Reset cell_clicked_x and cell_clicked_y
-mov cell_clicked_x_p2, 0
-mov cell_clicked_y_p2, 0
-
-;;Clearing the moves
-call ClearMoves
-
-
-jmp game
-
-
 m6:
 
 
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; second player end           ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 cmp al,'9'
 jz l
 jmp game

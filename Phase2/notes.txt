@@ -3,6 +3,7 @@ is .286 directive permitted?
 
 Labels:
 Board Position
+Debugging
 
 Validations:
 Clicked Rect is not empty

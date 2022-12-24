@@ -224,6 +224,11 @@ ClearMoves proc far
 
 ; ccc0:
 
+mov dl, 'A'
+mov ah, 2
+int 21h
+
+
 mov si, 0 ;; Counter
 
 l:
@@ -354,6 +359,12 @@ jmp l
 c42:
 
 mov count, 0
+
+mov dl, 'Z'
+mov ah, 2
+int 21h
+
+
 ret
 
 ; mov bx, offset moves

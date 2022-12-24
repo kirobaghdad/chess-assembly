@@ -152,6 +152,10 @@ cmp al, 12h
 je notColored
 cmp al, 0fh
 je notColored
+cmp al, 02
+je notColored
+cmp al, 0ah
+je notColored
 
 pop ax
 int 10h
@@ -1118,9 +1122,9 @@ add bx, curr_marked_x_val
 mov bp, bx
 add bp, 20
 
-;;Black
-mov al, 0
-DrawRectangle bx,0,bp,20
+; ;;Black
+; mov al, 0
+; DrawRectangle bx,0,bp,20
 
 
 call validateMove
@@ -1236,9 +1240,9 @@ add bx, ax
 mov si, bx
 add si, 20
 
-; White
-mov al, 0Fh
-DrawRectangle bx,0,si,20
+; ; White
+; mov al, 0Fh
+; DrawRectangle bx,0,si,20
 
 
 mov cx, [bx]

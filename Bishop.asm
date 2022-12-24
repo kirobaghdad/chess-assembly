@@ -65,13 +65,13 @@ bishopMoves proc far
 
 
 
-dec ah
-dec al
 
 mov dx,ax
 
 pushAll
 
+dec ah
+dec al
 
 convertToTile ax
 
@@ -101,12 +101,7 @@ pushAll
 diagonalRightUp: 
 dec ah
 inc al
-convertToTile ax
-cmp grid[bx], dh
-je LastdiagonalRightUp
-; if empty
-cmp grid[bx], "-"
-jnz diagonalLeftUpA
+
 ; out of bound
 cmp ah, 7h
 ja diagonalLeftUpA
@@ -117,6 +112,14 @@ cmp al, 7h
 ja diagonalLeftUpA
 cmp al, 0h
 jb diagonalLeftUpA
+
+
+convertToTile ax
+cmp grid[bx], dh
+je LastdiagonalRightUp
+; if empty
+cmp grid[bx], "-"
+jnz diagonalLeftUpA
 ; add to moves 
 LastdiagonalRightUp:
 push bx ; moves
@@ -147,16 +150,9 @@ pushAll
 diagonalLeftUp: 
 dec ah
 dec al
-convertToTile ax
-cmp grid[bx],dh
-je LastdiagonalLeftUp
-; if empty
-cmp grid[bx], "-"
-jnz diagonalRightDownA
-
+; out of bound
 cmp ah, 7h
 ja diagonalRightDownA
-; out of bound
 cmp ah, 0h
 jb diagonalRightDownA
 
@@ -166,6 +162,14 @@ ja diagonalRightDownA
 
 cmp al, 0h
 jb diagonalRightDownA
+
+convertToTile ax
+cmp grid[bx],dh
+je LastdiagonalLeftUp
+; if empty
+cmp grid[bx], "-"
+jnz diagonalRightDownA
+
 
 ; add to moves 
 LastdiagonalLeftUp:
@@ -196,12 +200,6 @@ pushAll
 diagonalRightDown: 
 inc ah
 inc al
-convertToTile ax
-cmp grid[bx], dh
-je LastdiagonalRightDown
-; if empty
-cmp grid[bx], "-"
-jnz diagonalLeftDownA
 ; out of bound
 cmp ah, 7h
 ja diagonalLeftDownA
@@ -212,6 +210,13 @@ cmp al, 7h
 ja diagonalLeftDownA
 cmp al, 0h
 jb diagonalLeftDownA
+
+convertToTile ax
+cmp grid[bx], dh
+je LastdiagonalRightDown
+; if empty
+cmp grid[bx], "-"
+jnz diagonalLeftDownA
 ; add to moves 
 LastdiagonalRightDown:
 push bx ; moves
@@ -243,13 +248,7 @@ pushAll
 diagonalLeftDown: 
 inc ah
 dec al
-convertToTile ax
-; if empty
-cmp grid[bx], dh
-je LastdiagonalLeftDown
 
-cmp grid[bx], "-"
-jnz continue
 ; out of bound
 cmp ah, 7h ; check if equal works
 ja continue
@@ -260,6 +259,16 @@ cmp al, 7h ; check if equal works
 ja continue
 cmp al, 0h ; check if equal works
 jb continue
+
+
+convertToTile ax
+
+cmp grid[bx], dh
+je LastdiagonalLeftDown
+
+; if empty
+cmp grid[bx], "-"
+jnz continue
 
 ; add to moves 
 LastdiagonalLeftDown:

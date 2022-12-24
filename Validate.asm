@@ -42,6 +42,24 @@
 ; endm popAll
 
 extrn moves:word
+pushAll macro  
+push ax
+push bx
+push cx
+push dx
+push di
+push si
+endm pushAll 
+
+popAll macro 
+pop si
+pop di
+pop dx
+pop cx
+pop bx
+pop ax 
+endm popAll
+
 
 public validateMove
 public allowed
@@ -73,8 +91,7 @@ iterator db 0
 validateMove PROC far
     ;; Bx = Destination
     mov iterator,0
-    push dx
-    push bx
+    pushAll
     mov dx, bx
     check: 
     
@@ -93,8 +110,7 @@ validateMove PROC far
     cmp moves[bx], '$'
     jnz check 
     done: 
-    pop bx
-    pop dx
+    popAll
     ret
 validateMove ENDP
 

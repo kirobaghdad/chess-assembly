@@ -59,6 +59,24 @@ pop cx
 pop bx
 pop ax 
 endm popAll
+addToMovesKnight macro
+push bx
+push cx
+
+mov cx, ax
+inc cl 
+inc ch
+
+mov bx,0
+mov bl,count 
+
+
+mov moves[bx],cx
+add count, 2
+
+pop cx 
+pop bx
+endm addToMovesKnight
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -823,576 +841,267 @@ makeMove endp
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Knight Moves ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
-;Given the bishop position in the board, this procedure returns the available moves of this pawn
-knightMoves proc far
+knightMoves proc
 ; (AH AL) = (row, col)
 ; CX is used to assign the destination in the moves
 ; DX is equal to the initial AX (It is never changed)
 ; BX is used for accessing the arrays
 
 ;pop ax
-;;Assuming (8,3) 
 
 
-; base 1
-; mov ah, 4h
-; mov al, 4h
 
 ; base 0
 
-sub ax, 0101h
-; maintain original position (0-indexed) in dx
-mov dx,ax
+; maintain original position
 
 pushAll
+
+dec ah
+dec al
+
+
 convertToTile ax
 
+
 cmp grid[bx], "w"
-je m1
-jmp near ptr black
+je whiteKnight
+jmp blackKnight
+
+
+whiteKnight:
+mov dl,"w"
+mov dh,"b"
+jmp m1
+blackKnight:
+mov dl,"b"
+mov dh,"w"
+
+
 ; done
 ; row = row - 2, col = col - 1
 ; ax -> desired position
 ; bx -> index on the grid
 ; dx -> original index base 0
 m1:
-mov ax, dx
-
-cmp ah, 1
-jle m2
-cmp al, 0
-je m2
-
+pushAll
 dec ah 
 dec ah 
 dec al
+
+cmp ah, 7h
+ja m2
+cmp ah, 0h
+jb m2
+; out of bound
+cmp al, 7h     
+ja m2
+cmp al, 0h
+jb m2
+
+
 convertToTile ax
 
-cmp grid[bx],'w'
+cmp grid[bx],dl
 jz m2
+addToMovesKnight
 
-cmp bx, 128D
-ja m2
-
-cmp bx, 0D
-jb m2 
-
-mov bx,0
-mov bl,count 
-mov moves[bx],ax
-add count, 2
 ; done
 ; row = row - 1, col = col - 2
 ; ax -> desired position
 ; bx -> index on the grid
 ; dx -> original index base 0
 m2:
-mov ax, dx
-
-cmp ah, 0
-je m3
-cmp al, 1
-jle m3
-
+popAll
+pushAll
 dec ah 
 dec al
 dec al
 
+cmp ah, 7h
+ja m3
+cmp ah, 0h
+jb m3
+; out of bound
+cmp al, 7h     
+ja m3
+cmp al, 0h
+jb m3
+
+
 convertToTile ax
 
-cmp grid[bx],'w'
+cmp grid[bx],dl
 jz m3
 
-cmp bx, 128D
-ja m3
+addToMovesKnight; done
 
-cmp bx, 0D
-jb m3 
 
-mov bx,0
-mov bl,count 
-mov moves[bx],ax
-add count, 2
-; done
+
+
 ; row = row + 1, col = col - 2
 ; ax -> desired position
 ; bx -> index on the grid
 ; dx -> original index base 0
 m3:
-mov ax, dx
-
-cmp ah, 7
-je m4
-cmp al, 1
-jle m4
-
+popAll
+pushAll
 inc ah 
 dec al
 dec al
 
+cmp ah, 7h
+ja m4
+cmp ah, 0h
+jb m4
+; out of bound
+cmp al, 7h     
+ja m4
+cmp al, 0h
+jb m4
+
+
 convertToTile ax
 
-cmp grid[bx],'w'
+cmp grid[bx],dl
 jz m4
 
-cmp bx, 128D
-ja m4
-
-cmp bx, 0D
-jb m4 
-
-mov bx,0
-mov bl,count 
-mov moves[bx],ax
-add count, 2
+addToMovesKnight
 
 ; row = row + 2, col = col - 1
 ; ax -> desired position
 ; bx -> index on the grid
 ; dx -> original index base 0
 m4:
-mov ax, dx
-
-cmp ah, 6
-jge m5
-cmp al, 0
-je m5
-
+popAll
+pushAll
 inc ah 
 inc ah 
 dec al
+
+cmp ah, 7h
+ja m5
+cmp ah, 0h
+jb m5
+; out of bound
+cmp al, 7h     
+ja m5
+cmp al, 0h
+jb m5
+
+
 convertToTile ax
 
-cmp grid[bx],'w'
+cmp grid[bx],dl
 jz m5
 
-cmp bx, 128D
-ja m5
-
-cmp bx, 0D
-jb m5 
-
-mov bx,0
-mov bl,count 
-mov moves[bx],ax
-add count, 2
+addToMovesKnight
 
 ; row = row + 2, col = col + 1
 ; ax -> desired position
 ; bx -> index on the grid
 ; dx -> original index base 0
 m5:
-mov ax, dx
-
-cmp ah, 6
-jge m6
-cmp al, 7
-je m6
-
+popAll
+pushAll
 inc ah 
 inc ah 
 inc al
 
+cmp ah, 7h
+ja m6
+cmp ah, 0h
+jb m6
+; out of bound
+cmp al, 7h     
+ja m6
+cmp al, 0h
+jb m6
+
+
 convertToTile ax
 
-cmp grid[bx],'w'
+cmp grid[bx],dl
 jz m6
-
-cmp bx, 128D
-ja m6
-
-cmp bx, 0D
-jb m6 
-
-mov bx,0
-mov bl,count 
-mov moves[bx],ax
-add count, 2
-
+addToMovesKnight
 ; row = row + 1, col = col + 2
 ; ax -> desired position
 ; bx -> index on the grid
 ; dx -> original index base 0
 m6:
-mov ax, dx
-
-cmp ah, 7
-je m7
-cmp al, 6
-jge m7
-
-
+popAll
+pushAll
 inc ah 
 inc al
 inc al
-
-convertToTile ax
-
-
-cmp grid[bx],'w'
-jz m7
-
-cmp bx, 128D
+cmp ah, 7h
 ja m7
-
-cmp bx, 0D
-jb m7 
-
-mov bx,0
-mov bl,count 
-mov moves[bx],ax
-add count, 2
+cmp ah, 0h
+jb m7
+; out of bound
+cmp al, 7h     
+ja m7
+cmp al, 0h
+jb m7
+convertToTile ax
+cmp grid[bx],dl
+jz m7
+addToMovesKnight
 
 ; row = row - 1, col = col + 2
 ; ax -> desired position
 ; bx -> index on the grid
 ; dx -> original index base 0
 m7:
-mov ax, dx
-
-cmp ah, 0
-je m8
-cmp al, 6
-jge m8
-
+popAll
+pushAll
 dec ah 
 inc al
 inc al
+cmp ah, 7h
+ja m8
+cmp ah, 0h
+jb m8
+; out of bound
+cmp al, 7h     
+ja m8
+cmp al, 0h
+jb m8
+
 convertToTile ax
 
-cmp grid[bx],'w'
+cmp grid[bx],dl
 jz m8
-
-cmp bx, 128D
-ja m8
-
-cmp bx, 0D
-jb m8 
-
-mov bx,0
-mov bl,count 
-mov moves[bx],ax
-add count, 2
+addToMovesKnight
 
 ; row = row - 2, col = col + 1
 ; ax -> desired position
 ; bx -> index on the grid
 ; dx -> original index base 0
 m8:
-mov ax, dx
-
-cmp ah, 1
-jg c44
-jmp cont
-
-c44:
-cmp al, 7
-jne c45
-jmp cont
-
-c45:
+popAll
+pushAll
 dec ah 
 dec ah 
 inc al
-convertToTile ax
-
-cmp grid[bx],'w'
-jnz x1n
-jmp near ptr cont
-x1n:
-cmp bx, 128D
-jb x2n
-jmp near ptr cont
-x2n:
-cmp bx, 0D
-ja x3n
-jmp near ptr cont
-x3n: 
-
-mov bx,0
-mov bl,count 
-mov moves[bx],ax
-add count, 2
-
-
-black:
-
-m1b:
-mov ax, dx
-cmp al, 0
-je m2b
-cmp ah, 1
-jle m2b
-
-dec ah 
-dec ah 
-dec al
-
-convertToTile ax
-
-cmp grid[bx],'b'
-jz m2b
-
-cmp bx, 128D
-ja m2b
-
-cmp bx, 0D
-jb m2b 
-
-mov bx,0
-mov bl,count
-add ax, 0101h 
-mov moves[bx],ax
-add count, 2
-; done
-; row = row - 1, col = col - 2
-; ax -> desired position
-; bx -> index on the grid
-; dx -> original index base 0
-m2b:
-mov ax, dx
-
-cmp al, 1
-jle m3b
-cmp ah, 0
-je m3b
-
-dec ah 
-dec al
-dec al
-
-convertToTile ax
-
-cmp grid[bx],'b'
-jz m3b
-
-cmp bx, 128D
-ja m3b
-
-cmp bx, 0D
-jb m3b 
-
-mov bx,0
-mov bl,count 
-add ax, 0101h 
-mov moves[bx],ax
-add count, 2
-; done
-; row = row + 1, col = col - 2
-; ax -> desired position
-; bx -> index on the grid
-; dx -> original index base 0
-m3b:
-mov ax, dx
-
-cmp al, 1
-jle m4b
-cmp ah, 7
-je m4b
-
-inc ah 
-dec al
-dec al
-
-convertToTile ax
-
-cmp grid[bx],'b'
-jz m4b
-
-cmp bx, 128D
-ja m4b
-
-cmp bx, 0D
-jb m4b 
-
-mov bx,0
-mov bl,count
-add ax, 0101h 
-mov moves[bx],ax
-add count, 2
-
-; row = row + 2, col = col - 1
-; ax -> desired position
-; bx -> index on the grid
-; dx -> original index base 0
-m4b:
-mov ax, dx
-
-cmp al, 0
-je m5b
-cmp ah, 6
-jge m5b
-
-inc ah 
-inc ah 
-dec al
-convertToTile ax
-
-cmp grid[bx],'b'
-jz m5b
-
-cmp bx, 128D
-ja m5b
-
-cmp bx, 0D
-jb m5b 
-
-mov bx,0
-mov bl,count
-add ax, 0101h 
-mov moves[bx],ax
-add count, 2
-
-; row = row + 2, col = col + 1
-; ax -> desired position
-; bx -> index on the grid
-; dx -> original index base 0
-m5b:
-mov ax, dx
-
-cmp al, 7
-je m6b
-cmp ah, 6
-jge m6b
-
-inc ah 
-inc ah 
-inc al
-
-;; (Debugging)
-; push ax
-
-; add ah, 48
-; mov al, ah
-; mov bh, 0
-; mov bl, 0F0h
-; mov cx, 1
-; mov ah, 09h
-; int 10h
-
-; pop ax
-
-
-convertToTile ax
-
-cmp grid[bx],'b'
-jz m6b
-
-cmp bx, 128D
-ja m6b
-
-cmp bx, 0D
-jb m6b 
-
-mov bx,0
-mov bl,count
-add ax, 0101h 
-mov moves[bx],ax
-add count, 2
-
-; row = row + 1, col = col + 2
-; ax -> desired position
-; bx -> index on the grid
-; dx -> original index base 0
-m6b:
-mov ax, dx
-
-cmp al, 6
-jge m7b
-cmp ah, 7
-je m7b
-
-inc ah 
-inc al
-inc al
-
-convertToTile ax
-
-cmp grid[bx],'b'
-jz m7b
-
-cmp bx, 128D
-ja m7b
-
-cmp bx, 0D
-jb m7b 
-
-mov bx,0
-mov bl,count
-add ax, 0101h 
-mov moves[bx],ax
-add count, 2
-
-; row = row - 1, col = col + 2
-; ax -> desired position
-; bx -> index on the grid
-; dx -> original index base 0
-m7b:
-mov ax, dx
-
-cmp al, 6
-jge m8b
-cmp ah, 0
-je m8b
-
-dec ah 
-inc al
-inc al
-
-convertToTile ax
-
-cmp grid[bx],'b'
-jz m8b
-
-cmp bx, 128D
-ja m8b
-
-cmp bx, 0D
-jb m8b 
-
-mov bx,0
-mov bl,count
-add ax, 0101h 
-mov moves[bx],ax
-add count, 2
-
-; row = row - 2, col = col + 1
-; ax -> desired position
-; bx -> index on the grid
-; dx -> original index base 0
-m8b:
-mov ax, dx
-
-cmp al, 7
-je cont
-cmp ah, 1
-jle cont
-
-dec ah 
-dec ah 
-inc al
-convertToTile ax
-
-cmp grid[bx],'b'
-jz cont
-
-cmp bx, 128D
+cmp ah, 7h
 ja cont
-
-cmp bx, 0D
-jb cont 
-
-mov bx,0
-mov bl,count
-add ax, 0101h 
-mov moves[bx],ax
-add count, 2
-
+cmp ah, 0h
+jb cont
+; out of bound
+cmp al, 7h     
+ja cont
+cmp al, 0h
+jb cont
+convertToTile ax
+cmp grid[bx],dl
+jz cont
+addToMovesKnight
 
 cont: 
-popAll 
+popAll
+popAll
+
 ret
 
 knightMoves endp
@@ -1404,9 +1113,8 @@ knightMoves endp
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
 ;Given the bishop position in the board, this procedure returns the available moves of this pawn
-bishopMoves proc
+bishopMoves proc far
 ; (AH AL) = (row, col)
 ; CX is used to assign the destination in the moves
 ; DX is equal to the initial AX (It is never changed)
@@ -1417,23 +1125,36 @@ bishopMoves proc
 
 
 
-; mov ah, 5h
-; mov al, 4h
-
-pushAll
-
-sub ax, 0101h
 
 mov dx,ax
 
+pushAll
+
+dec ah
+dec al
+
 convertToTile ax
 
+
+
 cmp grid[bx], "w"
-jz diagonalRightUp
-jmp near ptr black2
+je whiteBishop
+jmp blackBishop
 
 
-; decrement row, increment col
+
+
+whiteBishop:
+mov dl,"w"
+mov dh,"b"
+jmp bishopBegin
+blackBishop:
+mov dl,"b"
+mov dh,"w"
+
+bishopBegin:
+pushAll
+; decremnt row, increment col
 ; convert to tile 
 ; if it's empty and not out of bound 
 ; add to moves 
@@ -1441,46 +1162,40 @@ diagonalRightUp:
 dec ah
 inc al
 convertToTile ax
-; if black
-cmp grid[bx], "b"
-jz diagonalRightUpLast
+cmp grid[bx], dh
+je LastdiagonalRightUp
 ; if empty
 cmp grid[bx], "-"
 jnz diagonalLeftUpA
 ; out of bound
-cmp bx, 128D
+cmp ah, 7h
 ja diagonalLeftUpA
+cmp ah, 0h
+jb diagonalLeftUpA
 ; out of bound
-cmp bx, 0D
+cmp al, 7h     
+ja diagonalLeftUpA
+cmp al, 0h
 jb diagonalLeftUpA
 ; add to moves 
-diagonalRightUpLast:
-push bx
-push cx
+LastdiagonalRightUp:
+push bx ; moves
+push cx ; actual move 
 mov cx, 0
-
 mov cx, ax
-
 mov bh, 0
 mov bl, count
-push cx
-push dx
-inc dl 
-inc dh
 inc cl
 inc ch
 mov moves[bx], cx
-pop dx
-pop cx
-add count, 2
-
 pop cx
 pop bx
-cmp grid[bx],"b"
-jz diagonalLeftUpA 
+add count, 2
+cmp grid[bx],dh
+jz diagonalLeftUpA
 jmp diagonalRightUp
-
 diagonalLeftUpA:
+
 popAll
 
 pushAll
@@ -1492,45 +1207,42 @@ pushAll
 diagonalLeftUp: 
 dec ah
 dec al
+; out of bound
+cmp ah, 7h
+ja diagonalRightDownA
+cmp ah, 0h
+jb diagonalRightDownA
+
+; out of bound
+cmp al, 7h
+ja diagonalRightDownA
+
+cmp al, 0h
+jb diagonalRightDownA
+
 convertToTile ax
-; if black
-cmp grid[bx], "b"
-jz diagonalLeftUpLast
+cmp grid[bx],dh
+je LastdiagonalLeftUp
 ; if empty
 cmp grid[bx], "-"
 jnz diagonalRightDownA
-; out of bound
-cmp bx, 128D
-ja diagonalRightDownA
-; out of bound
-cmp bx, 0D
-jb diagonalRightDownA
+
+
 ; add to moves 
-diagonalLeftUpLast:
-push bx
-push cx
+LastdiagonalLeftUp:
+push bx ; moves
+push cx ; actual move 
 mov cx, 0
-
 mov cx, ax
-
-
-
 mov bh, 0
 mov bl, count
-push cx
-push dx
-inc dl 
-inc dh
 inc cl
 inc ch
 mov moves[bx], cx
-pop dx
-pop cx
-add count, 2
-
 pop cx
 pop bx
-cmp grid[bx],"b"
+add count, 2
+cmp grid[bx],dh
 jz diagonalRightDownA 
 jmp diagonalLeftUp
 
@@ -1545,45 +1257,38 @@ pushAll
 diagonalRightDown: 
 inc ah
 inc al
+; out of bound
+cmp ah, 7h
+ja diagonalLeftDownA
+cmp ah, 0h
+jb diagonalLeftDownA
+; out of bound
+cmp al, 7h
+ja diagonalLeftDownA
+cmp al, 0h
+jb diagonalLeftDownA
+
 convertToTile ax
-; if black
-cmp grid[bx], "b"
-jz diagonalRightDownLast
+cmp grid[bx], dh
+je LastdiagonalRightDown
 ; if empty
 cmp grid[bx], "-"
 jnz diagonalLeftDownA
-; out of bound
-cmp bx, 128D
-ja diagonalLeftDownA
-; out of bound
-cmp bx, 0D
-jb diagonalLeftDownA
 ; add to moves 
-diagonalRightDownLast:
-push bx
-push cx
+LastdiagonalRightDown:
+push bx ; moves
+push cx ; actual move 
 mov cx, 0
-
 mov cx, ax
-
-
-
 mov bh, 0
 mov bl, count
-push cx
-push dx
-inc dl 
-inc dh
 inc cl
 inc ch
 mov moves[bx], cx
-pop dx
-pop cx
-add count, 2
-
 pop cx
 pop bx
-cmp grid[bx],"b"
+add count, 2
+cmp grid[bx],dh
 jz diagonalLeftDownA 
 jmp diagonalRightDown
 
@@ -1600,273 +1305,67 @@ pushAll
 diagonalLeftDown: 
 inc ah
 dec al
+
+; out of bound
+cmp ah, 7h ; check if equal works
+ja continue
+cmp ah, 0h ; check if equal works
+jb continue
+; out of bound
+cmp al, 7h ; check if equal works
+ja continue
+cmp al, 0h ; check if equal works
+jb continue
+
+
 convertToTile ax
-; if black
-cmp grid[bx], "b"
-jz diagonalLeftDownLast
-; if empty
-cmp grid[bx], "-"
-jz bx1
-jmp near ptr continue
-bx1:
-; out of bound
-cmp bx, 128D ; check if equal works
-jb bbx2
-jmp near ptr continue
-bbx2:
-; out of bound
-cmp bx, 0D ; check if equal works
-ja bbx3
-jmp near ptr continue
-bbx3:
-; add to moves 
-diagonalLeftDownLast:
-push bx
-push cx
-mov cx, 0
 
-mov cx, ax
+cmp grid[bx], dh
+je LastdiagonalLeftDown
 
-
-
-mov bh, 0
-mov bl, count
-push cx
-push dx
-inc dl 
-inc dh
-inc cl
-inc ch
-mov moves[bx], cx
-pop dx
-pop cx
-add count, 2
-
-pop cx
-pop bx
-cmp grid[bx],"b"
-jnz bx4
-jmp near ptr continue
-bx4:
-jmp diagonalLeftDown
-
-; --------------------------------------------black---------------------------------------------
-
-black2: 
-
-diagonalRightUpB: 
-dec ah
-inc al
-convertToTile ax
-; if black
-cmp grid[bx], "w"
-jz diagonalRightUpLastB
-; if empty
-cmp grid[bx], "-"
-jnz diagonalLeftUpAB
-; out of bound
-cmp bx, 128D
-ja diagonalLeftUpAB
-; out of bound
-cmp bx, 0D
-jb diagonalLeftUpAB
-; add to moves 
-diagonalRightUpLastB:
-push bx
-push cx
-mov cx, 0
-
-mov cx, ax
-
-mov bh, 0
-mov bl, count
-push cx
-push dx
-inc dl 
-inc dh
-inc cl
-inc ch
-mov moves[bx], cx
-pop dx
-pop cx
-add count, 2
-
-pop cx
-pop bx
-cmp grid[bx],"w"
-jz diagonalLeftUpAB 
-jmp diagonalRightUpB
-
-diagonalLeftUpAB:
-popAll
-
-pushAll
-
-; decrement row, col
-; convert to tile 
-; if it's empty and not out of bound 
-; add to moves 
-diagonalLeftUpB: 
-dec ah
-dec al
-convertToTile ax
-; if black
-cmp grid[bx], "w"
-jz diagonalLeftUpLastB
-; if empty
-cmp grid[bx], "-"
-jnz diagonalRightDownAB
-; out of bound
-cmp bx, 128D
-ja diagonalRightDownAB
-; out of bound
-cmp bx, 0D
-jb diagonalRightDownAB
-; add to moves 
-diagonalLeftUpLastB:
-push bx
-push cx
-mov cx, 0
-
-mov cx, ax
-
-
-
-mov bh, 0
-mov bl, count
-push cx
-push dx
-inc dl 
-inc dh
-inc cl
-inc ch
-mov moves[bx], cx
-pop dx
-pop cx
-add count, 2
-
-pop cx
-pop bx
-cmp grid[bx],"w"
-jz diagonalRightDownAB 
-jmp diagonalLeftUpB
-
-diagonalRightDownAB:
-popAll
-
-pushAll
-; increment row, col
-; convert to tile 
-; if it's empty and not out of bound 
-; add to moves 
-diagonalRightDownB: 
-inc ah
-inc al
-convertToTile ax
-; if black
-cmp grid[bx], "w"
-jz diagonalRightDownLastB
-; if empty
-cmp grid[bx], "-"
-jnz diagonalLeftDownAB
-; out of bound
-cmp bx, 128D
-ja diagonalLeftDownAB
-; out of bound
-cmp bx, 0D
-jb diagonalLeftDownAB
-; add to moves 
-diagonalRightDownLastB:
-push bx
-push cx
-mov cx, 0
-
-mov cx, ax
-
-
-
-mov bh, 0
-mov bl, count
-push cx
-push dx
-inc dl 
-inc dh
-inc cl
-inc ch
-mov moves[bx], cx
-pop dx
-pop cx
-add count, 2
-
-pop cx
-pop bx
-cmp grid[bx],"w"
-jz diagonalLeftDownAB 
-jmp diagonalRightDownB
-
-diagonalLeftDownAB:
-popAll
-
-
-
-pushAll
-; increment row, col
-; convert to tile 
-; if it's empty and not out of bound 
-; add to moves 
-diagonalLeftDownB: 
-inc ah
-dec al
-convertToTile ax
-; if black
-cmp grid[bx], "w"
-jz diagonalLeftDownLastB
 ; if empty
 cmp grid[bx], "-"
 jnz continue
-; out of bound
-cmp bx, 128D ; check if equal works
-ja continue
-; out of bound
-cmp bx, 0D ; check if equal works
-jb continue
+
 ; add to moves 
-diagonalLeftDownLastB:
-push bx
-push cx
+LastdiagonalLeftDown:
+push bx ; moves
+push cx ; actual move 
 mov cx, 0
-
 mov cx, ax
-
-
-
 mov bh, 0
 mov bl, count
-push cx
-push dx
-inc dl 
-inc dh
 inc cl
 inc ch
 mov moves[bx], cx
-pop dx
-pop cx
-add count, 2
-
 pop cx
 pop bx
-cmp grid[bx],"w"
-jz continue 
-jmp diagonalLeftDownB
+add count, 2
+cmp grid[bx],dh
+je continue
+jmp diagonalLeftDown
 
 continue:
 popAll
-
+popAll
 
 ret
 
 bishopMoves endp
 
+
+
+start:
+mov ax, @data
+mov ds, ax
+
+call bishopMoves
+hlt
+
+end start
+
+.end
+END
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

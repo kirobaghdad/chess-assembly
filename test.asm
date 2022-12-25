@@ -1,115 +1,146 @@
 .186
-;; Pieces File
-extrn black_bishop:byte
-extrn black_king:byte
-extrn black_knight:byte
-extrn black_pawn:byte
-extrn black_queen:byte
-extrn black_rock:byte
-extrn white_bishop:byte
-extrn white_king:byte
-extrn white_knight:byte
-extrn white_pawn:byte
-extrn white_queen:byte
-extrn white_rock:byte
-extrn green_dot:byte
+;; Extrn Data
+    ;; Pieces File
+    extrn black_bishop:byte
+    extrn black_king:byte
+    extrn black_knight:byte
+    extrn black_pawn:byte
+    extrn black_queen:byte
+    extrn black_rock:byte
+    extrn white_bishop:byte
+    extrn white_king:byte
+    extrn white_knight:byte
+    extrn white_pawn:byte
+    extrn white_queen:byte
+    extrn white_rock:byte
+    extrn green_dot:byte
 
 
-;; Moves File
-extrn PawnMoves:far
-extrn KingMoves:far
-extrn RockMoves:far
-extrn knightMoves:far
-extrn bishopMoves:far
-extrn queenMoves:far
+    ;; Moves File
+    extrn PawnMoves:far
+    extrn KingMoves:far
+    extrn RockMoves:far
+    extrn knightMoves:far
+    extrn bishopMoves:far
+    extrn queenMoves:far
 
-extrn getIndex:far
-extrn makeMove:far
-extrn ClearMoves:far
+    extrn getIndex:far
+    extrn makeMove:far
+    extrn ClearMoves:far
 
-extrn moves:word
-extrn moves_p2:word
-extrn player_no:byte
-extrn winner:byte
+    extrn moves:word
+    extrn moves_p2:word
+    extrn player_no:byte
+    extrn winner:byte
 
-;; Validate File
-extrn validateMove:far
-extrn allowed:byte
+    ;; Validate File
+    extrn validateMove:far
+    extrn allowed:byte
+;;
 
-
-public grid
-public get_cell_x
-public get_cell_y
-public drawHighlight
-public time
-
+;; Public Data
+    public grid
+    public get_cell_x
+    public get_cell_y
+    public drawHighlight
+    public time
+    public capturedPiece
+;;
 .model large
 .stack 64
 .data
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Variables ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-grid db "br","bn","bb","bq","bk","bb","bn","br"
-     db "bp","bp","bp","bp","bp","bp","bp","bp"                                    
-     db "--","--","--","--","--","--","--","--"
-     db "--","--","--","--","--","--","--","--"
-     db "--","--","--","--","--","--","--","--"
-     db "--","--","--","--","--","--","--","--"
-     db "wp","wp","wp","wp","wp","wp","wp","wp"  
-     db "wr","wn","wb","wq","wk","wb","wn","wr"
-                                  
-time db 0,0,0,0,0,0,0,0
-     db 0,0,0,0,0,0,0,0                                    
-     db 0,0,0,0,0,0,0,0
-     db 0,0,0,0,0,0,0,0
-     db 0,0,0,0,0,0,0,0
-     db 0,0,0,0,0,0,0,0
-     db 0,0,0,0,0,0,0,0  
-     db 0,0,0,0,0,0,0,0,'$'
+    grid db "br","bn","bb","bq","bk","bb","bn","br"
+        db "bp","bp","bp","bp","bp","bp","bp","bp"                                    
+        db "--","--","--","--","--","--","--","--"
+        db "--","--","--","--","--","--","--","--"
+        db "--","--","--","--","--","--","--","--"
+        db "--","--","--","--","--","--","--","--"
+        db "wp","wp","wp","wp","wp","wp","wp","wp"  
+        db "wr","wn","wb","wq","wk","wb","wn","wr"
+                                    
+    time db 0,0,0,0,0,0,0,0
+        db 0,0,0,0,0,0,0,0                                    
+        db 0,0,0,0,0,0,0,0
+        db 0,0,0,0,0,0,0,0
+        db 0,0,0,0,0,0,0,0
+        db 0,0,0,0,0,0,0,0
+        db 0,0,0,0,0,0,0,0  
+        db 0,0,0,0,0,0,0,0,'$'
 
-timer dw 0
-game_timer dw 0
+    timer dw 0
+    game_timer dw 0
 
-pieceWidth EQU 20
-pieceHeight EQU 20
+    pieceWidth EQU 20
+    pieceHeight EQU 20
 
-x0 dw 0
-y0 dw 0
-x1 dw 0
-y1 dw 0
+    x0 dw 0
+    y0 dw 0
+    x1 dw 0
+    y1 dw 0
 
-N dw 8
-x dw ?
-y dw ?
+    N dw 8
+    x dw ?
+    y dw ?
 
-get_cell_x dw ?
-get_cell_y dw ?
+    get_cell_x dw ?
+    get_cell_y dw ?
 
-;;To be Updated (Board Position)
-curr_marked_x_pixel dw 138
-curr_marked_y_pixel dw 34
-;;;;;;;
+    ;;To be Updated (Board Position)
+    curr_marked_x_pixel dw 138
+    curr_marked_y_pixel dw 34
+    ;;;;;;;
 
-curr_marked_x_val dw 4
-curr_marked_y_val dw 2
+    curr_marked_x_val dw 4
+    curr_marked_y_val dw 2
 
-curr_marked_x_pixel_p2 dw 138
-curr_marked_y_pixel_p2 dw 144
-;;;;;;;
+    curr_marked_x_pixel_p2 dw 138
+    curr_marked_y_pixel_p2 dw 144
+    ;;;;;;;
 
-curr_marked_x_val_p2 dw 4
-curr_marked_y_val_p2 dw 7
-
-
-draw_piece_x dw  ?
-draw_piece_y dw  ?
-
-
-cell_clicked_x dw 0
-cell_clicked_y dw 0 
-
-cell_clicked_x_p2 dw 0
-cell_clicked_y_p2 dw 0 
+    curr_marked_x_val_p2 dw 4
+    curr_marked_y_val_p2 dw 7
 
 
+    draw_piece_x dw  ?
+    draw_piece_y dw  ?
+
+
+    cell_clicked_x dw 0
+    cell_clicked_y dw 0 
+
+    cell_clicked_x_p2 dw 0
+    cell_clicked_y_p2 dw 0 
+
+
+    white_in_check db 0
+    black_in_check db 0
+
+    wMsg db "White ", '$'
+    bMsg db "Black ", '$'
+
+    checkedMsg db "is checked! ", '$'
+
+    capturedPiece dw "--"
+
+    white_captured_x dw 253d
+    white_captured_y dw 12d
+
+    black_captured_x dw 10d
+    black_captured_y dw 12d
+;;
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Macros ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 DrawRectangle macro x_0, y_0, x_1, y_1
 local border, row, l, m
@@ -147,7 +178,6 @@ jne border
 
 popa
 endm
-
 
 DrawRectangleMark macro x_0, y_0, x_1, y_1
 local border, row, l, m, c1, notColored
@@ -192,7 +222,6 @@ jne border
 popa
 endm
 
-
 ToggleColor macro c
 local white, cont
 
@@ -209,73 +238,19 @@ cont:
 endm
  
 Draw macro draw_x , draw_y , z;, x_r,y_c
-local drawloop, jumb_if_black, l, m, c52, c53, c54, c55, c56
+; local drawloop, jumb_if_black, l, m, c52, c53, c54, c55, c56, c57, c58
 ; Drawing loop
-
 pusha
-mov cx,draw_x
-mov dx,draw_y
-mov bx,z
 
-mov di,cx
-add di, pieceWidth
-mov si, dx
-add si, pieceHeight
+mov cx, draw_x
+mov dx, draw_y
+mov bx, z
 
-mov draw_piece_x , di
-mov draw_piece_y , si
-
-MOV AH,0ch
-
-drawLoop:
-    
-    MOV AL,[bx]
-    
-    cmp al,0ffh
-    jz jumb_if_black 
-    cmp al, 0ah
-    je c54
-
-    c53:
-    cmp al, 2
-    jne c52
-
-    ;; Check if white or black (Do not draw)
-    c54:
-    push ax
-    mov ah, 0dh
-    int 10h
-    cmp al, 0fh ;; white piece
-    je c55
-    cmp al, 12h ;; black piece
-    je c55
-
-    jmp c56
-
-    c55:
-    pop ax
-    jmp jumb_if_black
-
-    c56:
-    pop ax
-    c52:
-    INT 10h
-    jumb_if_black: 
-    
-    INC CX
-    INC BX
-    CMP CX,draw_piece_x
-JNE drawLoop 
-	
-    MOV CX , draw_x
-    INC DX
-    CMP DX , draw_piece_y
-JNE drawLoop
+call draw_proc
 
 popa
+
 endm 
-
-
 
 get_cell macro row_x,col_y
 local add_square_val , add_square_val_2   
@@ -479,6 +454,366 @@ popa
 endm
 
 .code
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Draw Proc ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+draw_proc proc far
+; mov cx,draw_x
+; mov dx,draw_y
+; mov bx,z
+
+mov di,cx
+add di, pieceWidth
+mov si, dx
+add si, pieceHeight
+
+mov draw_piece_x , di
+mov draw_piece_y , si
+
+mov di, cx ;; Maintain cx (draw_x)
+mov bp, bx ;; Maintain bx (Image Offset)
+
+mov ah, 0dh
+int 10h
+
+; push ax
+; push dx
+; mov ah, 2
+; mov dl, al
+; add dl, 48d
+; int 21h
+; pop dx
+; pop ax
+
+MOV AH,0ch
+mov si, ax
+
+drawLoop:
+    
+    MOV AL,[bx]
+    
+    cmp al,0ffh
+    jz jumb_if_black 
+    ;; Check if green or light green
+    cmp al, 0ah
+    je c54
+
+    c53:
+    cmp al, 2
+    jne c52
+
+    ;; Check if white or black (Do not draw)
+    c54:
+    push ax
+    mov ah, 0dh
+    int 10h
+    cmp al, 0fh ;; white piece
+    je c55
+    cmp al, 12h ;; black piece
+    je c55
+
+    jmp c56
+
+    c55:
+    pop ax
+    jmp c71
+
+    c56:
+    pop ax
+    c52:
+    INT 10h
+    jmp c71
+
+    jumb_if_black: 
+    
+    cmp bp, offset green_dot
+    je c71
+
+    mov ax, si
+    int 10h
+    
+    c71:
+    INC CX
+    INC BX
+    CMP CX,draw_piece_x
+jz c61
+jmp drawloop
+
+    c61:
+	
+    MOV CX , di
+    INC DX
+    CMP DX , draw_piece_y
+JE c62
+jmp drawloop
+
+c62:
+
+ret
+
+draw_proc endp
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Draw Captured Piece ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+drawCapturedPiece proc far
+
+    ; mov ah, 2
+    ; mov dx, capturedPiece
+    ; int 21h
+
+    cmp capturedPiece, 'wr'
+    jne c101
+    mov di, offset white_rock
+    draw white_captured_x, white_captured_y, di
+    add white_captured_y, 22
+    jmp c102
+
+    c101:
+    cmp capturedPiece, 'wn'
+    jne c103
+    mov di, offset white_knight
+    draw white_captured_x, white_captured_y, di
+    add white_captured_y, 22
+    jmp c102
+
+    c103:
+    cmp capturedPiece, 'wb'
+    jne c104
+    mov di, offset white_bishop
+    draw white_captured_x, white_captured_y, di
+    add white_captured_y, 22
+    jmp c102
+
+    c104:
+    cmp capturedPiece, 'wq'
+    jne c105
+    mov di, offset white_queen
+    draw white_captured_x, white_captured_y, di
+    add white_captured_y, 22
+    jmp c102
+
+    c105:
+    cmp capturedPiece, 'wk'
+    jne c106
+    mov di, offset white_king
+    draw white_captured_x, white_captured_y, di
+    add white_captured_y, 22
+    jmp c102
+
+    c106:
+    cmp capturedPiece, 'wp'
+    jne c107
+    mov di, offset white_pawn
+    draw white_captured_x, white_captured_y, di
+    add white_captured_y, 22
+    jmp c102
+
+
+
+    c107:
+    cmp capturedPiece, 'br'
+    jne c108
+    mov di, offset black_rock
+    draw black_captured_x, black_captured_y, di
+    add black_captured_y, 22
+    jmp c102
+
+    c108:
+    cmp capturedPiece, 'bn'
+    jne c109
+    mov di, offset black_knight
+    draw black_captured_x, black_captured_y, di
+    add black_captured_y, 22
+    jmp c102
+
+    c109:
+    cmp capturedPiece, 'bb'
+    jne c114
+    mov di, offset black_bishop
+    draw black_captured_x, black_captured_y, di
+    add black_captured_y, 22
+    jmp c102
+
+    c114:
+    cmp capturedPiece, 'bq'
+    jne c111
+    mov di, offset black_queen
+    draw black_captured_x, black_captured_y, di
+    add black_captured_y, 22
+    jmp c102
+
+    c111:
+    cmp capturedPiece, 'bk'
+    jne c112
+    mov di, offset black_king
+    draw black_captured_x, black_captured_y, di
+    add black_captured_y, 22
+    jmp c102
+
+    c112:
+    cmp capturedPiece, 'bp'
+    jne c113
+    mov di, offset black_pawn
+    draw black_captured_x, black_captured_y, di
+
+    ; mov dl, 48d
+    ; mov ah, 2
+    ; int 21h
+
+    add black_captured_y, 22
+    jmp c102    
+
+    c113:
+    c102:
+
+    mov capturedPiece, "--"
+    cmp white_captured_y, 188d
+    jne c115
+    mov white_captured_y, 12d
+    add white_captured_x, 22d
+
+    c115:
+    cmp black_captured_y, 188d
+    jne c116
+    mov black_captured_y, 12d
+    add black_captured_x, 22d
+
+    c116:
+    ret
+    drawCapturedPiece endp
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Draw Status Bar ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+drawStatusBar proc far
+
+mov dh, 24
+mov dl, 0
+mov bh, 0
+mov ah, 2
+int 10h
+
+mov dx, offset wMsg
+mov ah, 9
+int 21h
+
+mov dx, offset checkedMsg
+mov ah, 9
+int 21h
+
+mov dx, offset bMsg
+mov ah, 9
+int 21h
+
+mov dx, offset checkedMsg
+mov ah, 9
+int 21h
+
+ret
+
+drawStatusBar endp
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Print Game Timer ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+printGameTimer proc far
+
+mov dh, 0   ;; Timer Rows
+mov dl, 1   ;; Timer Column
+mov bh, 0
+mov ah, 2
+int 10h
+
+mov ax, game_timer
+mov bl, 60d
+
+div bl  ;;al = minutes and ah = seconds
+
+push ax
+mov bl, 10d
+mov ah, 0
+
+div bl  ;; ah = units digit of minutes an al = tenth digit of minutes
+
+push ax
+add al, 48d
+mov cx, 1
+mov ah, 0ah
+int 10h
+
+inc dl
+mov ah, 2
+int 10h
+
+pop ax
+
+
+mov al, ah
+add al, 48d
+mov ah, 0ah
+int 10h
+
+inc dl
+mov ah, 2
+int 10h
+
+mov al, ':'
+mov ah, 0ah
+int 10h
+
+inc dl
+mov ah, 2
+int 10h
+
+pop ax
+;; ah = seconds
+
+mov al, ah
+mov ah, 0
+
+div bl  ;; al = tenth digit of seconds and ah = units digit of seconds
+
+push ax
+
+add al, 48d
+mov ah, 0ah
+int 10h
+
+inc dl
+mov ah, 2
+int 10h
+
+pop ax
+
+;; ah = units of seconds
+
+mov al, ah
+mov ah, 0
+
+add al, 48d
+mov ah, 0ah
+int 10h
+
+ret
+
+printGameTimer endp
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Change Time ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -499,10 +834,6 @@ je c95
 cmp cl, 0
 je c97
 
-; mov dl, '6'
-; mov ah, 2
-; int 21h
-
 dec cl
 mov time[bx], cl
 
@@ -512,6 +843,8 @@ jmp c94
 
 
 c95:
+call printGameTimer
+
 ret
 changeTime endp
 
@@ -582,7 +915,6 @@ mov al, 13h
 int 10h
 
 
-
 draw_grid
 
 ;; Drawing the first player marker
@@ -614,8 +946,12 @@ draw_pieces_in_grid
 ;Right arrow      E0 4D
 ;Up arrow         E0 48
 
+
+call printGameTimer
+
 game: 
 
+call drawStatusBar
 mov ah, 86h
 mov cx, 0
 mov dx, 1
@@ -626,14 +962,11 @@ je c96
 add timer, 1
 jmp c93
 c96:
-; mov ah, 2
-; mov dl, 'A'
-; int 21h
-
 mov timer, 0
 
 inc game_timer
-call changeTime
+call changeTime ;; No register must be maintained
+
 
 c93:
 mov ah,1
@@ -641,6 +974,7 @@ int 16h
 
 jz game
 
+;; Flush the buffer
 push ax
 mov ah, 0ch
 int 21h
@@ -653,57 +987,58 @@ pop ax
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-cmp al,'d'     ;move right
-jz c2
-jmp m1
 
-c2:
-cmp curr_marked_x_val, 8
-jne c10
-jmp game
+    cmp al,'d'     ;move right
+    jz c2
+    jmp m1
 
-c10:
-;; Update the Highlight position
-mov dx,curr_marked_x_pixel
-add dx, 22
-mov curr_marked_x_pixel,dx
+    c2:
+    cmp curr_marked_x_val, 8
+    jne c10
+    jmp game
 
-
-;; Update the Source Rect
-mov ax, curr_marked_x_val
-add ax, curr_marked_y_val
-
-mov bl, 2
-div bl
-cmp ah, 1  ;; Odd (Dark)
-je dark
-mov al, 7h
-jmp c3
-
-dark:
-mov al, 8
-
-c3:
-mov bp, curr_marked_x_pixel
-sub bp, 22 
-
-mov bx, curr_marked_y_pixel
-add bx, 22
-
-DrawRectangleMark bp, curr_marked_y_pixel, curr_marked_x_pixel, bx
+    c10:
+    ;; Update the Highlight position
+    mov dx,curr_marked_x_pixel
+    add dx, 22
+    mov curr_marked_x_pixel,dx
 
 
-;; Update the Destination Rect
-inc curr_marked_x_val
+    ;; Update the Source Rect
+    mov ax, curr_marked_x_val
+    add ax, curr_marked_y_val
 
-add bp, 44
+    mov bl, 2
+    div bl
+    cmp ah, 1  ;; Odd (Dark)
+    je dark
+    mov al, 7h
+    jmp c3
 
-mov al, 0ch
+    dark:
+    mov al, 8
 
-DrawRectangleMark curr_marked_x_pixel, curr_marked_y_pixel, bp, bx
+    c3:
+    mov bp, curr_marked_x_pixel
+    sub bp, 22 
 
-jmp game
+    mov bx, curr_marked_y_pixel
+    add bx, 22
 
+    DrawRectangleMark bp, curr_marked_y_pixel, curr_marked_x_pixel, bx
+
+
+    ;; Update the Destination Rect
+    inc curr_marked_x_val
+
+    add bp, 44
+
+    mov al, 0ch
+
+    DrawRectangleMark curr_marked_x_pixel, curr_marked_y_pixel, bp, bx
+
+    jmp game
+;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -711,534 +1046,534 @@ jmp game
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-m1:
-cmp al,'w'  ;;;Move Up
-jz c4
-jmp m2
+    m1:
+    cmp al,'w'  ;;;Move Up
+    jz c4
+    jmp m2
 
-c4:
-cmp curr_marked_y_val, 1
-jne c11
-jmp game
+    c4:
+    cmp curr_marked_y_val, 1
+    jne c11
+    jmp game
 
-c11:
-;; Update the Highlight position
-mov dx,curr_marked_y_pixel
-sub dx, 22
-mov curr_marked_y_pixel,dx
+    c11:
+    ;; Update the Highlight position
+    mov dx,curr_marked_y_pixel
+    sub dx, 22
+    mov curr_marked_y_pixel,dx
 
-;; Update the Source Rect
-mov ax, curr_marked_x_val
-add ax, curr_marked_y_val
+    ;; Update the Source Rect
+    mov ax, curr_marked_x_val
+    add ax, curr_marked_y_val
 
-mov bl, 2
-div bl
-cmp ah, 1  ;; Odd (Dark)
-je dark1
-mov al, 7h
-jmp c5
+    mov bl, 2
+    div bl
+    cmp ah, 1  ;; Odd (Dark)
+    je dark1
+    mov al, 7h
+    jmp c5
 
-dark1:
-mov al, 8
+    dark1:
+    mov al, 8
 
-c5:
-mov bp, curr_marked_x_pixel
-add bp, 22 
+    c5:
+    mov bp, curr_marked_x_pixel
+    add bp, 22 
 
-mov bx, curr_marked_y_pixel
-add bx, 22
+    mov bx, curr_marked_y_pixel
+    add bx, 22
 
-mov si, bx
-add si, 22
+    mov si, bx
+    add si, 22
 
-DrawRectangleMark curr_marked_x_pixel, bx, bp, si
-
-
-;; Update the Destination Rect
-dec curr_marked_y_val
-
-mov al, 0ch
-
-DrawRectangleMark curr_marked_x_pixel, curr_marked_y_pixel, bp, bx
-
-jmp game
+    DrawRectangleMark curr_marked_x_pixel, bx, bp, si
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Down (First Player) ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ;; Update the Destination Rect
+    dec curr_marked_y_val
 
+    mov al, 0ch
 
-m2:
-cmp al,'s'
-jz c7
-jmp m3        ;move down
+    DrawRectangleMark curr_marked_x_pixel, curr_marked_y_pixel, bp, bx
 
-c7:
-cmp curr_marked_y_val, 8
-jne c12
-jmp game
-
-c12:
-;; Update the Highlight position
-mov dx,curr_marked_y_pixel
-add dx, 22
-mov curr_marked_y_pixel,dx
-
-;; Update the Source Rect
-mov ax, curr_marked_x_val
-add ax, curr_marked_y_val
-
-mov bl, 2
-div bl
-cmp ah, 1  ;; Odd (Dark)
-je dark2
-mov al, 7h
-jmp c6
-
-dark2:
-mov al, 8
-
-c6:
-mov bp, curr_marked_x_pixel
-add bp, 22 
-
-mov bx, curr_marked_y_pixel
-sub bx, 22
-
-DrawRectangleMark curr_marked_x_pixel, bx, bp, curr_marked_y_pixel
-
-
-;; Update the Destination Rect
-inc curr_marked_y_val
-
-add bx, 44
-
-mov al, 0ch
-
-DrawRectangleMark curr_marked_x_pixel, curr_marked_y_pixel, bp, bx
-
-jmp game
-
+    jmp game
+;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Left (First Player) ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Down (First Player) ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-m3:
-cmp al,'a'
-jz c8         ;move left
-jmp m4
+    m2:
+    cmp al,'s'
+    jz c7
+    jmp m3        ;move down
 
-c8:
-cmp curr_marked_x_val, 1
-jne c13
-jmp game
+    c7:
+    cmp curr_marked_y_val, 8
+    jne c12
+    jmp game
 
-c13:
-;; Update the Highlight position
-mov dx,curr_marked_x_pixel
-sub dx, 22
-mov curr_marked_x_pixel,dx
+    c12:
+    ;; Update the Highlight position
+    mov dx,curr_marked_y_pixel
+    add dx, 22
+    mov curr_marked_y_pixel,dx
+
+    ;; Update the Source Rect
+    mov ax, curr_marked_x_val
+    add ax, curr_marked_y_val
+
+    mov bl, 2
+    div bl
+    cmp ah, 1  ;; Odd (Dark)
+    je dark2
+    mov al, 7h
+    jmp c6
+
+    dark2:
+    mov al, 8
+
+    c6:
+    mov bp, curr_marked_x_pixel
+    add bp, 22 
+
+    mov bx, curr_marked_y_pixel
+    sub bx, 22
+
+    DrawRectangleMark curr_marked_x_pixel, bx, bp, curr_marked_y_pixel
 
 
-;; Update the Source Rect
-mov ax, curr_marked_x_val
-add ax, curr_marked_y_val
+    ;; Update the Destination Rect
+    inc curr_marked_y_val
 
-mov bl, 2
-div bl
-cmp ah, 1  ;; Odd (Dark)
-je dark3
-mov al, 7h
-jmp c9
+    add bx, 44
 
-dark3:
-mov al, 8
+    mov al, 0ch
 
-c9:
-mov bp, curr_marked_x_pixel
-add bp, 22 
+    DrawRectangleMark curr_marked_x_pixel, curr_marked_y_pixel, bp, bx
 
-mov bx, curr_marked_y_pixel
-add bx, 22
-
-mov si, bp
-add si, 22
-
-DrawRectangleMark bp, curr_marked_y_pixel, si, bx
-
-;; Update the Destination Rect
-dec curr_marked_x_val
-
-mov al, 0ch
-
-DrawRectangleMark curr_marked_x_pixel, curr_marked_y_pixel, bp, bx
-
-jmp game
-
-m4:
-
+    jmp game
+;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Right (Second Player) ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Left (First Player) ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-cmp al,'6'     ;move right
-jz c20
-jmp m11
+    m3:
+    cmp al,'a'
+    jz c8         ;move left
+    jmp m4
 
-c20:
-cmp curr_marked_x_val_p2, 8
-jne c100
-jmp game
+    c8:
+    cmp curr_marked_x_val, 1
+    jne c13
+    jmp game
 
-c100:
-;; Update the Highlight position
-mov dx,curr_marked_x_pixel_p2
-add dx, 22
-mov curr_marked_x_pixel_p2,dx
-
-
-;; Update the Source Rect
-mov ax, curr_marked_x_val_p2
-add ax, curr_marked_y_val_p2
-
-mov bl, 2
-div bl
-cmp ah, 1  ;; Odd (Dark)
-je dark10
-mov al, 7h
-jmp c30
-
-dark10:
-mov al, 8
-
-c30:
-mov bp, curr_marked_x_pixel_p2
-sub bp, 22 
-
-mov bx, curr_marked_y_pixel_p2
-add bx, 22
-
-DrawRectangleMark bp, curr_marked_y_pixel_p2, curr_marked_x_pixel_p2, bx
+    c13:
+    ;; Update the Highlight position
+    mov dx,curr_marked_x_pixel
+    sub dx, 22
+    mov curr_marked_x_pixel,dx
 
 
-;; Update the Destination Rect
-inc curr_marked_x_val_p2
+    ;; Update the Source Rect
+    mov ax, curr_marked_x_val
+    add ax, curr_marked_y_val
 
-add bp, 44
+    mov bl, 2
+    div bl
+    cmp ah, 1  ;; Odd (Dark)
+    je dark3
+    mov al, 7h
+    jmp c9
 
-mov al, 0bh
+    dark3:
+    mov al, 8
 
-DrawRectangleMark curr_marked_x_pixel_p2, curr_marked_y_pixel_p2, bp, bx
+    c9:
+    mov bp, curr_marked_x_pixel
+    add bp, 22 
 
-jmp game
+    mov bx, curr_marked_y_pixel
+    add bx, 22
 
+    mov si, bp
+    add si, 22
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Up (Second Player) ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    DrawRectangleMark bp, curr_marked_y_pixel, si, bx
 
+    ;; Update the Destination Rect
+    dec curr_marked_x_val
 
-m11:
-cmp al,'8'  ;;;Move Up
-jz c40
-jmp m22
+    mov al, 0ch
 
-c40:
-cmp curr_marked_y_val_p2, 1
-jne c110
-jmp game
+    DrawRectangleMark curr_marked_x_pixel, curr_marked_y_pixel, bp, bx
 
-c110:
-;; Update the Highlight position
-mov dx,curr_marked_y_pixel_p2
-sub dx, 22
-mov curr_marked_y_pixel_p2,dx
-
-;; Update the Source Rect
-mov ax, curr_marked_x_val_p2
-add ax, curr_marked_y_val_p2
-
-mov bl, 2
-div bl
-cmp ah, 1  ;; Odd (Dark)
-je dark110
-mov al, 7h
-jmp c50
-
-dark110:
-mov al, 8
-
-c50:
-mov bp, curr_marked_x_pixel_p2
-add bp, 22 
-
-mov bx, curr_marked_y_pixel_p2
-add bx, 22
-
-mov si, bx
-add si, 22
-
-DrawRectangleMark curr_marked_x_pixel_p2, bx, bp, si
-               
-
-;; Update the Destination Rect
-dec curr_marked_y_val_p2
-
-mov al, 0bh
-
-DrawRectangleMark curr_marked_x_pixel_p2, curr_marked_y_pixel_p2, bp, bx
-
-jmp game
+    jmp game
+;;
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Down (Second Player) ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Right (Second Player) ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-m22:
-cmp al,'5'
-jz c70
-jmp m33        ;move down
+    m4:
+    cmp al,'6'     ;move right
+    jz c20
+    jmp m11
 
-c70:
-cmp curr_marked_y_val_p2, 8
-jne c120
-jmp game
+    c20:
+    cmp curr_marked_x_val_p2, 8
+    jne c100
+    jmp game
 
-c120:
-;; Update the Highlight position
-mov dx,curr_marked_y_pixel_p2
-add dx, 22
-mov curr_marked_y_pixel_p2 ,dx
-
-;; Update the Source Rect
-mov ax, curr_marked_x_val_p2
-add ax, curr_marked_y_val_p2
-
-mov bl, 2
-div bl
-cmp ah, 1  ;; Odd (Dark)
-je dark120
-mov al, 7h
-jmp c60
-
-dark120:
-mov al, 8
-
-c60:
-mov bp, curr_marked_x_pixel_p2
-add bp, 22 
-
-mov bx, curr_marked_y_pixel_p2
-sub bx, 22
-
-DrawRectangleMark curr_marked_x_pixel_p2 , bx, bp, curr_marked_y_pixel_p2
+    c100:
+    ;; Update the Highlight position
+    mov dx,curr_marked_x_pixel_p2
+    add dx, 22
+    mov curr_marked_x_pixel_p2,dx
 
 
-;; Update the Destination Rect
-inc curr_marked_y_val_p2
+    ;; Update the Source Rect
+    mov ax, curr_marked_x_val_p2
+    add ax, curr_marked_y_val_p2
 
-add bx, 44
+    mov bl, 2
+    div bl
+    cmp ah, 1  ;; Odd (Dark)
+    je dark10
+    mov al, 7h
+    jmp c30
 
-mov al, 0bh
+    dark10:
+    mov al, 8
 
-DrawRectangleMark curr_marked_x_pixel_p2, curr_marked_y_pixel_p2, bp, bx
+    c30:
+    mov bp, curr_marked_x_pixel_p2
+    sub bp, 22 
 
-jmp game
+    mov bx, curr_marked_y_pixel_p2
+    add bx, 22
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Left (Second Player) ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
-m33:
-cmp al,'4'
-jz c88         ;move left
-jmp m44
-
-c88:
-cmp curr_marked_x_val_p2, 1
-jne c130
-jmp game
-
-c130:
-;; Update the Highlight position
-mov dx,curr_marked_x_pixel_p2
-sub dx, 22
-mov curr_marked_x_pixel_p2 ,dx
+    DrawRectangleMark bp, curr_marked_y_pixel_p2, curr_marked_x_pixel_p2, bx
 
 
-;; Update the Source Rect
-mov ax, curr_marked_x_val_p2
-add ax, curr_marked_y_val_p2
+    ;; Update the Destination Rect
+    inc curr_marked_x_val_p2
 
-mov bl, 2
-div bl
-cmp ah, 1  ;; Odd (Dark)
-je dark130
-mov al, 7h
-jmp c90
+    add bp, 44
 
-dark130:
-mov al, 8
+    mov al, 0bh
 
-c90:
-mov bp, curr_marked_x_pixel_p2
-add bp, 22 
+    DrawRectangleMark curr_marked_x_pixel_p2, curr_marked_y_pixel_p2, bp, bx
 
-mov bx, curr_marked_y_pixel_p2
-add bx, 22
-
-mov si, bp
-add si, 22
-
-DrawRectangleMark bp, curr_marked_y_pixel_p2, si, bx
-
-;; Update the Destination Rect
-dec curr_marked_x_val_p2
-
-mov al, 0bh
-
-DrawRectangleMark curr_marked_x_pixel_p2, curr_marked_y_pixel_p2, bp, bx
-
-jmp game
-
-m44:
-
-
+    jmp game
+;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Move (First Player) ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Up (Second Player) ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-cmp al,'q'         ; source
-jz c15
-jmp m5
 
-c15:
-cmp cell_clicked_x, 0
-jz c18
-jmp c16
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;check
+    m11:
+    cmp al,'8'  ;;;Move Up
+    jz c40
+    jmp m22
 
-c18:
+    c40:
+    cmp curr_marked_y_val_p2, 1
+    jne c110
+    jmp game
 
-mov player_no, 1
-; mov al, 0ch
-; DrawRectangle 0,0,20,20
+    c110:
+    ;; Update the Highlight position
+    mov dx,curr_marked_y_pixel_p2
+    sub dx, 22
+    mov curr_marked_y_pixel_p2,dx
 
-mov ax, curr_marked_y_val
-dec ax
-shl ax, 8
+    ;; Update the Source Rect
+    mov ax, curr_marked_x_val_p2
+    add ax, curr_marked_y_val_p2
 
-add ax, curr_marked_x_val
-dec ax
+    mov bl, 2
+    div bl
+    cmp ah, 1  ;; Odd (Dark)
+    je dark110
+    mov al, 7h
+    jmp c50
 
-push ax
-call getIndex
-pop ax
+    dark110:
+    mov al, 8
 
-cmp grid[bx], 'b'
-je c98
-jmp game
+    c50:
+    mov bp, curr_marked_x_pixel_p2
+    add bp, 22 
 
-c98:
-push ax
-mov ax, bx
-mov cl, 2
-div cl
-mov si, ax
+    mov bx, curr_marked_y_pixel_p2
+    add bx, 22
 
-; mov ah, 2
-; mov dl, time[si]
-; int 21h
-pop ax
+    mov si, bx
+    add si, 22
 
-cmp time[si], 0
-je c59
-jmp game 
+    DrawRectangleMark curr_marked_x_pixel_p2, bx, bp, si
+                
 
+    ;; Update the Destination Rect
+    dec curr_marked_y_val_p2
 
-c59:
-add ax, 0101h  ;; Make it 1-indexed
+    mov al, 0bh
 
-mov dx, curr_marked_x_val
-mov cx, curr_marked_y_val
+    DrawRectangleMark curr_marked_x_pixel_p2, curr_marked_y_pixel_p2, bp, bx
 
+    jmp game
+;;
 
-mov cell_clicked_x,dx
-mov cell_clicked_y,cx
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Down (Second Player) ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-cmp grid[bx+1], 'r'
-jne c36
-call RockMoves
+    m22:
+    cmp al,'5'
+    jz c70
+    jmp m33        ;move down
 
-c36:
-cmp grid[bx+1], 'n'  
-jne c37
-call knightMoves
+    c70:
+    cmp curr_marked_y_val_p2, 8
+    jne c120
+    jmp game
 
-c37:
-cmp grid[bx+1], 'b'  
-jne c38
-call bishopMoves
+    c120:
+    ;; Update the Highlight position
+    mov dx,curr_marked_y_pixel_p2
+    add dx, 22
+    mov curr_marked_y_pixel_p2 ,dx
 
-c38:
-cmp grid[bx+1], 'k'
-jne c39
-call KingMoves
+    ;; Update the Source Rect
+    mov ax, curr_marked_x_val_p2
+    add ax, curr_marked_y_val_p2
 
-c39:
-cmp grid[bx+1], 'q'
-jne c41
-call queenMoves
+    mov bl, 2
+    div bl
+    cmp ah, 1  ;; Odd (Dark)
+    je dark120
+    mov al, 7h
+    jmp c60
 
-c41:
-cmp grid[bx+1], 'p'
-jne c51
-call PawnMoves
+    dark120:
+    mov al, 8
 
-; Drawing the moves highlight
+    c60:
+    mov bp, curr_marked_x_pixel_p2
+    add bp, 22 
 
-c51:
+    mov bx, curr_marked_y_pixel_p2
+    sub bx, 22
 
-cmp moves[0], '$$'
-jne c82
-; ;;Black
-; mov al, 0
-; DrawRectangle 0,0,20,20
+    DrawRectangleMark curr_marked_x_pixel_p2 , bx, bp, curr_marked_y_pixel_p2
 
-mov cell_clicked_x, 0
-mov cell_clicked_y, 0
-jmp c83
 
-c82:
-call drawHighlight
+    ;; Update the Destination Rect
+    inc curr_marked_y_val_p2
 
-c83:
-jmp game
+    add bx, 44
+
+    mov al, 0bh
+
+    DrawRectangleMark curr_marked_x_pixel_p2, curr_marked_y_pixel_p2, bp, bx
+
+    jmp game
+;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Left (Second Player) ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+    m33:
+    cmp al,'4'
+    jz c88         ;move left
+    jmp m44
+
+    c88:
+    cmp curr_marked_x_val_p2, 1
+    jne c130
+    jmp game
+
+    c130:
+    ;; Update the Highlight position
+    mov dx,curr_marked_x_pixel_p2
+    sub dx, 22
+    mov curr_marked_x_pixel_p2 ,dx
+
+
+    ;; Update the Source Rect
+    mov ax, curr_marked_x_val_p2
+    add ax, curr_marked_y_val_p2
+
+    mov bl, 2
+    div bl
+    cmp ah, 1  ;; Odd (Dark)
+    je dark130
+    mov al, 7h
+    jmp c90
+
+    dark130:
+    mov al, 8
+
+    c90:
+    mov bp, curr_marked_x_pixel_p2
+    add bp, 22 
+
+    mov bx, curr_marked_y_pixel_p2
+    add bx, 22
+
+    mov si, bp
+    add si, 22
+
+    DrawRectangleMark bp, curr_marked_y_pixel_p2, si, bx
+
+    ;; Update the Destination Rect
+    dec curr_marked_x_val_p2
+
+    mov al, 0bh
+
+    DrawRectangleMark curr_marked_x_pixel_p2, curr_marked_y_pixel_p2, bp, bx
+
+    jmp game
+;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Move (First Player) ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+    m44:
+    cmp al,'q'         ; source
+    jz c15
+    jmp m5
+
+    c15:
+    cmp cell_clicked_x, 0
+    jz c18
+    jmp c16
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ;;check
+
+    c18:
+
+    mov player_no, 1
+    ; mov al, 0ch
+    ; DrawRectangle 0,0,20,20
+
+    mov ax, curr_marked_y_val
+    dec ax
+    shl ax, 8
+
+    add ax, curr_marked_x_val
+    dec ax
+
+    push ax
+    call getIndex
+    pop ax
+
+    cmp grid[bx], 'b'
+    je c98
+    jmp game
+
+    c98:
+    push ax
+    mov ax, bx
+    mov cl, 2
+    div cl
+    mov si, ax
+
+    ; mov ah, 2
+    ; mov dl, time[si]
+    ; int 21h
+    pop ax
+
+    cmp time[si], 0
+    je c59
+    jmp game 
+
+
+    c59:
+    add ax, 0101h  ;; Make it 1-indexed
+
+    mov dx, curr_marked_x_val
+    mov cx, curr_marked_y_val
+
+
+    mov cell_clicked_x,dx
+    mov cell_clicked_y,cx
+
+
+    cmp grid[bx+1], 'r'
+    jne c36
+    call RockMoves
+
+    c36:
+    cmp grid[bx+1], 'n'  
+    jne c37
+    call knightMoves
+
+    c37:
+    cmp grid[bx+1], 'b'  
+    jne c38
+    call bishopMoves
+
+    c38:
+    cmp grid[bx+1], 'k'
+    jne c39
+    call KingMoves
+
+    c39:
+    cmp grid[bx+1], 'q'
+    jne c41
+    call queenMoves
+
+    c41:
+    cmp grid[bx+1], 'p'
+    jne c51
+    call PawnMoves
+
+    ; Drawing the moves highlight
+
+    c51:
+
+    cmp moves[0], '$$'
+    jne c82
+    ; ;;Black
+    ; mov al, 0
+    ; DrawRectangle 0,0,20,20
+
+    mov cell_clicked_x, 0
+    mov cell_clicked_y, 0
+    jmp c83
+
+    c82:
+    call drawHighlight
+
+    c83:
+    jmp game
+;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1246,193 +1581,194 @@ jmp game
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;Second Click
-c16:
+    ;;Second Click
+    c16:
 
-mov player_no, 1
-
-
-
-mov ax, cell_clicked_y
-shl ax, 8
-
-add ax, cell_clicked_x
+    mov player_no, 1
 
 
-mov bx, curr_marked_y_val
-shl bx, 8
 
-add bx, curr_marked_x_val
+    mov ax, cell_clicked_y
+    shl ax, 8
 
-
-; mov bp, bx
-; add bp, 20
-
-; ;;Black
-; mov al, 0
-; DrawRectangle bx,0,bp,20
+    add ax, cell_clicked_x
 
 
-call validateMove
+    mov bx, curr_marked_y_val
+    shl bx, 8
 
-;;;;;;;;;;;; Check Allowed
-cmp allowed, 1
-jz c35
-jmp c19
-
-c35:
-mov allowed, 0
-;;;Allowed (Make Move)
-
-mov ax, cell_clicked_y
-shl ax, 8
-add ax, cell_clicked_x
-
-mov bx, curr_marked_y_val
-shl bx, 8
-add bx, curr_marked_x_val
+    add bx, curr_marked_x_val
 
 
-call makeMove  ;; Updating the grid
+    ; mov bp, bx
+    ; add bp, 20
+
+    ; ;;Black
+    ; mov al, 0
+    ; DrawRectangle bx,0,bp,20
 
 
-;; Updating the UI
-;;Source Rect
-mov ax, cell_clicked_x
-add ax, cell_clicked_y
+    call validateMove
 
-mov bl, 2
-div bl
+    ;;;;;;;;;;;; Check Allowed
+    cmp allowed, 1
+    jz c35
+    jmp c19
 
-cmp ah, 1  ;; Dark (Odd)
+    c35:
+    mov allowed, 0
+    ;;;Allowed (Make Move)
 
-je dark4
-mov al, 7h
-jmp c21
+    mov ax, cell_clicked_y
+    shl ax, 8
+    add ax, cell_clicked_x
 
-dark4:
-mov al, 8
-
-c21:
-
-;;To be updated (Board Position)
-push ax
-; bx -> (X) start
-mov ax, cell_clicked_x
-dec ax
-
-mov cl, 22
-mul cl
-
-add ax, 72 ;; (Board Position)
-mov bx, ax
-
-; bp -> (X) end
-mov bp, bx
-add bp, 22
-
-; si -> (Y) start
-mov ax, cell_clicked_y
-dec ax
-
-mov cl, 22
-mul cl
-
-add ax, 12  ;; (Board Position)
-mov si, ax
-
-; di -> (Y) end
-mov di, si
-add di, 22
+    mov bx, curr_marked_y_val
+    shl bx, 8
+    add bx, curr_marked_x_val
 
 
-pop ax
+    call makeMove  ;; Updating the grid
 
-DrawRectangle bx, si, bp, di
+    call drawCapturedPiece
 
+    ;; Updating the UI
+    ;;Source Rect
+    mov ax, cell_clicked_x
+    add ax, cell_clicked_y
 
-;;Destination Rect
-;;bx offest of the grid
+    mov bl, 2
+    div bl
 
-mov ax, curr_marked_y_val
-shl ax, 8
-add ax, curr_marked_x_val
+    cmp ah, 1  ;; Dark (Odd)
 
-sub ax, 0101h
+    je dark4
+    mov al, 7h
+    jmp c21
 
-call getIndex ;; 0-indexed
+    dark4:
+    mov al, 8
 
+    c21:
 
-; mov bx, offset grid[bx]
-mov ax, offset grid
-add bx, ax
-;add bx, 32d
+    ;;To be updated (Board Position)
+    push ax
+    ; bx -> (X) start
+    mov ax, cell_clicked_x
+    dec ax
 
-mov si, bx
-add si, 20
+    mov cl, 22
+    mul cl
 
-mov cx, [bx]
-xchg ch,cl
+    add ax, 72 ;; (Board Position)
+    mov bx, ax
 
-cmp cx, "br"
-jne c22
-mov di,offset black_rock
-jmp c33
-c22:
-cmp cx, "bn"
-jne c23
-mov di,offset black_knight
-jmp c33
-c23: 
-cmp cx, "bb"
-jne c24
-mov di,offset black_bishop
-jmp c33
-c24:
-cmp cx, "bk"
-jne c25
-mov di,offset black_king
-jmp c33
-c25:
-cmp cx, "bq"
-jne c26
-mov di,offset black_queen
-jmp c33
-c26: 
-; cmp cx, "bp"
-; jne c33
-mov di,offset black_pawn
+    ; bp -> (X) end
+    mov bp, bx
+    add bp, 22
 
-c33:
-; ;; Update the Destination Rect
+    ; si -> (Y) start
+    mov ax, cell_clicked_y
+    dec ax
 
-get_cell curr_marked_x_val, curr_marked_y_val
-draw get_cell_x , get_cell_y , di;, x, y
+    mov cl, 22
+    mul cl
+
+    add ax, 12  ;; (Board Position)
+    mov si, ax
+
+    ; di -> (Y) end
+    mov di, si
+    add di, 22
 
 
-jmp c42
+    pop ax
 
-c19:
-;Red 
-mov al, 4
-DrawRectangle 0,0,20,20
+    DrawRectangle bx, si, bp, di
 
-c42:
 
-;; Reset cell_clicked_x and cell_clicked_y
-mov cell_clicked_x, 0
-mov cell_clicked_y, 0
+    ;;Destination Rect
+    ;;bx offest of the grid
 
-;;Clearing the moves
-call ClearMoves
+    mov ax, curr_marked_y_val
+    shl ax, 8
+    add ax, curr_marked_x_val
 
-cmp winner, 0
-je c91
-jmp l
+    sub ax, 0101h
 
-c91:
-jmp game
+    call getIndex ;; 0-indexed
 
+
+    ; mov bx, offset grid[bx]
+    mov ax, offset grid
+    add bx, ax
+    ;add bx, 32d
+
+    mov si, bx
+    add si, 20
+
+    mov cx, [bx]
+    xchg ch,cl
+
+    cmp cx, "br"
+    jne c22
+    mov di,offset black_rock
+    jmp c33
+    c22:
+    cmp cx, "bn"
+    jne c23
+    mov di,offset black_knight
+    jmp c33
+    c23: 
+    cmp cx, "bb"
+    jne c24
+    mov di,offset black_bishop
+    jmp c33
+    c24:
+    cmp cx, "bk"
+    jne c25
+    mov di,offset black_king
+    jmp c33
+    c25:
+    cmp cx, "bq"
+    jne c26
+    mov di,offset black_queen
+    jmp c33
+    c26: 
+    ; cmp cx, "bp"
+    ; jne c33
+    mov di,offset black_pawn
+
+    c33:
+    ; ;; Update the Destination Rect
+
+    get_cell curr_marked_x_val, curr_marked_y_val
+    draw get_cell_x , get_cell_y , di;, x, y
+
+
+    jmp c42
+
+    c19:
+    ;Red 
+    mov al, 4
+    DrawRectangle 0,0,20,20
+
+    c42:
+
+    ;; Reset cell_clicked_x and cell_clicked_y
+    mov cell_clicked_x, 0
+    mov cell_clicked_y, 0
+
+    ;;Clearing the moves
+    call ClearMoves
+
+    cmp winner, 0
+    je c91
+    jmp l
+
+    c91:
+    jmp game
+;;
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1442,313 +1778,316 @@ jmp game
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-m5:
-cmp al,'p'         ; source
-jz c57
-jmp m6
-c57:
+    m5:
+    cmp al,'p'         ; source
+    jz c57
+    jmp m6
+    c57:
 
-; mov ax, curr_marked_y_val_p2
-; dec ax
-; shl ax, 8
+    ; mov ax, curr_marked_y_val_p2
+    ; dec ax
+    ; shl ax, 8
 
-; add ax, curr_marked_x_val_p2
-; dec ax
+    ; add ax, curr_marked_x_val_p2
+    ; dec ax
 
-; call getIndex
- 
-; cmp grid[bx], 'w'
-; je c150
-; jmp game
+    ; call getIndex
+    
+    ; cmp grid[bx], 'w'
+    ; je c150
+    ; jmp game
 
-c150:
-cmp cell_clicked_x_p2, 0
-jz c180
-jmp c160
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;check
+    c150:
+    cmp cell_clicked_x_p2, 0
+    jz c180
+    jmp c160
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ;;check
 
-c180:
-mov player_no, 2
+    c180:
+    mov player_no, 2
 
-; mov al, 0ch
-; DrawRectangle 0,0,20,20
+    ; mov al, 0ch
+    ; DrawRectangle 0,0,20,20
 
-mov ax, curr_marked_y_val_p2
-dec ax
-shl ax, 8
+    mov ax, curr_marked_y_val_p2
+    dec ax
+    shl ax, 8
 
-add ax, curr_marked_x_val_p2
-dec ax
+    add ax, curr_marked_x_val_p2
+    dec ax
 
-push ax
-call getIndex
-pop ax
+    push ax
+    call getIndex
+    pop ax
 
-cmp grid[bx], 'w'
-je c99
-jmp game
+    cmp grid[bx], 'w'
+    je c99
+    jmp game
 
-c99:
-push ax
-mov ax, bx
-mov cl, 2
-div cl
-mov si, ax
+    c99:
+    push ax
+    mov ax, bx
+    mov cl, 2
+    div cl
+    mov si, ax
 
-; mov ah, 2
-; mov dl, time[si]
-; add dl, 48d
-; int 21h
-pop ax
+    ; mov ah, 2
+    ; mov dl, time[si]
+    ; add dl, 48d
+    ; int 21h
+    pop ax
 
-cmp time[si], 0
-je c58
-jmp game 
+    cmp time[si], 0
+    je c58
+    jmp game 
 
-c58:
-add ax, 0101h  ;; Make it 1-indexed
+    c58:
+    add ax, 0101h  ;; Make it 1-indexed
 
-mov dx, curr_marked_x_val_p2
-mov cx, curr_marked_y_val_p2
-
-
-mov cell_clicked_x_p2,dx
-mov cell_clicked_y_p2,cx
+    mov dx, curr_marked_x_val_p2
+    mov cx, curr_marked_y_val_p2
 
 
-cmp grid[bx+1], 'r'
-jne c360
-call RockMoves
+    mov cell_clicked_x_p2,dx
+    mov cell_clicked_y_p2,cx
 
-c360:
-cmp grid[bx+1], 'n'  
-jne c370
-call knightMoves
 
-c370:
-cmp grid[bx+1], 'b'  
-jne c380
-call bishopMoves
+    cmp grid[bx+1], 'r'
+    jne c360
+    call RockMoves
 
-c380:
-cmp grid[bx+1], 'k'
-jne c390
-call KingMoves
+    c360:
+    cmp grid[bx+1], 'n'  
+    jne c370
+    call knightMoves
 
-c390:
-cmp grid[bx+1], 'q'
-jne c410
-call queenMoves
+    c370:
+    cmp grid[bx+1], 'b'  
+    jne c380
+    call bishopMoves
 
-c410:
-cmp grid[bx+1], 'p'
-jne c510
-call PawnMoves
+    c380:
+    cmp grid[bx+1], 'k'
+    jne c390
+    call KingMoves
 
-c510:
-cmp moves_p2[0], '$$'
-jne c84
-mov cell_clicked_x_p2, 0
-mov cell_clicked_y_p2, 0
-jmp c85
+    c390:
+    cmp grid[bx+1], 'q'
+    jne c410
+    call queenMoves
 
-c84:
-; Drawing the moves highlight
-call drawHighlight
+    c410:
+    cmp grid[bx+1], 'p'
+    jne c510
+    call PawnMoves
 
-c85:
+    c510:
+    cmp moves_p2[0], '$$'
+    jne c84
+    mov cell_clicked_x_p2, 0
+    mov cell_clicked_y_p2, 0
+    jmp c85
 
-jmp game
+    c84:
+    ; Drawing the moves highlight
+    call drawHighlight
+
+    c85:
+
+    jmp game
+;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Second Click (Second Player) ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Second Click (Second Player) ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;Second Click
-c160:
-mov player_no, 2
+    ;;Second Click
+    c160:
+    mov player_no, 2
 
-mov ax, cell_clicked_y_p2
-shl ax, 8
+    mov ax, cell_clicked_y_p2
+    shl ax, 8
 
-add ax, cell_clicked_x_p2
-
-
-mov bx, curr_marked_y_val_p2
-shl bx, 8
-
-add bx, curr_marked_x_val_p2
+    add ax, cell_clicked_x_p2
 
 
-mov bp, bx
-add bp, 20
+    mov bx, curr_marked_y_val_p2
+    shl bx, 8
 
-; ;;Black
-; mov al, 0
-; DrawRectangle bx,0,bp,20
+    add bx, curr_marked_x_val_p2
 
 
-call validateMove
+    mov bp, bx
+    add bp, 20
 
-;;;;;;;;;;;; Check Allowed
-cmp allowed, 1
-jz c350
-jmp c190
-
-c350:
-mov allowed, 0
-;;;Allowed (Make Move)
-
-mov ax, cell_clicked_y_p2
-shl ax, 8
-add ax, cell_clicked_x_p2
-
-mov bx, curr_marked_y_val_p2
-shl bx, 8
-add bx, curr_marked_x_val_p2
+    ; ;;Black
+    ; mov al, 0
+    ; DrawRectangle bx,0,bp,20
 
 
-call makeMove  ;; Updating the grid
+    call validateMove
 
-;; Updating the UI
-;;Source Rect
-mov ax, cell_clicked_x_p2
-add ax, cell_clicked_y_p2
+    ;;;;;;;;;;;; Check Allowed
+    cmp allowed, 1
+    jz c350
+    jmp c190
 
-mov bl, 2
-div bl
+    c350:
+    mov allowed, 0
+    ;;;Allowed (Make Move)
 
-cmp ah, 1  ;; Dark (Odd)
+    mov ax, cell_clicked_y_p2
+    shl ax, 8
+    add ax, cell_clicked_x_p2
 
-je dark40
-mov al, 7h
-jmp c210
-
-dark40:
-mov al, 8
-
-c210:
-
-;;To be updated (Board Position)
-push ax
-; bx -> (X) start
-mov ax, cell_clicked_x_p2
-dec ax
-
-mov cl, 22
-mul cl
-
-add ax, 72 ;; (Board Position)
-mov bx, ax
-
-; bp -> (X) end
-mov bp, bx
-add bp, 22
-
-; si -> (Y) start
-mov ax, cell_clicked_y_p2
-dec ax
-
-mov cl, 22
-mul cl
-
-add ax, 12  ;; (Board Position)
-mov si, ax
-
-; di -> (Y) end
-mov di, si
-add di, 22
+    mov bx, curr_marked_y_val_p2
+    shl bx, 8
+    add bx, curr_marked_x_val_p2
 
 
-pop ax
+    call makeMove  ;; Updating the grid
 
-DrawRectangle bx, si, bp, di
+    call drawCapturedPiece
 
+    ;; Updating the UI
+    ;;Source Rect
+    mov ax, cell_clicked_x_p2
+    add ax, cell_clicked_y_p2
 
-;;Destination Rect
-;;bx offest of the grid
+    mov bl, 2
+    div bl
 
-mov ax, curr_marked_y_val_p2
-shl ax, 8
-add ax, curr_marked_x_val_p2
+    cmp ah, 1  ;; Dark (Odd)
 
-sub ax, 0101h
+    je dark40
+    mov al, 7h
+    jmp c210
 
-call getIndex ;; 0-indexed
+    dark40:
+    mov al, 8
 
+    c210:
 
-; mov bx, offset grid[bx]
-mov ax, offset grid
-add bx, ax
-;add bx, 32d
+    ;;To be updated (Board Position)
+    push ax
+    ; bx -> (X) start
+    mov ax, cell_clicked_x_p2
+    dec ax
 
-mov si, bx
-add si, 20
+    mov cl, 22
+    mul cl
 
-mov cx, [bx]
-xchg ch,cl
+    add ax, 72 ;; (Board Position)
+    mov bx, ax
 
-cmp cx, "wr"
-jne c280
-mov di,offset white_rock
-jmp c330
-c280:
-cmp cx, "wn"
-jne c290
-mov di,offset white_knight
-jmp c330
-c290: 
-cmp cx, "wb"
-jne c340
-mov di,offset white_bishop
-jmp c330
-c340:
-cmp cx, "wk"
-jne c310
-mov di,offset white_king
-jmp c330
-c310:
-cmp cx, "wq"
-jne c320
-mov di,offset white_queen
-jmp c330
-c320: 
-mov di,offset white_pawn
+    ; bp -> (X) end
+    mov bp, bx
+    add bp, 22
 
-c330:
-; ;; Update the Destination Rect
+    ; si -> (Y) start
+    mov ax, cell_clicked_y_p2
+    dec ax
 
-get_cell curr_marked_x_val_p2, curr_marked_y_val_p2
-draw get_cell_x , get_cell_y , di;, x, y
+    mov cl, 22
+    mul cl
+
+    add ax, 12  ;; (Board Position)
+    mov si, ax
+
+    ; di -> (Y) end
+    mov di, si
+    add di, 22
 
 
-jmp c420
+    pop ax
 
-c190:
-;Red 
-mov al, 4
-DrawRectangle 0,0,20,20
+    DrawRectangle bx, si, bp, di
 
-c420:
 
-;; Reset cell_clicked_x_p2 and cell_clicked_y_p2
-mov cell_clicked_x_p2, 0
-mov cell_clicked_y_p2, 0
+    ;;Destination Rect
+    ;;bx offest of the grid
 
-;;Clearing the moves
-call ClearMoves
+    mov ax, curr_marked_y_val_p2
+    shl ax, 8
+    add ax, curr_marked_x_val_p2
 
-cmp winner, 0
-je c92
+    sub ax, 0101h
 
-jmp l
+    call getIndex ;; 0-indexed
 
-c92:
-jmp game
 
+    ; mov bx, offset grid[bx]
+    mov ax, offset grid
+    add bx, ax
+    ;add bx, 32d
+
+    mov si, bx
+    add si, 20
+
+    mov cx, [bx]
+    xchg ch,cl
+
+    cmp cx, "wr"
+    jne c280
+    mov di,offset white_rock
+    jmp c330
+    c280:
+    cmp cx, "wn"
+    jne c290
+    mov di,offset white_knight
+    jmp c330
+    c290: 
+    cmp cx, "wb"
+    jne c340
+    mov di,offset white_bishop
+    jmp c330
+    c340:
+    cmp cx, "wk"
+    jne c310
+    mov di,offset white_king
+    jmp c330
+    c310:
+    cmp cx, "wq"
+    jne c320
+    mov di,offset white_queen
+    jmp c330
+    c320: 
+    mov di,offset white_pawn
+
+    c330:
+    ; ;; Update the Destination Rect
+
+    get_cell curr_marked_x_val_p2, curr_marked_y_val_p2
+    draw get_cell_x , get_cell_y , di;, x, y
+
+
+    jmp c420
+
+    c190:
+    ;Red 
+    mov al, 4
+    DrawRectangle 0,0,20,20
+
+    c420:
+
+    ;; Reset cell_clicked_x_p2 and cell_clicked_y_p2
+    mov cell_clicked_x_p2, 0
+    mov cell_clicked_y_p2, 0
+
+    ;;Clearing the moves
+    call ClearMoves
+
+    cmp winner, 0
+    je c92
+
+    jmp l
+
+    c92:
+    jmp game
+;;
 
 m6:
 

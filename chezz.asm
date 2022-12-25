@@ -47,6 +47,7 @@
     public capturedPiece
     public white_king_pos
     public black_king_pos
+    public chezz
 ;;
 .model large
 .stack 64
@@ -127,6 +128,9 @@
     bMsg db "Black ", '$'
 
     checkedMsg db "is checked! ", '$'
+
+    blackWins db "Black Wins!", '$'
+    whiteWins db "White Wins!", '$'
 
     capturedPiece dw "--"
 
@@ -459,6 +463,19 @@ popa
 endm
 
 .code
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Initilaize Vars ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+initializeVars proc far
+
+;timer dw 0
+
+ret
+initializeVars endp
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -895,6 +912,22 @@ mov bh, 0
 mov ah, 2
 int 10h
 
+
+cmp winner, 1 ;;black
+jne c203
+mov dx, offset blackWins
+mov ah, 9
+int 21h
+jmp c204
+
+c203:
+cmp winner, 2 ;;white
+jne c204
+mov dx, offset whiteWins
+mov ah, 9
+int 21h
+
+c204:
 cmp white_in_check, 1
 jne c131
 mov dx, offset wMsg
@@ -1102,7 +1135,7 @@ ret
 drawHighlight endp
 
 
-start:
+chezz proc far
 
 MOV AX , @DATA
 MOV DS , AX
@@ -2299,11 +2332,35 @@ jz l
 jmp game
 l:
 
-mov ax,4c00h
+cmp winner, 1 ;;Black
+jne c200
+mov ah, 9
+mov dx, offset blackWins
+int 21h
+jmp c201
 
+c200:
+cmp winner, 2 ;;white
+jne c202
+mov ah, 9
+mov dx, offset whiteWins
 int 21h
 
-end start
+c201:
+
+mov cx, 2Dh
+mov dx, 0C6C0h
+
+mov ah, 86h
+int 15h
+
+c202:
 
 
-.end
+ret
+
+chezz endp
+
+
+
+END

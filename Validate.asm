@@ -1,5 +1,7 @@
 ;; Extrnal 
+extrn player_no:byte
 extrn moves:word
+extrn moves_p2:word
 
 ;; Public
 public validateMove
@@ -26,7 +28,6 @@ endm popAll
 
 .model large
 .data
-count db 0
 allowed db 0
 iterator db 0
 
@@ -47,8 +48,14 @@ validateMove PROC far
     mov bx,0
     mov bl,iterator 
 
-    ;;;Wrong (2nd comparison overwrites the zf)
+    cmp player_no, 2
+    je c1
     cmp moves[bx],dx
+    jmp c2
+    c1:
+    cmp moves_p2[bx],dx
+
+    c2:
 
     jnz breakCondition 
     mov allowed, 1
@@ -56,7 +63,16 @@ validateMove PROC far
     breakCondition:
     
     add iterator, 2
+
+    cmp player_no, 2
+    je c3
     cmp moves[bx], '$'
+    jmp c4
+    c3:
+    cmp moves_p2[bx], '$'
+
+    c4:
+
     jnz check 
     done: 
     popAll

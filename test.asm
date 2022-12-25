@@ -21,11 +21,16 @@ extrn KingMoves:far
 extrn RockMoves:far
 extrn knightMoves:far
 extrn bishopMoves:far
+extrn queenMoves:far
 
 extrn getIndex:far
-extrn moves:word
 extrn makeMove:far
 extrn ClearMoves:far
+
+extrn moves:word
+extrn moves_p2:word
+extrn player_no:byte
+extrn winner:byte
 
 ;; Validate File
 extrn validateMove:far
@@ -33,6 +38,10 @@ extrn allowed:byte
 
 
 public grid
+public get_cell_x
+public get_cell_y
+public drawHighlight
+public time
 
 .model large
 .stack 64
@@ -47,6 +56,17 @@ grid db "br","bn","bb","bq","bk","bb","bn","br"
      db "wp","wp","wp","wp","wp","wp","wp","wp"  
      db "wr","wn","wb","wq","wk","wb","wn","wr"
                                   
+time db 0,0,0,0,0,0,0,0
+     db 0,0,0,0,0,0,0,0                                    
+     db 0,0,0,0,0,0,0,0
+     db 0,0,0,0,0,0,0,0
+     db 0,0,0,0,0,0,0,0
+     db 0,0,0,0,0,0,0,0
+     db 0,0,0,0,0,0,0,0  
+     db 0,0,0,0,0,0,0,0,'$'
+
+timer dw 0
+game_timer dw 0
 
 pieceWidth EQU 20
 pieceHeight EQU 20
@@ -148,6 +168,10 @@ cmp al, 12h
 je notColored
 cmp al, 0fh
 je notColored
+cmp al, 02
+je notColored
+cmp al, 0ah
+je notColored
 
 pop ax
 int 10h
@@ -185,13 +209,14 @@ cont:
 endm
  
 Draw macro draw_x , draw_y , z;, x_r,y_c
-local drawloop, jumb_if_black, l, m
+local drawloop, jumb_if_black, l, m, c52, c53, c54, c55, c56
 ; Drawing loop
 
 pusha
 mov cx,draw_x
 mov dx,draw_y
 mov bx,z
+
 mov di,cx
 add di, pieceWidth
 mov si, dx
@@ -207,7 +232,33 @@ drawLoop:
     MOV AL,[bx]
     
     cmp al,0ffh
-    jz jumb_if_black        
+    jz jumb_if_black 
+    cmp al, 0ah
+    je c54
+
+    c53:
+    cmp al, 2
+    jne c52
+
+    ;; Check if white or black (Do not draw)
+    c54:
+    push ax
+    mov ah, 0dh
+    int 10h
+    cmp al, 0fh ;; white piece
+    je c55
+    cmp al, 12h ;; black piece
+    je c55
+
+    jmp c56
+
+    c55:
+    pop ax
+    jmp jumb_if_black
+
+    c56:
+    pop ax
+    c52:
     INT 10h
     jumb_if_black: 
     
@@ -223,6 +274,8 @@ JNE drawLoop
 
 popa
 endm 
+
+
 
 get_cell macro row_x,col_y
 local add_square_val , add_square_val_2   
@@ -426,6 +479,41 @@ popa
 endm
 
 .code
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Change Time ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+changeTime proc
+mov bx, 0
+
+
+mov ch, 0
+
+c94:
+mov cl, time[bx]
+cmp cl, '$'
+je c95
+
+cmp cl, 0
+je c97
+
+; mov dl, '6'
+; mov ah, 2
+; int 21h
+
+dec cl
+mov time[bx], cl
+
+c97:
+inc bx
+jmp c94
+
+
+c95:
+ret
+changeTime endp
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -436,7 +524,12 @@ endm
 
 drawHighlight proc far
 
+cmp player_no, 2
+je c72
 mov si, offset moves
+jmp c43
+c72:
+mov si, offset moves_p2
 
 c43:
 mov bx, [si]
@@ -477,6 +570,7 @@ c44:
 
 ret
 drawHighlight endp
+
 
 start:
 
@@ -522,8 +616,42 @@ draw_pieces_in_grid
 
 game: 
 
-mov ah,0
+mov ah, 86h
+mov cx, 0
+mov dx, 1
+int 15h
+
+cmp timer, 03e8h
+je c96
+add timer, 1
+jmp c93
+c96:
+; mov ah, 2
+; mov dl, 'A'
+; int 21h
+
+mov timer, 0
+
+inc game_timer
+call changeTime
+
+c93:
+mov ah,1
 int 16h
+
+jz game
+
+push ax
+mov ah, 0ch
+int 21h
+pop ax
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Right (First Player) ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 
 cmp al,'d'     ;move right
 jz c2
@@ -575,6 +703,13 @@ mov al, 0ch
 DrawRectangleMark curr_marked_x_pixel, curr_marked_y_pixel, bp, bx
 
 jmp game
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Up (First Player) ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 m1:
 cmp al,'w'  ;;;Move Up
@@ -629,6 +764,13 @@ DrawRectangleMark curr_marked_x_pixel, curr_marked_y_pixel, bp, bx
 jmp game
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Down (First Player) ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
 m2:
 cmp al,'s'
 jz c7
@@ -679,6 +821,14 @@ mov al, 0ch
 DrawRectangleMark curr_marked_x_pixel, curr_marked_y_pixel, bp, bx
 
 jmp game
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Left (First Player) ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 
 m3:
 cmp al,'a'
@@ -735,9 +885,11 @@ jmp game
 m4:
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Right (Second Player) ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
 cmp al,'6'     ;move right
@@ -791,10 +943,15 @@ DrawRectangleMark curr_marked_x_pixel_p2, curr_marked_y_pixel_p2, bp, bx
 
 jmp game
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Up (Second Player) ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
 m11:
-
-
-
 cmp al,'8'  ;;;Move Up
 jz c40
 jmp m22
@@ -847,13 +1004,14 @@ DrawRectangleMark curr_marked_x_pixel_p2, curr_marked_y_pixel_p2, bp, bx
 jmp game
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Down (Second Player) ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
 m22:
-
-
-
-
-
-
 cmp al,'5'
 jz c70
 jmp m33        ;move down
@@ -904,11 +1062,14 @@ DrawRectangleMark curr_marked_x_pixel_p2, curr_marked_y_pixel_p2, bp, bx
 
 jmp game
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Left (Second Player) ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
 m33:
-
-
-
-
 cmp al,'4'
 jz c88         ;move left
 jmp m44
@@ -964,8 +1125,12 @@ m44:
 
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Move (First Player) ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 cmp al,'q'         ; source
 jz c15
 jmp m5
@@ -978,13 +1143,8 @@ jmp c16
 ;;check
 
 c18:
-mov dx, curr_marked_x_val
-mov cx, curr_marked_y_val
 
-
-mov cell_clicked_x,dx
-mov cell_clicked_y,cx
-
+mov player_no, 1
 ; mov al, 0ch
 ; DrawRectangle 0,0,20,20
 
@@ -995,36 +1155,53 @@ shl ax, 8
 add ax, curr_marked_x_val
 dec ax
 
-; mov bx,ax
-; mov bp, bx
-; add bp, 20d
-
-; mov al, 0h
-; DrawRectangle bx,0,bp,20
-
 push ax
 call getIndex
 pop ax
 
-; mov bp, bx
-; add bp, 20d
-; mov al, 0h
+cmp grid[bx], 'b'
+je c98
+jmp game
 
-; DrawRectangle bx,0,bp,20
+c98:
+push ax
+mov ax, bx
+mov cl, 2
+div cl
+mov si, ax
 
+; mov ah, 2
+; mov dl, time[si]
+; int 21h
+pop ax
+
+cmp time[si], 0
+je c59
+jmp game 
+
+
+c59:
 add ax, 0101h  ;; Make it 1-indexed
+
+mov dx, curr_marked_x_val
+mov cx, curr_marked_y_val
+
+
+mov cell_clicked_x,dx
+mov cell_clicked_y,cx
+
 
 cmp grid[bx+1], 'r'
 jne c36
 call RockMoves
 
 c36:
-cmp grid[bx+1], 'n'  ;;To be tested
+cmp grid[bx+1], 'n'  
 jne c37
 call knightMoves
 
 c37:
-cmp grid[bx+1], 'b'  ;;To be tested
+cmp grid[bx+1], 'b'  
 jne c38
 call bishopMoves
 
@@ -1034,33 +1211,47 @@ jne c39
 call KingMoves
 
 c39:
-cmp grid[bx+1], 'q' ;;To be tested
+cmp grid[bx+1], 'q'
 jne c41
-;call queenMoves
+call queenMoves
 
 c41:
+cmp grid[bx+1], 'p'
+jne c51
 call PawnMoves
 
 ; Drawing the moves highlight
 
+c51:
+
+cmp moves[0], '$$'
+jne c82
+; ;;Black
+; mov al, 0
+; DrawRectangle 0,0,20,20
+
+mov cell_clicked_x, 0
+mov cell_clicked_y, 0
+jmp c83
+
+c82:
 call drawHighlight
 
-
-; mov bx, moves[0]
-; mov bp, bx
-; add bp, 20
-
-; ;;Green
-; mov al, 2
-; DrawRectangle bx,0,bp,20
-
+c83:
 jmp game
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Second Click (First Player) ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;Second Click
 c16:
-;;Blue
-; mov al, 1
-; DrawRectangle 0,0,20,20
+
+mov player_no, 1
+
+
 
 mov ax, cell_clicked_y
 shl ax, 8
@@ -1074,12 +1265,12 @@ shl bx, 8
 add bx, curr_marked_x_val
 
 
-mov bp, bx
-add bp, 20
+; mov bp, bx
+; add bp, 20
 
-;;Black
-mov al, 0
-DrawRectangle bx,0,bp,20
+; ;;Black
+; mov al, 0
+; DrawRectangle bx,0,bp,20
 
 
 call validateMove
@@ -1092,12 +1283,6 @@ jmp c19
 c35:
 mov allowed, 0
 ;;;Allowed (Make Move)
-
-; ;Blue
-; mov al, 1
-; DrawRectangle 0,0,20,20
-
-; mov bx, 
 
 mov ax, cell_clicked_y
 shl ax, 8
@@ -1162,20 +1347,11 @@ add di, 22
 
 
 pop ax
-; mov bp, curr_marked_x_pixel_p2
-; add bp, 22 
-
-; mov bx, curr_marked_y_pixel_p2
-; add bx, 22
-
-; mov si, bp
-; add si, 22
 
 DrawRectangle bx, si, bp, di
 
 
 ;;Destination Rect
-
 ;;bx offest of the grid
 
 mov ax, curr_marked_y_val
@@ -1195,20 +1371,8 @@ add bx, ax
 mov si, bx
 add si, 20
 
-; White
-mov al, 0Fh
-DrawRectangle bx,0,si,20
-
-
 mov cx, [bx]
 xchg ch,cl
-
-; mov al, ch
-; mov bh, 0
-; mov bl, 0F0h
-; mov cx, 1
-; mov ah, 09h
-; int 10h
 
 cmp cx, "br"
 jne c22
@@ -1235,52 +1399,15 @@ jne c26
 mov di,offset black_queen
 jmp c33
 c26: 
-cmp cx, "bp"
-jne c27
+; cmp cx, "bp"
+; jne c33
 mov di,offset black_pawn
-jmp c33
-
-
-c27:
-cmp cx, "wr"
-jne c28
-mov di,offset white_rock
-jmp c33
-c28:
-cmp cx, "wn"
-jne c29
-mov di,offset white_knight
-jmp c33
-c29: 
-cmp cx, "wb"
-jne c34
-mov di,offset white_bishop
-jmp c33
-c34:
-cmp cx, "wk"
-jne c31
-mov di,offset white_king
-jmp c33
-c31:
-cmp cx, "wq"
-jne c32
-mov di,offset white_queen
-jmp c33
-c32: 
-mov di,offset white_pawn
 
 c33:
+; ;; Update the Destination Rect
 
 get_cell curr_marked_x_val, curr_marked_y_val
 draw get_cell_x , get_cell_y , di;, x, y
-
-
-; ;; Update the Destination Rect
-; dec curr_marked_x_val_p2
-
-; mov al, 0bh
-
-; DrawRectangle curr_marked_x_pixel_p2, curr_marked_y_pixel_p2, bp, bx
 
 
 jmp c42
@@ -1299,20 +1426,331 @@ mov cell_clicked_y, 0
 ;;Clearing the moves
 call ClearMoves
 
+cmp winner, 0
+je c91
+jmp l
 
+c91:
 jmp game
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Move (Second Player) ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
 m5:
 cmp al,'p'         ; source
-jnz m6
+jz c57
+jmp m6
+c57:
+
+; mov ax, curr_marked_y_val_p2
+; dec ax
+; shl ax, 8
+
+; add ax, curr_marked_x_val_p2
+; dec ax
+
+; call getIndex
+ 
+; cmp grid[bx], 'w'
+; je c150
+; jmp game
+
+c150:
+cmp cell_clicked_x_p2, 0
+jz c180
+jmp c160
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;check
+
+c180:
+mov player_no, 2
+
+; mov al, 0ch
+; DrawRectangle 0,0,20,20
+
+mov ax, curr_marked_y_val_p2
+dec ax
+shl ax, 8
+
+add ax, curr_marked_x_val_p2
+dec ax
+
+push ax
+call getIndex
+pop ax
+
+cmp grid[bx], 'w'
+je c99
+jmp game
+
+c99:
+push ax
+mov ax, bx
+mov cl, 2
+div cl
+mov si, ax
+
+; mov ah, 2
+; mov dl, time[si]
+; add dl, 48d
+; int 21h
+pop ax
+
+cmp time[si], 0
+je c58
+jmp game 
+
+c58:
+add ax, 0101h  ;; Make it 1-indexed
+
 mov dx, curr_marked_x_val_p2
 mov cx, curr_marked_y_val_p2
 
+
 mov cell_clicked_x_p2,dx
 mov cell_clicked_y_p2,cx
-m6:
 
+
+cmp grid[bx+1], 'r'
+jne c360
+call RockMoves
+
+c360:
+cmp grid[bx+1], 'n'  
+jne c370
+call knightMoves
+
+c370:
+cmp grid[bx+1], 'b'  
+jne c380
+call bishopMoves
+
+c380:
+cmp grid[bx+1], 'k'
+jne c390
+call KingMoves
+
+c390:
+cmp grid[bx+1], 'q'
+jne c410
+call queenMoves
+
+c410:
+cmp grid[bx+1], 'p'
+jne c510
+call PawnMoves
+
+c510:
+cmp moves_p2[0], '$$'
+jne c84
+mov cell_clicked_x_p2, 0
+mov cell_clicked_y_p2, 0
+jmp c85
+
+c84:
+; Drawing the moves highlight
+call drawHighlight
+
+c85:
+
+jmp game
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Second Click (Second Player) ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;Second Click
+c160:
+mov player_no, 2
+
+mov ax, cell_clicked_y_p2
+shl ax, 8
+
+add ax, cell_clicked_x_p2
+
+
+mov bx, curr_marked_y_val_p2
+shl bx, 8
+
+add bx, curr_marked_x_val_p2
+
+
+mov bp, bx
+add bp, 20
+
+; ;;Black
+; mov al, 0
+; DrawRectangle bx,0,bp,20
+
+
+call validateMove
+
+;;;;;;;;;;;; Check Allowed
+cmp allowed, 1
+jz c350
+jmp c190
+
+c350:
+mov allowed, 0
+;;;Allowed (Make Move)
+
+mov ax, cell_clicked_y_p2
+shl ax, 8
+add ax, cell_clicked_x_p2
+
+mov bx, curr_marked_y_val_p2
+shl bx, 8
+add bx, curr_marked_x_val_p2
+
+
+call makeMove  ;; Updating the grid
+
+;; Updating the UI
+;;Source Rect
+mov ax, cell_clicked_x_p2
+add ax, cell_clicked_y_p2
+
+mov bl, 2
+div bl
+
+cmp ah, 1  ;; Dark (Odd)
+
+je dark40
+mov al, 7h
+jmp c210
+
+dark40:
+mov al, 8
+
+c210:
+
+;;To be updated (Board Position)
+push ax
+; bx -> (X) start
+mov ax, cell_clicked_x_p2
+dec ax
+
+mov cl, 22
+mul cl
+
+add ax, 72 ;; (Board Position)
+mov bx, ax
+
+; bp -> (X) end
+mov bp, bx
+add bp, 22
+
+; si -> (Y) start
+mov ax, cell_clicked_y_p2
+dec ax
+
+mov cl, 22
+mul cl
+
+add ax, 12  ;; (Board Position)
+mov si, ax
+
+; di -> (Y) end
+mov di, si
+add di, 22
+
+
+pop ax
+
+DrawRectangle bx, si, bp, di
+
+
+;;Destination Rect
+;;bx offest of the grid
+
+mov ax, curr_marked_y_val_p2
+shl ax, 8
+add ax, curr_marked_x_val_p2
+
+sub ax, 0101h
+
+call getIndex ;; 0-indexed
+
+
+; mov bx, offset grid[bx]
+mov ax, offset grid
+add bx, ax
+;add bx, 32d
+
+mov si, bx
+add si, 20
+
+mov cx, [bx]
+xchg ch,cl
+
+cmp cx, "wr"
+jne c280
+mov di,offset white_rock
+jmp c330
+c280:
+cmp cx, "wn"
+jne c290
+mov di,offset white_knight
+jmp c330
+c290: 
+cmp cx, "wb"
+jne c340
+mov di,offset white_bishop
+jmp c330
+c340:
+cmp cx, "wk"
+jne c310
+mov di,offset white_king
+jmp c330
+c310:
+cmp cx, "wq"
+jne c320
+mov di,offset white_queen
+jmp c330
+c320: 
+mov di,offset white_pawn
+
+c330:
+; ;; Update the Destination Rect
+
+get_cell curr_marked_x_val_p2, curr_marked_y_val_p2
+draw get_cell_x , get_cell_y , di;, x, y
+
+
+jmp c420
+
+c190:
+;Red 
+mov al, 4
+DrawRectangle 0,0,20,20
+
+c420:
+
+;; Reset cell_clicked_x_p2 and cell_clicked_y_p2
+mov cell_clicked_x_p2, 0
+mov cell_clicked_y_p2, 0
+
+;;Clearing the moves
+call ClearMoves
+
+cmp winner, 0
+je c92
+
+jmp l
+
+c92:
+jmp game
+
+
+m6:
 
 cmp al,'9'
 jz l

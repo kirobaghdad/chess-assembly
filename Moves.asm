@@ -242,9 +242,9 @@ ClearMoves proc far
 
 ; ccc0:
 
-mov dl, 'A'
-mov ah, 2
-int 21h
+; mov dl, 'A'
+; mov ah, 2
+; int 21h
 
 
 ; mov dl, player_no
@@ -277,31 +277,42 @@ jmp c42
 
 c50:
 push si
+
+
 mov ax, 0
 mov al, cl
-add al, ch
+
+mov bx, 0
+mov bl, ch
+
+get_cell ax, bx
+
+push cx 
+mov cx, get_cell_x
+mov dx, get_cell_y
+
+mov ah, 0dh
+int 10h
+
+pop cx
+
+; mov ax, 0
+; mov al, cl
+; add al, ch
 
 
 
-mov bl, 2
-div bl
+; mov bl, 2
+; div bl
 
-cmp ah, 1 ;; Dark (Odd)
-je dark5
-;; Light
-mov al, 7
-jmp c46
-dark5:
+; cmp ah, 1 ;; Dark (Odd)
+; je dark5
+; ;; Light
+; mov al, 7
+; jmp c46
+; dark5:
+; mov al, 8
 
-mov al, 8
-
-; push ax
-; ; Debugging
-; mov dl, ch
-; add dl, 48d
-; mov ah, 2
-; int 21h
-; pop ax
 
 
 c46:
@@ -416,9 +427,9 @@ mov count_p2, 0
 c71:
 
 
-mov dl, 'Z'
-mov ah, 2
-int 21h
+; mov dl, 'Z'
+; mov ah, 2
+; int 21h
 
 
 
@@ -534,12 +545,12 @@ mov winner, 1
 
 c88:
 
-push ax
-mov dl, winner
-add dl, 48
-mov ah, 2
-int 21h
-pop ax
+; push ax
+; mov dl, winner
+; add dl, 48
+; mov ah, 2
+; int 21h
+; pop ax
 
 mov grid[si], al
 mov grid[si+1], ah

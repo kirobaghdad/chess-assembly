@@ -208,71 +208,21 @@ cont:
 
 endm
  
+
+
 Draw macro draw_x , draw_y , z;, x_r,y_c
-local drawloop, jumb_if_black, l, m, c52, c53, c54, c55, c56
+; local drawloop, jumb_if_black, l, m, c52, c53, c54, c55, c56, c57, c58
 ; Drawing loop
-
 pusha
-mov cx,draw_x
-mov dx,draw_y
-mov bx,z
 
-mov di,cx
-add di, pieceWidth
-mov si, dx
-add si, pieceHeight
+mov cx, draw_x
+mov dx, draw_y
+mov bx, z
 
-mov draw_piece_x , di
-mov draw_piece_y , si
-
-MOV AH,0ch
-
-drawLoop:
-    
-    MOV AL,[bx]
-    
-    cmp al,0ffh
-    jz jumb_if_black 
-    cmp al, 0ah
-    je c54
-
-    c53:
-    cmp al, 2
-    jne c52
-
-    ;; Check if white or black (Do not draw)
-    c54:
-    push ax
-    mov ah, 0dh
-    int 10h
-    cmp al, 0fh ;; white piece
-    je c55
-    cmp al, 12h ;; black piece
-    je c55
-
-    jmp c56
-
-    c55:
-    pop ax
-    jmp jumb_if_black
-
-    c56:
-    pop ax
-    c52:
-    INT 10h
-    jumb_if_black: 
-    
-    INC CX
-    INC BX
-    CMP CX,draw_piece_x
-JNE drawLoop 
-	
-    MOV CX , draw_x
-    INC DX
-    CMP DX , draw_piece_y
-JNE drawLoop
+call draw_proc
 
 popa
+
 endm 
 
 
@@ -479,6 +429,185 @@ popa
 endm
 
 .code
+
+draw_proc proc far
+; mov cx,draw_x
+; mov dx,draw_y
+; mov bx,z
+
+mov di,cx
+add di, pieceWidth
+mov si, dx
+add si, pieceHeight
+
+mov draw_piece_x , di
+mov draw_piece_y , si
+
+mov di, cx ;; Maintain cx (draw_x)
+mov bp, bx ;; Maintain bx (Image Offset)
+
+mov ah, 0dh
+int 10h
+
+; push ax
+; push dx
+; mov ah, 2
+; mov dl, al
+; add dl, 48d
+; int 21h
+; pop dx
+; pop ax
+
+MOV AH,0ch
+mov si, ax
+
+drawLoop:
+    
+    MOV AL,[bx]
+    
+    cmp al,0ffh
+    jz jumb_if_black 
+    ;; Check if green or light green
+    cmp al, 0ah
+    je c54
+
+    c53:
+    cmp al, 2
+    jne c52
+
+    ;; Check if white or black (Do not draw)
+    c54:
+    push ax
+    mov ah, 0dh
+    int 10h
+    cmp al, 0fh ;; white piece
+    je c55
+    cmp al, 12h ;; black piece
+    je c55
+
+    jmp c56
+
+    c55:
+    pop ax
+    jmp c71
+
+    c56:
+    pop ax
+    c52:
+    INT 10h
+    jmp c71
+
+    jumb_if_black: 
+    
+    cmp bp, offset green_dot
+    je c71
+
+    mov ax, si
+    int 10h
+    
+    c71:
+    INC CX
+    INC BX
+    CMP CX,draw_piece_x
+jz c61
+jmp drawloop
+
+    c61:
+	
+    MOV CX , di
+    INC DX
+    CMP DX , draw_piece_y
+JE c62
+jmp drawloop
+
+c62:
+
+ret
+
+draw_proc endp
+
+printGameTimer proc far
+
+mov dh, 1
+mov dl, 1
+mov bh, 0
+mov ah, 2
+int 10h
+
+mov ax, game_timer
+mov bl, 60d
+
+div bl  ;;al = minutes and ah = seconds
+
+push ax
+mov bl, 10d
+mov ah, 0
+
+div bl  ;; ah = units digit of minutes an al = tenth digit of minutes
+
+push ax
+add al, 48d
+mov cx, 1
+mov ah, 0ah
+int 10h
+
+inc dl
+mov ah, 2
+int 10h
+
+pop ax
+
+
+mov al, ah
+add al, 48d
+mov ah, 0ah
+int 10h
+
+inc dl
+mov ah, 2
+int 10h
+
+mov al, ':'
+mov ah, 0ah
+int 10h
+
+inc dl
+mov ah, 2
+int 10h
+
+pop ax
+;; ah = seconds
+
+mov al, ah
+mov ah, 0
+
+div bl  ;; al = tenth digit of seconds and ah = units digit of seconds
+
+push ax
+
+add al, 48d
+mov ah, 0ah
+int 10h
+
+inc dl
+mov ah, 2
+int 10h
+
+pop ax
+
+;; ah = units of seconds
+
+mov al, ah
+mov ah, 0
+
+add al, 48d
+mov ah, 0ah
+int 10h
+
+ret
+
+printGameTimer endp
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Change Time ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -499,10 +628,6 @@ je c95
 cmp cl, 0
 je c97
 
-; mov dl, '6'
-; mov ah, 2
-; int 21h
-
 dec cl
 mov time[bx], cl
 
@@ -512,6 +637,8 @@ jmp c94
 
 
 c95:
+call printGameTimer
+
 ret
 changeTime endp
 
@@ -614,6 +741,9 @@ draw_pieces_in_grid
 ;Right arrow      E0 4D
 ;Up arrow         E0 48
 
+
+call printGameTimer
+
 game: 
 
 mov ah, 86h
@@ -626,14 +756,11 @@ je c96
 add timer, 1
 jmp c93
 c96:
-; mov ah, 2
-; mov dl, 'A'
-; int 21h
-
 mov timer, 0
 
 inc game_timer
-call changeTime
+call changeTime ;; No register must be maintained
+
 
 c93:
 mov ah,1
@@ -641,6 +768,7 @@ int 16h
 
 jz game
 
+;; Flush the buffer
 push ax
 mov ah, 0ch
 int 21h

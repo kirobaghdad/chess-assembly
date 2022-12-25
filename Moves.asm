@@ -20,6 +20,7 @@ extrn grid:byte
 extrn get_cell_x:word
 extrn get_cell_y:word
 extrn drawHighlight:far
+extrn time:byte
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -507,6 +508,14 @@ mov ax, dx
 call getIndex
 
 mov si, bx
+
+mov ax, bx
+mov cl, 2
+div cl
+
+mov bx, ax
+
+mov time[bx], 3
 
 mov al, grid[di]
 mov grid[di], '-'

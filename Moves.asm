@@ -9,8 +9,12 @@ public queenMoves
 
 public ClearMoves
 public getIndex
-public moves
 public makeMove
+public moves
+public moves_p2
+
+public player_no
+public winner 
 
 extrn grid:byte
 extrn get_cell_x:word
@@ -108,6 +112,7 @@ pop ax
 endm popAll
 
 addToMovesKnight macro
+local c64, c65
 push bx
 push cx
 
@@ -115,13 +120,21 @@ mov cx, ax
 inc cl 
 inc ch
 
+cmp player_no, 2
+je c64
 mov bx,0
 mov bl,count 
-
-
 mov moves[bx],cx
 add count, 2
+jmp c65
 
+c64:
+mov bx,0
+mov bl,count_p2 
+mov moves_p2[bx],cx
+add count_p2, 2
+
+c65:
 pop cx 
 pop bx
 endm addToMovesKnight
@@ -178,8 +191,12 @@ endm
 ;      db "wr","wn","wb","wq","wk","wb","wn","wr" ; 8
                                   
 moves dw 100 dup('$')
+moves_p2 dw 100 dup('$')
 count db 0
-  
+count_p2 db 0
+
+player_no db 0
+winner db 0  ;; 1 means black and 2 means white
 
 .code
 
@@ -229,13 +246,28 @@ mov ah, 2
 int 21h
 
 
+; mov dl, player_no
+; add dl, 48
+; mov ah, 2
+; int 21h
+
+
 mov si, 0 ;; Counter
 
 l:
+cmp player_no, 2
+je c66
+
 mov cx, moves[si]
-; mov ah, 2
+jmp c67
+
+c66:
+mov cx, moves_p2[si]
+
+c67:
 ; mov dl, cl
 ; add dl, 48d
+; mov ah, 2
 ; int 21h
 
 cmp cl,'$'
@@ -302,6 +334,9 @@ get_cell ax, bx
 ; ; (Debugging);;;;;;;
 pop ax
 
+mov cx, get_cell_x
+mov dx, get_cell_y
+
 mov si, get_cell_x
 add si, 22  ;;X end
 
@@ -312,6 +347,11 @@ col0:
 
 r00:
 push ax
+
+; mov dl, count
+; add dl, 48
+; mov ah, 2
+; int 21h
 
 mov ah, 0dh
 int 10h
@@ -334,7 +374,6 @@ c47:
 pop ax
 
 c48: ;;;(not poping again)
-
 inc cx
 cmp cx, si
 
@@ -351,18 +390,35 @@ c49:
 
 pop si
 
+cmp player_no, 2
+je c68
 mov moves[si], '$$'
+jmp c69
+c68:
+mov moves_p2[si], '$$'
+
+c69:
 
 add si, 2
 jmp l
 
 c42:
 
+cmp player_no, 2
+je c70
 mov count, 0
+jmp c71
+c70:
+mov count_p2, 0
+
+
+c71:
+
 
 mov dl, 'Z'
 mov ah, 2
 int 21h
+
 
 
 ret
@@ -457,20 +513,27 @@ mov grid[di], '-'
 mov ah, grid[di+1]
 mov grid[di+1], '-'
 
-mov grid[si], al
-mov grid[si+1], ah
+cmp grid[si+1], 'k'
+jne c88
+cmp grid[si], 'b'
+jne c89
+mov winner, 2
+jmp c88
+
+c89:
+mov winner, 1
+
+c88:
 
 push ax
-
-; mov al, grid[33]
-; mov bh, 0
-; mov bl, 0F0h
-; mov cx, 1
-; mov ah, 09h
-; int 10h
-
-
+mov dl, winner
+add dl, 48
+mov ah, 2
+int 21h
 pop ax
+
+mov grid[si], al
+mov grid[si+1], ah
 
 
 ret
@@ -479,11 +542,19 @@ makeMove endp
 
 
 addMove proc far
+
+cmp player_no, 2
+je c
 mov bh, 0
 mov bl, count
-
 mov moves[bx], cx
 add count, 2
+
+c:
+mov bh, 0
+mov bl, count_p2
+mov moves_p2[bx], cx
+add count_p2, 2
 
 ret
 
@@ -556,10 +627,11 @@ mov cx, dx
 dec ch
 
 mov bh, 0
-mov bl, count
+mov bl, count_p2
 
-mov moves[bx], cx
-add count, 2
+
+mov moves_p2[bx], cx
+add count_p2, 2
 
 pop bx
 
@@ -573,15 +645,15 @@ jne RL
 
 push bx
 mov bh, 0
-mov bl, count
+mov bl, count_p2
 
 mov cx, dx
 
 ;The ch = 5
 sub ch, 2
 
-mov moves[bx], cx
-add count, 2
+mov moves_p2[bx], cx
+add count_p2, 2
 
 pop bx
 
@@ -603,10 +675,10 @@ dec cl
 dec ch
 
 mov bh, 0
-mov bl, count
+mov bl, count_p2
 
-mov moves[bx], cx
-add count, 2
+mov moves_p2[bx], cx
+add count_p2, 2
 
 pop bx
 
@@ -626,14 +698,14 @@ c3:
 push bx
 
 mov bh, 0
-mov bl, count
+mov bl, count_p2
 
 mov cx, dx
 inc cl
 dec ch
 
-mov moves[bx], cx
-add count, 2
+mov moves_p2[bx], cx
+add count_p2, 2
 
 pop bx
 
@@ -1226,8 +1298,10 @@ jb m4
 convertToTile ax
 
 cmp grid[bx],dl
-jz m5
+jnz c72
+jmp m5
 
+c72:
 addToMovesKnight
 
 ; row = row + 2, col = col - 1
@@ -1385,9 +1459,6 @@ bishopMoves proc far
 ;pop ax
 ;;Assuming (8,3) 
 
-
-
-
 mov dx,ax
 
 pushAll
@@ -1403,12 +1474,9 @@ cmp grid[bx], "w"
 je whiteBishop
 jmp blackBishop
 
-
-
-
 whiteBishop:
-mov dl,"w"
-mov dh,"b"
+mov dl,"w"  ;; me 
+mov dh,"b"  ;; enemy
 jmp bishopBegin
 blackBishop:
 mov dl,"b"
@@ -1449,13 +1517,23 @@ push cx ; actual move
 mov cx, 0
 mov cx, ax
 mov bh, 0
-mov bl, count
 inc cl
 inc ch
+
+cmp player_no, 2
+je c80
+mov bl, count
 mov moves[bx], cx
+add count, 2
+jmp c81
+c80:
+mov bl, count_p2
+mov moves_p2[bx], cx 
+add count_p2, 2
+c81:
+
 pop cx
 pop bx
-add count, 2
 cmp grid[bx],dh
 jz diagonalLeftUpA
 jmp diagonalRightUp
@@ -1500,13 +1578,23 @@ push cx ; actual move
 mov cx, 0
 mov cx, ax
 mov bh, 0
-mov bl, count
 inc cl
 inc ch
+
+cmp player_no, 2
+je c82
+mov bl, count
 mov moves[bx], cx
+add count, 2
+jmp c83
+c82:
+mov bl, count_p2
+mov moves_p2[bx], cx
+add count_p2, 2
+
+c83:
 pop cx
 pop bx
-add count, 2
 cmp grid[bx],dh
 jz diagonalRightDownA 
 jmp diagonalLeftUp
@@ -1546,13 +1634,24 @@ push cx ; actual move
 mov cx, 0
 mov cx, ax
 mov bh, 0
-mov bl, count
 inc cl
 inc ch
+
+cmp player_no, 2
+je c84
+mov bl, count
+add count, 2
 mov moves[bx], cx
+jmp c85
+c84:
+mov bl, count_p2
+add count_p2, 2
+mov moves_p2[bx], cx
+
+c85:
+
 pop cx
 pop bx
-add count, 2
 cmp grid[bx],dh
 jz diagonalLeftDownA 
 jmp diagonalRightDown
@@ -1599,13 +1698,23 @@ push cx ; actual move
 mov cx, 0
 mov cx, ax
 mov bh, 0
-mov bl, count
 inc cl
 inc ch
+
+cmp player_no, 2
+je c86
+mov bl, count
 mov moves[bx], cx
+add count, 2
+jmp c87
+c86:
+mov bl, count_p2
+mov moves_p2[bx], cx
+add count_p2, 2
+
+c87:
 pop cx
 pop bx
-add count, 2
 cmp grid[bx],dh
 je continue
 jmp diagonalLeftDown

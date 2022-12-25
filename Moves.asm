@@ -21,6 +21,7 @@ extrn get_cell_x:word
 extrn get_cell_y:word
 extrn drawHighlight:far
 extrn time:byte
+extrn capturedPiece:word
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -545,11 +546,19 @@ mov winner, 1
 
 c88:
 
+mov bh, grid[si]  ;;black or white
+mov bl, grid[si+1]  ;;Piece char
+
+mov capturedPiece, bx
+
 ; push ax
-; mov dl, winner
-; add dl, 48
+; cmp capturedPiece, 'bp'
+; jne c90
+; mov dl, 48d
 ; mov ah, 2
 ; int 21h
+
+; c90:
 ; pop ax
 
 mov grid[si], al

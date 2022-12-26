@@ -22,6 +22,8 @@ extrn get_cell_y:word
 extrn drawHighlight:far
 extrn time:byte
 extrn capturedPiece:word
+extrn white_king_pos:word
+extrn black_king_pos:word
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -204,55 +206,46 @@ winner db 0  ;; 1 means black and 2 means white
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Play Sound ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+playMoveSound proc far
+
+    mov ax, 03efh
+
+    mov cx, 1
+    mov dx, 024f8h
+
+    pusha        
+    mov bx, ax   
+    mov al, 182  
+    out 43h, al  
+    mov ax, bx   
+    out 42h, al  
+    mov al, ah   
+    out 42h, al  
+    in al, 61h   
+    or al, 03h   
+    out 61h, al  
+    mov ah, 86h  
+    int 15h      
+    in al, 61h   
+    and al, 0fch 
+    out 61h, al  
+    popa         
+    ret          
+
+playMoveSound endp
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Clear Moves ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ClearMoves proc far
-; ; (Debugging)
-; mov bx, 0
-
-; mov ax, 0  ;;Counter
-
-; ccc:
-; mov cx, moves[bx]
-; cmp cl, "$"
-; je ccc0
-
-; add ax, 1
-
-; ; mov ah, 2
-; ; mov dl, al
-; ; add dl, 48d
-; ; int 21h
-
-; mov dl, ch
-; add dl, 48d
-; mov ah, 2
-; int 21h
-
-; mov ah, 86h
-; mov dx, 4240h
-; mov cx, 0fh
-; int 15h
-
-; add bx, 2
-
-; jmp ccc
-
-
-; ccc0:
-
-; mov dl, 'A'
-; mov ah, 2
-; int 21h
-
-
-; mov dl, player_no
-; add dl, 48
-; mov ah, 2
-; int 21h
-
 
 mov si, 0 ;; Counter
 
@@ -427,6 +420,11 @@ mov count_p2, 0
 
 c71:
 
+; mov dx, moves[0]
+; add dl, 48
+; mov ah, 2
+; int 21h
+
 
 ; mov dl, 'Z'
 ; mov ah, 2
@@ -505,6 +503,9 @@ makeMove proc far
 ; di -> source index in grid
 ; si -> destination index in grid
 
+
+push bx
+
 dec al
 dec ah
 dec bl
@@ -546,8 +547,8 @@ mov winner, 1
 
 c88:
 
-mov bh, grid[si]  ;;black or white
-mov bl, grid[si+1]  ;;Piece char
+mov bh, grid[si]  
+mov bl, grid[si+1] 
 
 mov capturedPiece, bx
 
@@ -564,11 +565,27 @@ mov capturedPiece, bx
 mov grid[si], al
 mov grid[si+1], ah
 
+pop bx
+
+cmp ah, 'k'
+jne c52
+cmp al, 'w'
+jne c51
+
+mov white_king_pos, bx
+jmp c52
+
+c51:
+cmp al, 'b'
+jne c52
+
+mov black_king_pos, bx
+
+c52:
+call playMoveSound
 
 ret
 makeMove endp
-
-
 
 addMove proc far
 
@@ -578,12 +595,16 @@ mov bh, 0
 mov bl, count
 mov moves[bx], cx
 add count, 2
+jmp d
 
 c:
 mov bh, 0
 mov bl, count_p2
 mov moves_p2[bx], cx
 add count_p2, 2
+
+d:
+
 
 ret
 
@@ -1050,8 +1071,8 @@ call getIndex
 
 
 cmp grid[bx], 'w'
-mov ah, 'w'
-mov al, 'b'
+mov ah, 'w' ;; me
+mov al, 'b' ;; enemy
 je c11
 mov ah, 'b'
 mov al, 'w'
@@ -1187,6 +1208,18 @@ jmp c27
 
 c26:
 pop bx
+
+
+; push ax
+; push dx
+; mov dl, count_p2
+; add dl, 48d
+
+; mov ah, 2
+; int 21h
+
+; pop ax
+; pop dx
 
 ret
 
@@ -1327,10 +1360,8 @@ jb m4
 convertToTile ax
 
 cmp grid[bx],dl
-jnz c72
-jmp m5
+jz m4
 
-c72:
 addToMovesKnight
 
 ; row = row + 2, col = col - 1

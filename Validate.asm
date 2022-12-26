@@ -40,6 +40,12 @@ iterator db 0
 
 validateMove PROC far
     ;; Bx = Destination
+
+    ; pop cx
+    ; mov dl, cl
+    ; int 21h
+    ; push cx
+    
     mov iterator,0
     pushAll
     mov dx, bx
@@ -75,7 +81,21 @@ validateMove PROC far
 
     jnz check 
     done: 
+
+    ; push ax
+    ; mov ah, 2
+    ; mov dl, 0
+    ; add dl, 48d
+    ; int 21h
+    ; pop ax
+
     popAll
+
+    ; pop cx
+    ; mov dl, cl
+    ; int 21h
+    ; push cx
+
     ret
 validateMove ENDP
 

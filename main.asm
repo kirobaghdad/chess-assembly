@@ -1,3 +1,5 @@
+extrn chezz:far
+
 pushAll macro  
 push ax
 push bx
@@ -59,6 +61,7 @@ movecursor macro x, y
     int 10h
     popAll    
 endm movecursor
+
 
 .model small
 .stack 64
@@ -271,12 +274,16 @@ start:
         mov ah, 05h
         mov al, 2
         int 10h
-        printString inGameStr
-        gameLoop:
-        getInputAsync
-        flushKeyboardBuffer
-        cmp ah, f4
-        jne gameLoop
+        ;printString inGameStr
+
+        ; gameLoop:
+        ; getInputAsync
+        ; flushKeyboardBuffer
+        ; cmp ah, f4
+        ; jne gameLoop
+        ; jmp near ptr main
+
+        call chezz
         jmp near ptr main
         
 

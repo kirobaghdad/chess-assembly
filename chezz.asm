@@ -462,6 +462,50 @@ con1:
 popa
 endm
 
+convertToTile macro position ;; ax is 0-indexed
+
+push ax
+mov ax, position
+
+mov bx, 0 
+mov bl, 16d
+
+mov cl, al
+
+mov al, ah
+mov ah, 0
+
+mul bl
+
+mov ch, al
+mov al, cl
+mov bl, 2d
+mul bl
+
+add al, ch
+mov bx, ax
+pop ax
+
+endm convertToTile
+
+pushAll macro  
+push ax
+push bx
+push cx
+push dx
+push di
+push si
+endm pushAll 
+
+popAll macro 
+pop si
+pop di
+pop dx
+pop cx
+pop bx
+pop ax 
+endm popAll
+
 .code
 
 
@@ -1917,7 +1961,50 @@ pop ax
     shl bx, 8
     add bx, curr_marked_x_val
 
+    ; bx highlighted cell 
+    ; ax position of the piece 
 
+    cmp bh, 8
+    jnz notABlackPromotion
+
+
+
+
+
+    dec ah 
+    dec al
+
+    mov si, ax
+
+    push ax
+    call getIndex
+    pop ax
+
+
+
+
+
+    cmp grid[bx+1], 'p'
+    jnz notABlackPromotion
+
+    mov grid[bx+1], 'q'
+    
+
+
+
+    ; bx position in grid 
+    ; 
+    notABlackPromotion: 
+
+
+    mov ax, cell_clicked_y
+    shl ax, 8
+    add ax, cell_clicked_x
+
+    mov bx, curr_marked_y_val
+    shl bx, 8
+    add bx, curr_marked_x_val
+    
     call makeMove  ;; Updating the grid
 
     call drawCapturedPiece
@@ -2240,6 +2327,49 @@ pop ax
     mov bx, curr_marked_y_val_p2
     shl bx, 8
     add bx, curr_marked_x_val_p2
+
+
+    cmp bh, 1
+    jnz notAWhitePromotion
+
+
+
+
+
+    dec ah 
+    dec al
+
+    mov si, ax
+
+    push ax
+    call getIndex
+    pop ax
+
+
+
+
+
+    cmp grid[bx+1], 'p'
+    jnz notAWhitePromotion
+
+    mov grid[bx+1], 'q'
+    
+
+
+
+    ; bx position in grid 
+    ; 
+    notAWhitePromotion: 
+
+
+    mov ax, cell_clicked_y_p2
+    shl ax, 8
+    add ax, cell_clicked_x_p2
+
+    mov bx, curr_marked_y_val_p2
+    shl bx, 8
+    add bx, curr_marked_x_val_p2
+    
 
 
     call makeMove  ;; Updating the grid

@@ -576,191 +576,495 @@ initializeVars endp
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Draw Status Bar ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+drawStatusBar proc far
+
+mov dh, 24
+mov dl, 0
+mov bh, 0
+mov ah, 2
+int 10h
+
+mov ah, 0eh
+mov al, ' '
+c155:
+int 10h
+add dl, 1
+
+cmp dl, 39
+je c156
+
+jmp c155
+
+c156:
+
+mov dh, 24
+mov dl, 0
+mov bh, 0
+mov ah, 2
+int 10h
+
+
+cmp winner, 1 ;;black
+jne c203
+mov dx, offset blackWins
+mov ah, 9
+int 21h
+jmp c132
+
+c203:
+cmp winner, 2 ;;white
+jne c204
+mov dx, offset whiteWins
+mov ah, 9
+int 21h
+jmp c132
+
+c204:
+cmp white_in_check, 1
+jne c131
+mov dx, offset wMsg
+mov ah, 9
+int 21h
+
+mov dx, offset checkedMsg
+mov ah, 9
+int 21h
+
+c131:
+cmp black_in_check, 1
+jne c132
+
+mov dx, offset bMsg
+mov ah, 9
+int 21h
+
+mov dx, offset checkedMsg
+mov ah, 9
+int 21h
+
+c132:
+ret
+
+drawStatusBar endp
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Get Checks ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 getChecks proc far
-    ;; maintain player_no
-    mov dx,0 
-    mov dl, player_no
-    push dx
+    mov white_in_check, 0
+    mov black_in_check, 0
 
-    mov si, 0
-    mov ax, 0
-
-    ;; Must maintain ax, bx, and si
+    ;; Moving to the right, left, up, down, up-right, up-left, down-right, and down-left
+    ;; Direction Index 0      1    2    3      4          5        6               7
     
-    c121:
-    cmp grid[si], 'b' 
-    jne c122
-    mov player_no, 1
-    mov bx, white_king_pos
+    ;; si = the character of the allay pieces
+
+    mov dh, 0
+
+    mov dl, 'w'
+    mov cx, -1 ;; Direction Index
+
+    c161:
+    cmp dl, 'w'
+    jne c227
+    mov ax, white_king_pos
+    jmp c228
+    c227:
+    mov ax, black_king_pos
+    c228:
+    add cx, 1
+    sub ax, 0101h
+
+    c152:
+    cmp cx, 0  ; Right
+    jne c157
+    add ax, 1
+    cmp dl, 'w'
+    jne c211
+    mov si, white_king_pos
+    jmp c212
+    c211:
+    mov si, black_king_pos
+    c212:
+    sub si, 0101h
+    add si, 1
+    jmp c158
+
+    c157:
+    cmp cx, 1 
+    jne c159
+    sub ax, 1
+    cmp dl, 'w'
+    jne c213
+    mov si, white_king_pos
+    jmp c214
+    c213:
+    mov si, black_king_pos
+    c214:
+    sub si, 0101h
+    sub si, 1
+    jmp c158
+
+    c159:
+    cmp cx, 2
+    jne c164
+    sub ax, 0100h
+    cmp dl, 'w'
+    jne c215
+    mov si, white_king_pos
+    jmp c216
+    c215:
+    mov si, black_king_pos
+    c216:
+    sub si, 0100h
+    jmp c158
+
+    c164:
+    cmp cx, 3
+    jne c167
+    add ax, 0100h
+    cmp dl, 'w'
+    jne c217
+    mov si, white_king_pos
+    jmp c218
+    c217:
+    mov si, black_king_pos
+    c218:
+    sub si, 0101h
+    add si, 0100h
+    jmp c158
+
+    c167:
+    cmp cx, 4
+    jne c168
+    sub ax, 0100h
+    add ax, 1
+    cmp dl, 'w'
+    jne c219
+    mov si, white_king_pos
+    jmp c220
+    c219:
+    mov si, black_king_pos
+    c220:
+    sub si, 0101h
+    sub si, 0100h
+    add si, 1
+    jmp c158
+
+    c168:
+    cmp cx, 5
+    jne c169
+    sub ax, 0100h
+    sub ax, 1
+    cmp dl, 'w'
+    jne c221
+    mov si, white_king_pos
+    jmp c222
+    c221:
+    mov si, black_king_pos
+    c222:
+    sub si, 0101h
+    sub si, 0100h
+    sub si, 1
+    jmp c158
+
+    c169:
+    cmp cx, 6
+    jne c170
+    add ax, 0100h
+    add ax, 1
+    cmp dl, 'w'
+    jne c223
+    mov si, white_king_pos
+    jmp c224
+    c223:
+    mov si, black_king_pos
+    c224:
+    sub si, 0101h
+    add si, 0100h
+    add si, 1
+    jmp c158
+
+    c170:
+    cmp cx, 7
+    je c176
+    jmp c165
     
-    jmp c123
-
-    c122:
-    mov player_no, 2
-    mov bx, black_king_pos
-
-    c123:
-    cmp grid[si+1], 'r'
-    jne c127
-
-    pusha
-    call RockMoves
-    popa
-
-    call validateMove
+    c176:
+    add ax, 0100h
+    sub ax, 1
+    cmp dl, 'w'
+    jne c225
+    mov si, white_king_pos
+    jmp c226
+    c225:
+    mov si, black_king_pos
+    c226:
+    sub si, 0101h
+    add si, 0100h
+    sub si, 1
 
 
-    cmp allowed, 1
-    jne c125
-    mov allowed, 0
-    cmp grid[si], 'b' 
-    jne c126
+
+    c158:
+    cmp al, 0
+    jge c183
+    jmp c161
+
+    c183:
+    cmp ah, 0
+    jge c184
+    jmp c161
+
+    c184:
+    cmp al, 7
+    jle c181
+    jmp c161
+    c181:
+    cmp ah, 7
+    jle c182
+    jmp c161
+
+    c182:
+    push ax
+    push cx
+    call getIndex
+    pop cx
+    pop ax
+
+    cmp grid[bx], '-'
+    jne c172
+    jmp c152
+    c172:
+
+    cmp grid[bx], dl
+    jne c173
+    jmp c161
+    c173:
+
+    ;; Up right and Up left pawn
+    cmp cx, 4
+    je c175
+
+    cmp cx, 5
+    jne c174
+
+    c175:
+    cmp grid[bx+1], 'p'
+    jne c174
+    cmp si, ax
+    jne c174
+    cmp dl, 'w'
+    jne c231
     mov white_in_check, 1
-    jmp c125
-    c126:
+    jmp c232
+    c231:
     mov black_in_check, 1
+    c232:
+    jmp c197
 
-    c125:
-    pusha
-    call ClearMoves
-    popa 
+    c174:
 
-    c127:
-    cmp grid[si+1], 'n'
-    jne c133
-    pusha
-    call knightMoves
-    popa
-    call validateMove
-    cmp allowed, 1
-    jne c128
-    mov allowed, 0
-    cmp grid[si], 'b' 
-    jne c129
+    cmp cx, 3
+    jg c171
+
+    ;; Linear
+    cmp grid[bx+1], 'r'
+    jne c153
+    cmp dl, 'w'
+    jne c233
     mov white_in_check, 1
-    jmp c128
-    c129:
+    jmp c234
+    c233:
     mov black_in_check, 1
+    c234:
+    jmp c197
 
-    c128:
-    pusha
-    call ClearMoves
-    popa
-
-    c133:
-    cmp grid[si+1], 'b'
-    jne c136
-    pusha
-    call bishopMoves
-    popa
-    call validateMove
-    cmp allowed, 1
-    jne c134
-    mov allowed, 0
-    cmp grid[si], 'b' 
-    jne c135
+    ;Diagonal
+    c171:
+    cmp grid[bx+1], 'b'
+    jne c153
+    cmp dl, 'w'
+    jne c235
     mov white_in_check, 1
-    jmp c134
-    c135:
+    jmp c236
+    c235:
     mov black_in_check, 1
+    c236:
+    jmp c197
 
-    c134:
-    pusha
-    call ClearMoves
-    popa
 
-    c136:
-    cmp grid[si+1], 'q'
-    jne c147
-    pusha
-    call queenMoves
-    popa
-    call validateMove
-    cmp allowed, 1
-    jne c137
-    mov allowed, 0
-    cmp grid[si], 'b' 
-    jne c138
+    c153:  
+    cmp grid[bx+1], 'q'
+    jne c154
+    cmp dl, 'w'
+    jne c237
     mov white_in_check, 1
-    jmp c137
-    c138:
+    jmp c238
+    c237:
     mov black_in_check, 1
+    c238:
+    jmp c197
 
-    c137:
-    pusha
-    call ClearMoves
-    popa
+    c154:
+    cmp grid[bx+1], 'k'
+    je c166
+    jmp c161
+    c166:
+    cmp si, ax
+    je  c185
+    jmp c161
 
-    c147:
-    cmp grid[si+1], 'k'
-    jne c141
-    pusha
-    call KingMoves
-    popa
-    call validateMove
-    cmp allowed, 1
-    jne c140
-    mov allowed, 0
-    cmp grid[si], 'b' 
-    jne c139
+    c185:
+    cmp dl, 'w'
+    jne c239
     mov white_in_check, 1
-    jmp c140
-    c139:
+    jmp c240
+    c239:
     mov black_in_check, 1
+    c240:
+    jmp c197
 
-    c140:
-    pusha
-    call ClearMoves
-    popa
 
-    c141:
-    cmp grid[si+1], 'p'
-    jne c144
-    pusha
-    call PawnMoves
-    popa
-    call validateMove
-    cmp allowed, 1
-    jne c142
-    mov allowed, 0
-    cmp grid[si], 'b' 
-    jne c143
+    c165:
+    ;; Check knights
+
+    ;; Direction Index up-up-right (0), up-right-right (1), right-down-down (2), right-right-down(3)
+    ;; left-down-down (4), left-left-down (5), up-up-left (6), and up-left-left (7)
+
+    mov cx, -1
+
+    c186:
+    add cx, 1
+    cmp dl, 'w'
+    jne c241
+    mov ax, white_king_pos
+    jmp c242
+    c241:
+    mov ax, black_king_pos
+    c242:
+    sub ax, 0101h
+    ;;
+
+        cmp cx, 0
+        jne c187
+        sub ax, 0200h
+        add ax, 1
+        jmp c188
+
+        c187:
+        cmp cx, 1
+        jne c189
+        sub ax, 0100h
+        add ax, 2
+        jmp c188
+
+        c189:
+        cmp cx, 2
+        jne c191
+        add ax, 1
+        add ax, 0200h
+        jmp c188
+
+        c191:
+        cmp cx, 3
+        jne c192
+        add ax, 2
+        add ax, 0100h
+        jmp c188
+
+        c192:
+        cmp cx, 4
+        jne c193
+        sub ax, 1
+        add ax, 0200h
+        jmp c188
+
+        c193:
+        cmp cx, 5
+        jne c194
+        sub ax, 2
+        add ax, 0100h
+        jmp c188
+
+        c194:
+        cmp cx, 6
+        jne c195
+        sub ax, 0200h
+        sub ax, 1
+        jmp c188
+
+        c195:
+        cmp cx, 7
+        jne c197
+        sub ax, 0100h
+        sub ax, 2
+
+
+    
+   
+    c188:
+    c196:
+    cmp al, 0
+    jge c198
+    jmp c186
+
+    c198:
+    cmp ah, 0
+    jge c199
+    jmp c186
+
+    c199:
+    cmp al, 7
+    jle c205
+    jmp c186
+
+    c205:
+    cmp ah, 7
+    jle c206
+    jmp c186
+
+
+    c206:
+    push ax
+    push cx
+    call getIndex
+    pop cx
+    pop ax
+
+    cmp grid[bx], dl
+    jne c209
+    jmp c186
+
+    c209:
+    cmp grid[bx+1], 'n'
+    je c208
+    jmp c186
+    c208:
     mov white_in_check, 1
-    jmp c142
-    c143:
-    mov black_in_check, 1
 
-    c142:
-    pusha
-    call ClearMoves
-    popa
+    
+    c197:
+    cmp dl, 'b'
+    je c230
 
-    c144:
+    mov dl, 'b'
+    mov cx, -1
+    
+    jmp c161
+    
+    c230:
 
-    ; add si, 2
-    ; add al, 1
-
-    ; cmp al, 8
-    ; je c145
-    ; jmp c121
-
-    ; c145:
-    ; mov al, 0
-    ; add ah, 1
-
-    ; cmp ah, 8
-    ; je c146
-    ; jmp c121
-
-    c146:
-
-    pop dx
-    mov player_no, dl
+    call drawStatusBar
     ret
+
 getChecks endp
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -997,64 +1301,6 @@ drawCapturedPiece proc far
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Draw Status Bar ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-drawStatusBar proc far
-
-mov dh, 24
-mov dl, 0
-mov bh, 0
-mov ah, 2
-int 10h
-
-
-cmp winner, 1 ;;black
-jne c203
-mov dx, offset blackWins
-mov ah, 9
-int 21h
-jmp c204
-
-c203:
-cmp winner, 2 ;;white
-jne c204
-mov dx, offset whiteWins
-mov ah, 9
-int 21h
-
-c204:
-cmp white_in_check, 1
-jne c131
-mov dx, offset wMsg
-mov ah, 9
-int 21h
-
-mov dx, offset checkedMsg
-mov ah, 9
-int 21h
-
-c131:
-cmp black_in_check, 1
-jne c132
-
-mov dx, offset bMsg
-mov ah, 9
-int 21h
-
-mov dx, offset checkedMsg
-mov ah, 9
-int 21h
-
-c132:
-ret
-
-drawStatusBar endp
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Print Game Timer ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1284,7 +1530,7 @@ call printGameTimer
 
 game: 
 
-call drawStatusBar
+;call drawStatusBar
 mov ah, 86h
 mov cx, 0
 mov dx, 1
@@ -2009,7 +2255,7 @@ pop ax
 
     call drawCapturedPiece
 
-    ;call getChecks
+    call getChecks
 
     ;; Updating the UI
     ;;Source Rect
@@ -2376,7 +2622,7 @@ pop ax
 
     call drawCapturedPiece
 
-    ;call getChecks
+    call getChecks
     ;; Updating the UI
     ;;Source Rect
     mov ax, cell_clicked_x_p2
@@ -2521,21 +2767,21 @@ jz l
 jmp game
 l:
 
-cmp winner, 1 ;;Black
-jne c200
-mov ah, 9
-mov dx, offset blackWins
-int 21h
-jmp c201
+; cmp winner, 1 ;;Black
+; jne c200
+; mov ah, 9
+; mov dx, offset blackWins
+; int 21h
+; jmp c201
 
-c200:
-cmp winner, 2 ;;white
-jne c202
-mov ah, 9
-mov dx, offset whiteWins
-int 21h
+; c200:
+; cmp winner, 2 ;;white
+; jne c202
+; mov ah, 9
+; mov dx, offset whiteWins
+; int 21h
 
-c201:
+; c201:
 
 mov cx, 2Dh
 mov dx, 0C6C0h

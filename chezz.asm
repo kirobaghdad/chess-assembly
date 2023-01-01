@@ -36,6 +36,9 @@
     ;; Validate File
     extrn validateMove:far
     extrn allowed:byte
+
+    ;; Main File
+    extrn receivedRequest:byte
 ;;
 
 ;; Public Data
@@ -142,6 +145,8 @@
 
     white_king_pos dw 0805h
     black_king_pos dw 0105h
+
+    me db 0
 ;;
 
 
@@ -1048,15 +1053,6 @@ mov bp, bx ;; Maintain bx (Image Offset)
 mov ah, 0dh
 int 10h
 
-; push ax
-; push dx
-; mov ah, 2
-; mov dl, al
-; add dl, 48d
-; int 21h
-; pop dx
-; pop ax
-
 MOV AH,0ch
 mov si, ax
 
@@ -1227,10 +1223,6 @@ drawCapturedPiece proc far
     jne c113
     mov di, offset black_pawn
     draw black_captured_x, black_captured_y, di
-
-    ; mov dl, 48d
-    ; mov ah, 2
-    ; int 21h
 
     add black_captured_y, 22
     jmp c102    
@@ -1555,6 +1547,8 @@ jz c247
 mov dx, 3f8h
 in al, dx
 
+
+mov me, 0
 jmp c246
 
 c247:
@@ -1563,6 +1557,7 @@ int 16h
 
 jz game
 
+mov me, 1 ;; True
 
 call sendChar
 
@@ -1585,6 +1580,20 @@ c246:
     jmp m1
 
     c2:
+    cmp receivedRequest, 1  ;;Black
+    jne c258
+
+    cmp me, 1
+    je c257
+    jmp game
+
+    c258:
+    cmp me,0
+    je c257
+    jmp game
+
+
+    c257:
     cmp curr_marked_x_val, 8
     jne c10
     jmp game
@@ -1644,6 +1653,20 @@ c246:
     jmp m2
 
     c4:
+    cmp receivedRequest, 1  ;;Black
+    jne c260
+
+    cmp me, 1
+    je c259
+    jmp game
+
+    c260:
+    cmp me,0
+    je c259
+    jmp game
+
+
+    c259:
     cmp curr_marked_y_val, 1
     jne c11
     jmp game
@@ -1704,6 +1727,20 @@ c246:
     jmp m3        ;move down
 
     c7:
+    cmp receivedRequest, 1  ;;Black
+    jne c262
+
+    cmp me, 1
+    je c261
+    jmp game
+
+    c262:
+    cmp me,0
+    je c261
+    jmp game
+
+
+    c261:
     cmp curr_marked_y_val, 8
     jne c12
     jmp game
@@ -1763,6 +1800,20 @@ c246:
     jmp m4
 
     c8:
+    cmp receivedRequest, 1  ;;Black
+    jne c264
+
+    cmp me, 1
+    je c263
+    jmp game
+
+    c264:
+    cmp me,0
+    je c263
+    jmp game
+
+
+    c263:
     cmp curr_marked_x_val, 1
     jne c13
     jmp game
@@ -1824,6 +1875,20 @@ c246:
     jmp m11
 
     c20:
+    cmp receivedRequest, 0  ;; White
+    jne c266
+
+    cmp me, 1
+    je c265
+    jmp game
+
+    c266:
+    cmp me,0
+    je c265
+    jmp game
+
+
+    c265:
     cmp curr_marked_x_val_p2, 8
     jne c100
     jmp game
@@ -1884,6 +1949,20 @@ c246:
     jmp m22
 
     c40:
+    cmp receivedRequest, 0  ;; White
+    jne c268
+
+    cmp me, 1
+    je c267
+    jmp game
+
+    c268:
+    cmp me,0
+    je c267
+    jmp game
+
+
+    c267:
     cmp curr_marked_y_val_p2, 1
     jne c110
     jmp game
@@ -1944,6 +2023,20 @@ c246:
     jmp m33        ;move down
 
     c70:
+    cmp receivedRequest, 0  ;; White
+    jne c270
+
+    cmp me, 1
+    je c269
+    jmp game
+
+    c270:
+    cmp me,0
+    je c269
+    jmp game
+
+
+    c269:
     cmp curr_marked_y_val_p2, 8
     jne c120
     jmp game
@@ -2003,6 +2096,20 @@ c246:
     jmp m44
 
     c88:
+    cmp receivedRequest, 0  ;; White
+    jne c272
+
+    cmp me, 1
+    je c271
+    jmp game
+
+    c272:
+    cmp me,0
+    je c271
+    jmp game
+
+
+    c271:
     cmp curr_marked_x_val_p2, 1
     jne c130
     jmp game
@@ -2062,6 +2169,20 @@ c246:
     jmp m5
 
     c15:
+    cmp receivedRequest, 1 ;; Black
+    jne c274
+
+    cmp me, 1
+    je c273
+    jmp game
+
+    c274:
+    cmp me,0
+    je c273
+    jmp game
+
+
+    c273:
     cmp cell_clicked_x, 0
     jz c18
     jmp c16
@@ -2096,9 +2217,6 @@ c246:
     div cl
     mov si, ax
 
-    ; mov ah, 2
-    ; mov dl, time[si]
-    ; int 21h
     pop ax
 
     cmp time[si], 0
@@ -2378,20 +2496,21 @@ c246:
     jmp m6
     c57:
 
-    ; mov ax, curr_marked_y_val_p2
-    ; dec ax
-    ; shl ax, 8
-
-    ; add ax, curr_marked_x_val_p2
-    ; dec ax
-
-    ; call getIndex
-    
-    ; cmp grid[bx], 'w'
-    ; je c150
-    ; jmp game
-
     c150:
+    cmp receivedRequest, 0 ;; White
+    jne c276
+
+    cmp me, 1
+    je c275
+    jmp game
+
+    c276:
+    cmp me,0
+    je c275
+    jmp game
+
+
+    c275:
     cmp cell_clicked_x_p2, 0
     jz c180
     jmp c160
@@ -2426,10 +2545,6 @@ c246:
     div cl
     mov si, ax
 
-    ; mov ah, 2
-    ; mov dl, time[si]
-    ; add dl, 48d
-    ; int 21h
     pop ax
 
     cmp time[si], 0

@@ -1,5 +1,7 @@
 .186
 extrn chezz:far
+public receivedRequest
+
 
 pushAll macro  
 push ax

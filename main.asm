@@ -82,7 +82,40 @@ f4 equ 3eh
 escape equ 1bh ;;Ascii
 username db 15 dup('$')
 welcomeMsg db "Hello, "
+receivedRequest db 0
 .code
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Start Communication ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+startCommunication proc far
+    pushAll
+    ; initinalize COM
+    ;Set Divisor Latch Access Bit
+    mov dx,3fbh 			; Line Control Register
+    mov al,10000000b		;Set Divisor Latch Access Bit
+    out dx,al				;Out it
+    ;Set LSB byte of the Baud Rate Divisor Latch register.
+    mov dx,3f8h			
+    mov al,0ch			
+    out dx,al
+
+    ;Set MSB byte of the Baud Rate Divisor Latch register.
+    mov dx,3f9h
+    mov al,00h
+    out dx,al
+
+    ;Set port configuration
+    mov dx,3fbh
+    mov al,00011011b
+    out dx,al
+    popAll
+    ret
+startCommunication endp
+
+
 start:
     mov ax, @data 
     mov ds, ax
@@ -92,6 +125,8 @@ start:
     mov ah, 00d
     mov al, 03d
     int 10h
+
+    call startCommunication
 
     getNameScreen:
     mov al, 1
@@ -179,6 +214,35 @@ start:
     mov al, 03d
     int 10h
 
+    ;;Receive
+    pushAll
+    mov dx, 3fdh
+
+    in al, dx
+    and al, 1
+    jz c250
+
+    ;;Get Data
+    mov dx, 3f8h
+    in al, dx
+        
+    pushAll
+    mov dh, 0
+    mov dl, 0
+    mov bh, 0
+    mov ah, 2
+    int 10h
+
+    mov dl, al
+    add dl, 48d
+    mov ah, 2
+    int 21h
+    popAll
+
+    mov receivedRequest, al
+
+    c250:
+    popAll
 
     ;; Select Page (0)
     mov ah, 05h
@@ -230,7 +294,7 @@ start:
     je movToChattingMode
     ; is f2 
     cmp ah, f2
-    je toGameMode
+    je sendRequest
     ; is esc
     cmp al, escape
     jne getInputLoop
@@ -259,6 +323,16 @@ start:
         jne c0
         jmp main
         
+    sendRequest:
+         ;; Sending a Request
+        cmp receivedRequest, 1
+        je toGameMode
+        pushAll
+        mov dx , 3F8H
+        mov ax, 1
+        out dx , al
+        popAll
+        jmp main
 
 
     ; game page ah = f2 (scancode)

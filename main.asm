@@ -1,3 +1,4 @@
+.186
 extrn chezz:far
 
 pushAll macro  
@@ -16,50 +17,47 @@ pop dx
 pop cx
 pop bx
 pop ax 
-endm popAlls
+endm popAll
 
 flushKeyboardBuffer MACRO
-    pushAll
+    pusha
     mov al, 0 
     mov ah, 0ch
     int 21h
-    popAll
+    popa
 ENDM
 
 getInputAsync MACRO
-    local InputLoop
-    InputLoop:
     mov ah, 1
     int 16h 
-    jz InputLoop
-    
+
     flushKeyboardBuffer
 ENDM
 
 
 printString MACRO strMsg
-    pushAll
+    pusha
     mov ah, 9d
     mov dx, offset strMsg
     int 21h
-    popAll
+    popa
 ENDM
 newLine MACRO 
-    pushAll
+    pusha
     mov ah, 02d
     mov dl, 0Ah
     int 21h
-    popAll
+    popa
 ENDM
 
 movecursor macro x, y
-    pushAll
+    pusha
     mov ah, 02h
     mov bh, 0
     mov dh, x
     mov dl, y
     int 10h
-    popAll    
+    popa    
 endm movecursor
 
 
@@ -91,7 +89,7 @@ receivedRequest db 0
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 startCommunication proc far
-    pushAll
+    pusha
     ; initinalize COM
     ;Set Divisor Latch Access Bit
     mov dx,3fbh 			; Line Control Register
@@ -111,7 +109,7 @@ startCommunication proc far
     mov dx,3fbh
     mov al,00011011b
     out dx,al
-    popAll
+    popa
     ret
 startCommunication endp
 
@@ -214,36 +212,6 @@ start:
     mov al, 03d
     int 10h
 
-    ;;Receive
-    pushAll
-    mov dx, 3fdh
-
-    in al, dx
-    and al, 1
-    jz c250
-
-    ;;Get Data
-    mov dx, 3f8h
-    in al, dx
-        
-    pushAll
-    mov dh, 0
-    mov dl, 0
-    mov bh, 0
-    mov ah, 2
-    int 10h
-
-    mov dl, al
-    add dl, 48d
-    mov ah, 2
-    int 21h
-    popAll
-
-    mov receivedRequest, al
-
-    c250:
-    popAll
-
     ;; Select Page (0)
     mov ah, 05h
     mov al, 0
@@ -271,7 +239,6 @@ start:
     lea dx, username
     int 21h
 
-
     call movCursorToMiddle
     printString StartChattingPrompt
     newLine
@@ -283,12 +250,58 @@ start:
     call movCursorToMiddle
     printString EndProgramPrompt 
     newLine
+
+    mov dh, 0
+    mov dl, 0
+    mov bh, 0
+    mov ah, 2
+    int 10h
+
+    c251:
+    ;;Receive
+    pusha
+    mov dx, 3fdh
+
+    in al, dx
+    and al, 1
+    jz c250
+
+    ;;Get Data
+    mov dx, 3f8h
+    in al, dx
+
+    cmp al, 2 ;; Request
+    je c255
+    jmp c256
+
+    c255:
+    popa 
+    jmp toGameMode
+
+    c256:
+    pusha
+    mov dh, 0
+    mov dl, 0
+    mov bh, 0
+    mov ah, 2
+    int 10h
+
+    mov dl, al
+    add dl, 48d
+    mov ah, 2
+    int 21h
+    popa
+
+    mov receivedRequest, al
+
+    c250:
+    popa
+
     ; navigation to another page
     getInputLoop: 
 
     getInputAsync
 
-    flushKeyboardBuffer
     ; is f1
     cmp ah, f1
     je movToChattingMode
@@ -297,8 +310,10 @@ start:
     je sendRequest
     ; is esc
     cmp al, escape
-    jne getInputLoop
-    jmp near ptr toClose
+    jne c252
+    jmp toClose
+    c252:
+    jmp c251
 
     ; chatting page ah = f1 (scancode)
     movToChattingMode:
@@ -324,15 +339,37 @@ start:
         jmp main
         
     sendRequest:
-         ;; Sending a Request
+
+        pusha
+        mov dh, 0
+        mov dl, 7
+        mov bh, 0
+        mov ah, 2
+        int 10h
+
+        mov dl, receivedRequest
+        add dl, 48d
+        mov ah, 2
+        int 21h
+        popa
+ 
+        pusha
+        mov dx , 3F8H
+        cmp receivedRequest, 1 ;; Send Confiramtion
+        je c253
+        mov ax, 1  ;; Send Request
+        jmp c254
+        c253:
+        mov ax, 2 ;; Send Confiramtion
+        c254:
+        out dx , al
+        popa
+
+        ;; Sending a Request
         cmp receivedRequest, 1
         je toGameMode
-        pushAll
-        mov dx , 3F8H
-        mov ax, 1
-        out dx , al
-        popAll
-        jmp main
+
+        jmp c251
 
 
     ; game page ah = f2 (scancode)
@@ -374,7 +411,7 @@ start:
         int 21h
 
     movCursorToMiddle: 
-    pushAll 
+    pusha 
     ; dh : (row vertical) , dl : (column horizontal)
     mov ah, 03d
     mov bh, 00d 
@@ -387,7 +424,7 @@ start:
     mov dl, 27d
     mov ah, 02d
     int 10h
-    popAll
+    popa
     ret
 end start    
 .end

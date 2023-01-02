@@ -17,8 +17,8 @@ End_Of_His_Chat	    equ 16h
 MyChar		    db ?
 HisChar		    db ?
 
-MyCursorLoc	    dw 0200h
-HisCursorLoc  dw 0d00h
+MyCursorLoc	    dw 0201h
+HisCursorLoc  dw 0d01h
 
 ;; Display Messages
 QuitMsg		    db 'To end chatting press F3$'
@@ -65,7 +65,7 @@ ScrollMyChat	proc far
 	loop loop1
     
 
-	mov dx, 0a00h
+	mov dx, 0a01h
 	
 	pop si	
 	pop di
@@ -105,7 +105,7 @@ ScrollHisChat	proc
 	mov cx, 80
 	Loop2:
 	    mov ah,2
-	    mov dh,16h
+	    mov dh,15h
 	    mov dl, cl
 	    int 10h
 
@@ -116,7 +116,7 @@ ScrollHisChat	proc
 	loop loop2
     
 
-	mov dx, 1600h
+	mov dx, 1501h
 
 	pop si	
 	pop di
@@ -157,6 +157,7 @@ Chat proc far
 		mov dl, 0
 		inc dh
 		mov MyCursorLoc, dx
+		jmp c325
 
 		c320:
 		MoveCursor MyCursorLoc
@@ -170,6 +171,8 @@ Chat proc far
 		
 		mov dl, 0 ;; Col
 		inc dh ;;Row
+
+		mov MyCursorLoc, dx
 		
 		c325:
 		cmp dh, End_Of_My_Chat
@@ -208,6 +211,7 @@ Chat proc far
 		mov dl, 0
 		inc dh
 		mov HisCursorLoc, dx
+		jmp c326
 
 		c321:
 		MoveCursor HisCursorLoc
@@ -221,31 +225,29 @@ Chat proc far
 		
 		mov dl, 0
 		inc dh
+		mov HisCursorLoc, dx
 
 		c326:
 		cmp dh, End_Of_His_Chat
 		jl NotEndOfline2
-		
 
 		call ScrollHisChat
 
-		mov dh, END_OF_His_Chat
-		mov dl, 0
+		; mov dh, END_OF_His_Chat
+		; mov dl, 0
 
 		jmp endreceive
 
 		NotEndOfline2:
 		
-		    inc dl
+		inc dl ;; Col
 		
 		endreceive:
-		    mov HisCursorLoc, dx
+		mov HisCursorLoc, dx
 
 		jmp Sending
 
-		
-
-
+	
 
 	EndChat:
 	    WaitForSerialOutput

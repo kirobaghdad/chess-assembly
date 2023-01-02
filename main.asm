@@ -1,7 +1,10 @@
 .186
 extrn chezz:far
+extrn Chat:far
 public receivedRequest
-
+public Name1
+public Name2 
+public sprtr
 
 pushAll macro  
 push ax
@@ -83,6 +86,11 @@ escape equ 1bh ;;Ascii
 username db 15 dup('$')
 welcomeMsg db "Hello, "
 receivedRequest db 0
+Name1 db "Walled", '$'
+Name2 db "Kiro", '$'
+sprtr db " ", '$'
+
+allowedName db 0
 .code
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -115,20 +123,75 @@ startCommunication proc far
     ret
 startCommunication endp
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; validate Name ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+validateName proc far
+    pusha
+    mov dl, username[0]
+
+    cmp dl, 'A'
+    jae c330
+    mov allowedName, 0
+    jmp c331
+
+    c330:
+    cmp dl, 'Z'
+    ja c332
+    mov allowedName, 1
+    jmp c331
+
+    c332:
+    cmp dl, 'a'
+    jb c331
+    mov allowedName, 1
+
+    c331:
+    popa
+    ret
+validateName endp
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; clear Name ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+clearName proc far
+
+    mov bx, 0
+
+    c240:
+    cmp username[bx], '$'
+    je c241
+    mov username[bx], '$'
+    inc bx
+    jmp c240
+
+    c241:
+    ret
+clearName endp
 
 start:
     mov ax, @data 
     mov ds, ax
     mov es, ax
 
+
+    call startCommunication
+
+    getNameScreen:
+    mov allowedName, 0
     ; set text mode 80x25 16 color text mode  
     mov ah, 00d
     mov al, 03d
     int 10h
 
-    call startCommunication
+    call clearName
 
-    getNameScreen:
     mov al, 1
     mov bh, 0
     mov bl, 1
@@ -156,7 +219,7 @@ start:
 
     ;;Pressed Enter
     cmp al, 13d
-    je printEnterPrompt
+    je validate
 
     mov [si], al
     inc si
@@ -170,6 +233,16 @@ start:
     int 21h
 
     jmp getName
+
+    validate:
+    ;;Flushing the Buffer
+    mov ah, 0ch
+    int 21h
+    
+    call validateName
+
+    cmp allowedName, 1
+    jne getNameScreen
 
 
     printEnterPrompt:
@@ -330,14 +403,15 @@ start:
         mov ah, 05h
         mov al, 1
         int 10h
-        printString inChatStr
+        ; printString inChatStr
+        call Chat
 
-        c0:
-        ;;printString inChatStr
-        getInputAsync
-        flushKeyboardBuffer
-        cmp ah, F3
-        jne c0
+        ; c0:
+        ; ;;printString inChatStr
+        ; getInputAsync
+        ; flushKeyboardBuffer
+        ; cmp ah, F3
+        ; jne c0
         jmp main
         
     sendRequest:

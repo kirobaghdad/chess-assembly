@@ -148,10 +148,9 @@ local add_square_val , add_square_val_2
 
 pusha
 
-;(Board Position)
-;; what are these numbers;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;(Board Position);;;;;;;;;;;
 mov cx,50
-mov dx,-10
+mov dx,-22
 
 mov si,row_x
 mov di,col_y

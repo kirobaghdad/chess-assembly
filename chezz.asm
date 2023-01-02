@@ -97,16 +97,16 @@
     get_cell_x dw ?
     get_cell_y dw ?
 
-    ;;To be Updated (Board Position)
+    ;;To be Updated (Board Position);;;;;;;;;;;;;;
     curr_marked_x_pixel dw 138
-    curr_marked_y_pixel dw 34
+    curr_marked_y_pixel dw 22
     ;;;;;;;
 
     curr_marked_x_val dw 4
     curr_marked_y_val dw 2
 
     curr_marked_x_pixel_p2 dw 138
-    curr_marked_y_pixel_p2 dw 144
+    curr_marked_y_pixel_p2 dw 132
     ;;;;;;;
 
     curr_marked_x_val_p2 dw 4
@@ -147,6 +147,8 @@
     black_king_pos dw 0105h
 
     me db 0
+    myMsg db 16 dup('$')
+    yourMsg db 16 dup('$')
 ;;
 
 
@@ -271,10 +273,9 @@ local add_square_val , add_square_val_2
 
 pusha
 
-;(Board Position)
-;; what are these numbers;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;(Board Position) ;;;;;;;;;;;
 mov cx,51
-mov dx,-9
+mov dx,-21
 
 mov si,row_x
 mov di,col_y
@@ -307,18 +308,13 @@ pusha
 
 mov al, 6h ;Brown
 
-DrawRectangle 0, 0, 320, 12
+DrawRectangle 0, 0, 72, 176
 
-DrawRectangle 0, 12, 72, 188
-
-DrawRectangle 248, 12, 320, 188
-
-;DrawRectangle 0, 188, 320, 200
+DrawRectangle 248, 0, 320, 176
 
 
-
-mov y0, 12 
-mov y1, 34
+mov y0, 0
+mov y1, 22
 
 mov al, 07h ;light gray
 
@@ -344,7 +340,7 @@ con:
 add y0, 22
 add y1, 22
 
-cmp y0, 188
+cmp y0, 176
 
 je con1
 jmp col
@@ -542,12 +538,14 @@ initializeVars endp
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 drawStatusBar proc far
-
+;; Lower Line 
+;; Mov Cursor
 mov dh, 24
 mov dl, 0
 mov bh, 0
 mov ah, 2
 int 10h
+
 
 mov ah, 0eh
 mov al, ' '
@@ -1030,6 +1028,56 @@ getChecks endp
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Draw Msgs ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+drawMsgs proc far
+;; Upper Line
+
+;; My Msg
+mov dh, 23
+mov dl, 0
+mov bh, 0
+mov ah, 2
+int 10h
+
+c300:
+mov al, ' '
+mov ah, 0eh
+int 10h
+inc dl
+cmp dl, 40
+jne c300
+
+mov dh, 23
+mov dl, 0
+mov bh, 0
+mov ah, 2
+int 10h
+
+mov dx, offset myMsg
+mov ah, 9
+int 21h
+
+;; Your Msg
+mov dh, 23
+mov dl, 22
+mov bh, 0
+mov ah, 2
+int 10h
+
+
+mov dx, offset yourMsg
+mov ah, 9
+int 21h
+
+
+ret
+drawMsgs endp
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Draw Proc ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1432,12 +1480,12 @@ drawHighlight endp
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 sendChar proc far
-pusha
+    pusha
     mov dx , 3F8H		; Transmit data register
 
     out dx , al
 
-popa
+    popa
 ret
 sendChar endp
 
@@ -1516,7 +1564,7 @@ draw_pieces_in_grid
 call printGameTimer
 
 game: 
-
+;call drawMsgs
 mov ah, 86h
 mov cx, 0
 mov dx, 1
@@ -1547,7 +1595,6 @@ jz c247
 mov dx, 3f8h
 in al, dx
 
-
 mov me, 0
 jmp c246
 
@@ -1575,7 +1622,7 @@ c246:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-    cmp al,'d'     ;move right
+    cmp al, '6'     ;move right
     jz c2
     jmp m1
 
@@ -1585,12 +1632,12 @@ c246:
 
     cmp me, 1
     je c257
-    jmp game
+    jmp m1
 
-    c258:
+    c258: ;;White
     cmp me,0
     je c257
-    jmp game
+    jmp m1
 
 
     c257:
@@ -1648,7 +1695,7 @@ c246:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
     m1:
-    cmp al,'w'  ;;;Move Up
+    cmp al, '8' ;;;Move Up
     jz c4
     jmp m2
 
@@ -1658,12 +1705,12 @@ c246:
 
     cmp me, 1
     je c259
-    jmp game
+    jmp m2
 
     c260:
     cmp me,0
     je c259
-    jmp game
+    jmp m2
 
 
     c259:
@@ -1722,7 +1769,7 @@ c246:
 
 
     m2:
-    cmp al,'s'
+    cmp al, '5'
     jz c7
     jmp m3        ;move down
 
@@ -1732,12 +1779,12 @@ c246:
 
     cmp me, 1
     je c261
-    jmp game
+    jmp m3
 
     c262:
     cmp me,0
     je c261
-    jmp game
+    jmp m3
 
 
     c261:
@@ -1795,7 +1842,7 @@ c246:
 
 
     m3:
-    cmp al,'a'
+    cmp al, '4'
     jz c8         ;move left
     jmp m4
 
@@ -1805,12 +1852,12 @@ c246:
 
     cmp me, 1
     je c263
-    jmp game
+    jmp m4
 
     c264:
     cmp me,0
     je c263
-    jmp game
+    jmp m4
 
 
     c263:
@@ -1870,7 +1917,7 @@ c246:
 
 
     m4:
-    cmp al,'6'     ;move right
+    cmp al, '6' ;move right
     jz c20
     jmp m11
 
@@ -1880,12 +1927,12 @@ c246:
 
     cmp me, 1
     je c265
-    jmp game
+    jmp m11
 
     c266:
     cmp me,0
     je c265
-    jmp game
+    jmp m11
 
 
     c265:
@@ -1944,7 +1991,7 @@ c246:
 
 
     m11:
-    cmp al,'8'  ;;;Move Up
+    cmp al, '8' ;;;Move Up
     jz c40
     jmp m22
 
@@ -1954,12 +2001,12 @@ c246:
 
     cmp me, 1
     je c267
-    jmp game
+    jmp m22
 
     c268:
     cmp me,0
     je c267
-    jmp game
+    jmp m22
 
 
     c267:
@@ -2018,7 +2065,7 @@ c246:
 
 
     m22:
-    cmp al,'5'
+    cmp al, '5'
     jz c70
     jmp m33        ;move down
 
@@ -2028,12 +2075,12 @@ c246:
 
     cmp me, 1
     je c269
-    jmp game
+    jmp m33
 
     c270:
     cmp me,0
     je c269
-    jmp game
+    jmp m33
 
 
     c269:
@@ -2091,7 +2138,7 @@ c246:
 
 
     m33:
-    cmp al,'4'
+    cmp al, '4'
     jz c88         ;move left
     jmp m44
 
@@ -2101,12 +2148,12 @@ c246:
 
     cmp me, 1
     je c271
-    jmp game
+    jmp m44
 
     c272:
     cmp me,0
     je c271
-    jmp game
+    jmp m44
 
 
     c271:
@@ -2164,7 +2211,7 @@ c246:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
     m44:
-    cmp al,'q'         ; source
+    cmp al, '0'         ; source
     jz c15
     jmp m5
 
@@ -2174,12 +2221,12 @@ c246:
 
     cmp me, 1
     je c273
-    jmp game
+    jmp m5
 
     c274:
     cmp me,0
     je c273
-    jmp game
+    jmp m5
 
 
     c273:
@@ -2363,7 +2410,7 @@ c246:
 
     c21:
 
-    ;;To be updated (Board Position)
+    ;;To be updated (Board Position);;;;;;
     push ax
     ; bx -> (X) start
     mov ax, cell_clicked_x
@@ -2372,7 +2419,7 @@ c246:
     mov cl, 22
     mul cl
 
-    add ax, 72 ;; (Board Position)
+    add ax, 72 ;; (Board Position);;;;;;;;;;;;
     mov bx, ax
 
     ; bp -> (X) end
@@ -2386,7 +2433,7 @@ c246:
     mov cl, 22
     mul cl
 
-    add ax, 12  ;; (Board Position)
+    add ax, 0 ;; (Board Position);;;;;;;;;;;;;;;
     mov si, ax
 
     ; di -> (Y) end
@@ -2489,9 +2536,8 @@ c246:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
     m5:
-    cmp al,'p'         ; source
+    cmp al,'0'         ; source
     jz c57
     jmp m6
     c57:
@@ -2502,12 +2548,12 @@ c246:
 
     cmp me, 1
     je c275
-    jmp game
+    jmp m6
 
     c276:
     cmp me,0
     je c275
-    jmp game
+    jmp m6
 
 
     c275:
@@ -2683,7 +2729,7 @@ c246:
 
     c210:
 
-    ;;To be updated (Board Position)
+    ;;To be updated (Board Position);;;;;;;;;;;;;;;;
     push ax
     ; bx -> (X) start
     mov ax, cell_clicked_x_p2
@@ -2692,7 +2738,7 @@ c246:
     mov cl, 22
     mul cl
 
-    add ax, 72 ;; (Board Position)
+    add ax, 72 ;; (Board Position);;;;;;;;;;;;;;;;
     mov bx, ax
 
     ; bp -> (X) end
@@ -2706,7 +2752,7 @@ c246:
     mov cl, 22
     mul cl
 
-    add ax, 12  ;; (Board Position)
+    add ax, 0  ;; (Board Position);;;;;;;;;;;;;;;;;
     mov si, ax
 
     ; di -> (Y) end
@@ -2801,29 +2847,109 @@ c246:
     jmp game
 ;;
 
+
+;; My Message
 m6:
+; cmp al, 33d
+; jge c298
+; jmp game
 
-cmp al,'9'
-jz l
+; c298:
+; cmp al, 126d
+; jle c299
+; jmp game
+
+c299:
+cmp al, '9'
+jne c291
+jmp l
+
+c291:
+cmp me, 0 ;; Not Me
+je m7
+
+cmp al, 13d
+je c292
+
+mov bx, 0
+
+c282:
+cmp myMsg[bx], '$'
+je c281
+inc bx
+jmp c282
+
+c281:
+cmp bx, 15d
+je c292
+
+mov myMsg[bx], al
+jmp c294
+
+;;;;;;;;;;;;;;;;
+c292:
+mov bx, 0
+
+c293:
+cmp myMsg[bx], '$'
+je c294
+mov myMsg[bx], '$'
+inc bx
+jmp c293
+
+c294:
+
+call drawMsgs
+
 jmp game
+
+
+;; your Message
+m7:
+cmp al, 13d
+je c295
+
+mov bx, 0
+
+c288:
+cmp yourMsg[bx], '$'
+je c289
+inc bx
+jmp c288
+
+c289:
+cmp bx, 15d
+je c295
+mov yourMsg[bx], al
+jmp c297
+
+;;;;;;;
+c295:
+mov bx, 0
+
+c296:
+cmp yourMsg[bx], '$'
+je c297
+mov yourMsg[bx], '$'
+inc bx
+jmp c296
+
+
+c297:
+call drawMsgs
+
+jmp game
+
+
+
+; m8:
+; cmp al,'9'
+; jz l
+; jmp game
+
+
+;; Exiting the Game
 l:
-
-; cmp winner, 1 ;;Black
-; jne c200
-; mov ah, 9
-; mov dx, offset blackWins
-; int 21h
-; jmp c201
-
-; c200:
-; cmp winner, 2 ;;white
-; jne c202
-; mov ah, 9
-; mov dx, offset whiteWins
-; int 21h
-
-; c201:
-
 mov cx, 2Dh
 mov dx, 0C6C0h
 
